@@ -122,15 +122,43 @@ $LegacyZip = Join-Path $ProjectDir "Monolith-v$Version.zip"  # legacy bridge (= 
 #     FIVEPOINT8 does not contain these, so the toggle is a harmless no-op there.
 $ExcludeProjectPlugins = @('HordeForge', 'OptimizedGASP')
 
+# Auto-detect the host project and Engine Version for the primary build
+$UProjectFile = Get-ChildItem -Path $ProjectDir -Filter "*.uproject" | Select-Object -First 1
+if (-not $UProjectFile) {
+    Write-Host "`n  [FAIL] No .uproject found in $ProjectDir. The script must be run from inside a host project's Plugins\Monolith\Scripts folder." -ForegroundColor Red
+    exit 1
+}
+$HostProjectName = $UProjectFile.BaseName
+$UProjectData = Get-Content $UProjectFile.FullName -Raw | ConvertFrom-Json
+$HostEngineAssoc = $UProjectData.EngineAssociation
+if (-not $HostEngineAssoc) {
+    Write-Host "`n  [FAIL] No EngineAssociation found in $($UProjectFile.Name)." -ForegroundColor Red
+    exit 1
+}
+
+$HostEngineRoot = $null
+$RegPath = "HKLM:\SOFTWARE\EpicGames\Unreal Engine\$HostEngineAssoc"
+if (Test-Path $RegPath) {
+    $HostEngineRoot = (Get-ItemProperty $RegPath).InstalledDirectory
+} else {
+    $Fallbacks = @("C:\Program Files\Epic Games\UE_$HostEngineAssoc", "C:\Program Files (x86)\Epic Games\UE_$HostEngineAssoc", "C:\Program Files (x86)\UE_$HostEngineAssoc")
+    foreach ($path in $Fallbacks) { if (Test-Path $path) { $HostEngineRoot = $path; break } }
+}
+if (-not $HostEngineRoot) {
+    Write-Host "`n  [FAIL] Could not locate Unreal Engine $HostEngineAssoc installation." -ForegroundColor Red
+    exit 1
+}
+$HostUBTPath = Join-Path $HostEngineRoot "Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.exe"
+
 $EngineMatrix = @(
     [PSCustomObject]@{
-        Tag        = "UE5.7"                               # asset/marker engine tag
-        UBT        = 'C:\Program Files (x86)\UE_5.7\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.exe'
-        Target     = "MonolithEditor"
+        Tag        = "UE$HostEngineAssoc"                             # asset/marker engine tag
+        UBT        = $HostUBTPath
+        Target     = "${HostProjectName}Editor"
         ProjectDir = $ProjectDir                            # this Monolith dev-master
-        UProject   = (Join-Path $ProjectDir "Monolith.uproject")
+        UProject   = $UProjectFile.FullName
         PluginDir  = $PluginDir                             # this repo's Plugins/Monolith
-        Zip        = (Join-Path $ProjectDir "Monolith-v$Version-UE5.7.zip")
+        Zip        = (Join-Path $ProjectDir "Monolith-v$Version-UE$HostEngineAssoc.zip")
         IsLegacy   = $true                                  # this zip seeds the legacy bridge
     },
     [PSCustomObject]@{
@@ -145,7 +173,7 @@ $EngineMatrix = @(
     }
 )
 
-if ($SkipUE58) {
+if ($SkipUE58 -or -not (Test-Path 'D:\Unreal Projects\FIVEPOINT8')) {
     $EngineMatrix = $EngineMatrix | Where-Object { $_.Tag -ne "UE5.8" }
 }
 
@@ -905,12 +933,12 @@ if ($LegacyEngine) {
     # the UE5.7 pinned hash. Recompute to be explicit (and to detect a copy that failed).
     $LegacyHash = (Get-FileHash -Algorithm SHA256 -Path $LegacyZip).Hash.ToLower()
     if ($EngineHashes[$LegacyEngine.Tag] -and $LegacyHash -ne $EngineHashes[$LegacyEngine.Tag]) {
-        Write-Host "`n  [FAIL] Legacy bridge zip hash does not match the smoked UE5.7 zip." -ForegroundColor Red
-        Write-Host "    UE5.7 smoked: $($EngineHashes[$LegacyEngine.Tag])" -ForegroundColor Red
+        Write-Host "`n  [FAIL] Legacy bridge zip hash does not match the smoked $($LegacyEngine.Tag) zip." -ForegroundColor Red
+        Write-Host "    $($LegacyEngine.Tag) smoked: $($EngineHashes[$LegacyEngine.Tag])" -ForegroundColor Red
         Write-Host "    legacy copy:  $LegacyHash" -ForegroundColor Red
         exit 1
     }
-    Write-Host "`n  [legacy] Bridge zip written: $LegacyZip (= UE5.7 copy)" -ForegroundColor Green
+    Write-Host "`n  [legacy] Bridge zip written: $LegacyZip (= $($LegacyEngine.Tag) copy)" -ForegroundColor Green
 }
 
 # --- Cleanup shared temp ---
@@ -942,7 +970,7 @@ foreach ($eng in $EngineMatrix) {
     }
 }
 if ($LegacyHash) {
-    Write-Host "  $($LegacyZip | Split-Path -Leaf)  (legacy bridge = UE5.7 copy)" -ForegroundColor Green
+    Write-Host "  $($LegacyZip | Split-Path -Leaf)  (legacy bridge = $($LegacyEngine.Tag) copy)" -ForegroundColor Green
 }
 Write-Host ""
 Write-Host "Paste these EXACT lines into the GitHub Release notes body:" -ForegroundColor Yellow
@@ -961,7 +989,7 @@ if ($LegacyHash) {
 Write-Host ""
 Write-Host "The auto-updater (v0.21.1+) parses these exact markers and refuses to install" -ForegroundColor Yellow
 Write-Host "if the downloaded zip's hash does not match. Engine-tagged assets require the" -ForegroundColor Yellow
-Write-Host "matching Monolith-SHA256-v2-<tag>: marker; Monolith-SHA256-v2: (= the UE5.7" -ForegroundColor Yellow
+Write-Host "matching Monolith-SHA256-v2-<tag>: marker; Monolith-SHA256-v2: (= the $($LegacyEngine.Tag)" -ForegroundColor Yellow
 Write-Host "hash) covers legacy-asset installs. Do not rename or reformat the markers --" -ForegroundColor Yellow
 Write-Host "the prefix and a single space before the hex are required. NEVER emit the old" -ForegroundColor Yellow
 Write-Host "pre-v2 marker names: v0.14.7-v0.21.0 updaters hard-crash on them (#90/#94)." -ForegroundColor Yellow
