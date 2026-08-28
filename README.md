@@ -8,13 +8,21 @@
 
 ---
 
-## Why I built this
+## Why This Fork Exists
 
-Most MCP integrations for Unreal register every action as a separate tool. That floods the AI's context window with hundreds of tool names before you've asked a single question — and the actually useful stuff gets buried. I built Monolith because I wanted my AI to spend its context on my problem, not on memorising a tool catalogue.
+This is a community-focused fork of Monolith created to continue its development under a transparent, contributor-first model.
 
-One plugin. One MCP endpoint. A handful of namespace-dispatch tools instead of ~1,400+. The AI calls `monolith_discover()` and `monolith_guide()` when it needs to know what's available, and otherwise just hits `blueprint_query("create_blueprint", ...)`, `material_query("compile", ...)`, and so on. `monolith_discover()` is terse by default — each action returns just a name and a one-line description, so listing a namespace costs almost nothing; the full param schema is one `describe_query("action_schema", ...)` call (or `detail=true`) away when the AI actually needs it.
+After contributing substantive changes to upstream Monolith, this fork was established to ensure that **contributors retain clear authorship, proper credit, and intact Git history for their work**.
 
-I use it every day. It does what I need.
+Our goal is straightforward: build world-class Unreal Engine AI tooling while fostering an open development process that values contributors, maintains accurate repository history, and encourages active collaboration.
+
+---
+
+## Why Monolith
+
+Most MCP integrations for Unreal register every action as a separate tool. That floods the AI's context window with hundreds of tool names before you've asked a single question — and the actually useful stuff gets buried. Monolith was built to allow AI agents to spend their context on the problem, not on memorising a tool catalogue.
+
+One plugin. One MCP endpoint. A handful of namespace-dispatch tools instead of ~1,400+. The AI calls `monolith_discover()` and `monolith_guide()` when it needs to know what's available, and otherwise just hits `blueprint_query("create_asset", ...)`, `material_query("compile", ...)`, and so on. `monolith_discover()` is terse by default — each action returns just a name and a one-line description, so listing a namespace costs almost nothing; the full param schema is one `describe_query("action_schema", ...)` call (or `detail=true`) away when the AI actually needs it.
 
 ---
 
