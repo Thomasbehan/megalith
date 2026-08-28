@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UIPropertyPathCache.cpp
 //
 // LRU implementation. The fast path on hit is two TMap lookups (key index +

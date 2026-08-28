@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // MegalithUIStyleService.h — Phase G
 //
 // Two-key (name + content-hash) cache for CommonUI style assets. Resolves a

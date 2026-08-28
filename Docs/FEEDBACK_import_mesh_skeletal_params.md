@@ -90,7 +90,7 @@
 
 ### 六、许可与贡献方式
 
-本改动在下游工程中为生产向 MCP 工作流而加。若上游愿意合并，可直接采用；若更希望用单个 `fbx_options` 对象承载更多导入选项，也可用同等语义替换这两个扁平布尔字段。需要时我们可以向 `tumourlove/megalith` 单独开 PR 提交该补丁。
+本改动在下游工程中为生产向 MCP 工作流而加。若上游愿意合并，可直接采用；若更希望用单个 `fbx_options` 对象承载更多导入选项，也可用同等语义替换这两个扁平布尔字段。需要时我们可以向 `Thomasbehan/megalith` 单独开 PR 提交该补丁。
 
 ### 七、附：`Megalith.uplugin` 编码（与 `import_mesh` 无关，但影响本地 UBT）
 
@@ -191,7 +191,7 @@ Set `import_animations` to `true` when FBX contains clips that should be importe
 
 This change was made in a downstream project for production MCP workflows. We are happy for upstream to adopt, adapt, or replace with a more general FBX import options struct if you prefer a single `fbx_options` object instead of flat booleans.
 
-If useful, we can open a proper GitHub PR against `tumourlove/megalith` with this patch isolated on a branch.
+If useful, we can open a proper GitHub PR against `Thomasbehan/megalith` with this patch isolated on a branch.
 
 ---
 

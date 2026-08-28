@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UISpec.h
 //
 // Schema-driven UI document type cluster used by `ui::build_ui_from_spec` and

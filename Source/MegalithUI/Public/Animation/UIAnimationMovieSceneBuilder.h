@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UIAnimationMovieSceneBuilder.h
 //
 // Phase I — editor MovieScene backend for `FUISpecAnimation`.

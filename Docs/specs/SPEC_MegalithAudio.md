@@ -42,7 +42,7 @@ See [SPEC_CORE.md §11 Recent Fixes](../SPEC_CORE.md#recent-fixes-phase-j--shipp
 
 Read-only inspection of MetaSound asset state via `IMetaSoundDocumentInterface::GetConstDocument()`. Distinct from the existing 25 Builder API actions which read **live builder state** during graph mutation; the introspection actions read **on-disk document state** for arbitrary assets without requiring an active builder session.
 
-Source-of-truth: PR [#18](https://github.com/tumourlove/megalith/pull/18) by **@alakangas**. The PR originally proposed a separate `MegalithMetaSound` module + `metasound_query` namespace; landed refactored into the existing `MegalithAudio` module + `audio_query` namespace per maintainer architectural preference. All 12 PR action handlers ported with name disambiguation; helper functions consolidated into a `MegalithAudioMetaSoundIntrospectionActions.cpp` anonymous namespace with `Introspection_*` prefix.
+Source-of-truth: PR [#18](https://github.com/Thomasbehan/megalith/pull/18) by **@alakangas**. The PR originally proposed a separate `MegalithMetaSound` module + `metasound_query` namespace; landed refactored into the existing `MegalithAudio` module + `audio_query` namespace per maintainer architectural preference. All 12 PR action handlers ported with name disambiguation; helper functions consolidated into a `MegalithAudioMetaSoundIntrospectionActions.cpp` anonymous namespace with `Introspection_*` prefix.
 
 **12 actions** — all conditional on `WITH_METASOUND`:
 

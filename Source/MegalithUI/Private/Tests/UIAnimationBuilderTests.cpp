@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 //
 // Phase I — automation tests for FUIAnimationMovieSceneBuilder.
 //

@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // MegalithUIRegistrySubsystem.h
 //
 // UEditorSubsystem owning the live `FUITypeRegistry` and `FUIPropertyAllowlist`.

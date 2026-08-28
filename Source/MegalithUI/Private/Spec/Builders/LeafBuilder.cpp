@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // LeafBuilder.cpp
 //
 // Phase H — leaf + content widget sub-builder. Constructs the widget,

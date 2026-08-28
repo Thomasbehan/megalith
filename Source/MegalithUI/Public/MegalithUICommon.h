@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // MegalithUICommon.h
 //
 // Shared, exported helpers for MegalithUI and any consumer that needs the

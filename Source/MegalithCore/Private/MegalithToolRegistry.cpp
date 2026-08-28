@@ -304,7 +304,7 @@ FMegalithActionResult FMegalithToolRegistry::ExecuteAction(
 	if (!RegAction->Handler.IsBound())
 	{
 		return FMegalithActionResult::Error(
-			FString::Printf(TEXT("Action handler not bound: %s — this is a Megalith bug; the action is registered but its handler delegate is null. Report at github.com/tumourlove/megalith."), *Key),
+			FString::Printf(TEXT("Action handler not bound: %s — this is a Megalith bug; the action is registered but its handler delegate is null. Report at github.com/Thomasbehan/megalith."), *Key),
 			FMegalithJsonUtils::ErrInternalError
 		);
 	}

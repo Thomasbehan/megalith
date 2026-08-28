@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Bundled engine source indexer for Megalith — tree-sitter C++ parsing with SQLite+FTS5 storage"
 requires-python = ">=3.10"
 license = {text = "MIT"}
-authors = [{name = "tumourlove"}]
+authors = [{name = "Thomasbehan"}]
 
 dependencies = [
     "tree-sitter>=0.21.0",

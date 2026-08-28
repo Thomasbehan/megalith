@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UIBuildContext.h
 //
 // Phase H — per-build-pass scratch state for `FUISpecBuilder::Build`. NOT a

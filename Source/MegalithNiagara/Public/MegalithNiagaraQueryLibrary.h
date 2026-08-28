@@ -6,7 +6,7 @@
 
 /**
  * Blueprint-callable facades over the read-only Niagara inspection/search dispatcher actions
- * (issue tumourlove/megalith#64). Each node is a thin, named wrapper around a single
+ * (issue Thomasbehan/megalith#64). Each node is a thin, named wrapper around a single
  * `niagara` namespace action in FMegalithToolRegistry: it builds a JSON params object from
  * typed inputs, executes the action, and returns the result re-serialized to a JSON FString.
  *

@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // MegalithUIRegistryActions.h
 //
 // MCP action registrations that surface the type registry / allowlist for

@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UIPropertyAllowlist.h
 //
 // Per-type set of dotted property paths that the spec/builder pipeline is

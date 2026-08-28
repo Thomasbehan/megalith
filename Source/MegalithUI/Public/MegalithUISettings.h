@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // MegalithUISettings.h — Phase G
 //
 // UDeveloperSettings-derived configuration for the MegalithUI module. Drives

@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 #include "Actions/Hoisted/AnimationEventActions.h"
 
 // Megalith registry

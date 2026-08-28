@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 //
 // UIPropertyPerfTests.cpp — cross-cutting microbench for the Phase C
 // reflection helper. Plan §1.11 calls for `MegalithUI.Performance.SetWidgetPropertyMicrobench`

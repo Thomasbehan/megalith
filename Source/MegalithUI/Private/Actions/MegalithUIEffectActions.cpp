@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 #include "Actions/MegalithUIEffectActions.h"
 
 // Megalith registry.

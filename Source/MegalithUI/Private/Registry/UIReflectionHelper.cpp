@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UIReflectionHelper.cpp
 //
 // Implementation: allowlist gate -> path resolve (cache-or-walk) -> property

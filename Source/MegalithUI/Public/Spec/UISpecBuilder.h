@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UISpecBuilder.h
 //
 // Phase H — the centerpiece of the MegalithUI architecture expansion. Drives

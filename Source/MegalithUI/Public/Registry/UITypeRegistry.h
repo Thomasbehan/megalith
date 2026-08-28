@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UITypeRegistry.h
 //
 // Catalog of every UMG widget UClass surfaced to the spec/builder pipeline,

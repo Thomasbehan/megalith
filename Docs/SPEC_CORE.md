@@ -1,12 +1,12 @@
 # Megalith — Technical Specification
 
 **Version:** 0.22.0 (Beta)
-**Wiki:** https://github.com/tumourlove/megalith/wiki
+**Wiki:** https://github.com/Thomasbehan/megalith/wiki
 **Engine:** Unreal Engine 5.7+
 **Platform:** Windows, macOS, Linux
 **License:** MIT
-**Author:** tumourlove
-**Repository:** https://github.com/tumourlove/megalith
+**Author:** Thomasbehan
+**Repository:** https://github.com/Thomasbehan/megalith
 
 ---
 
@@ -383,7 +383,7 @@ YourProject/Plugins/Megalith/
   Megalith.uplugin
   README.md
   LICENSE                          (MIT)
-  ATTRIBUTION.md                   (Credits: Codeturion concept, tumourlove originals)
+  ATTRIBUTION.md                   (Credits: Codeturion concept, Thomasbehan originals)
   .gitignore
   Config/
     MegalithSettings.ini
@@ -451,7 +451,7 @@ YourProject/Plugins/Megalith/
 
 Everything lives in one place: `YourProject/Plugins/Megalith/`
 
-This folder is both the working copy and the git repo (`git@github.com:tumourlove/megalith.git`). Edit, build, commit, push, and release all happen here — no file copying.
+This folder is both the working copy and the git repo (`git@github.com:Thomasbehan/megalith.git`). Edit, build, commit, push, and release all happen here — no file copying.
 
 #### Publishing a release
 
@@ -466,7 +466,7 @@ This folder is both the working copy and the git repo (`git@github.com:tumourlov
 
 #### Auto-updater flow
 
-1. On editor startup (5s delay), checks `api.github.com/repos/tumourlove/megalith/releases/latest`
+1. On editor startup (5s delay), checks `api.github.com/repos/Thomasbehan/megalith/releases/latest`
 2. Compares `tag_name` semver against compiled `MEGALITH_VERSION`
 3. Selects the release asset for the running engine (compile-time `ENGINE_MINOR_VERSION`; fail-closed if a per-engine release has no matching asset) and parses the matching `Megalith-SHA256-v2-UE5.<minor>:` integrity marker from the release notes (fail-closed if a per-engine asset has no matching v2 marker; legacy assets use `Megalith-SHA256-v2:`, absent = proceed unverified with a warning)
 4. If newer: shows a dialog window with full release notes + "Install Update" / "Remind Me Later"

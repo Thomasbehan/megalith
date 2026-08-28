@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // LeafBuilder.h
 //
 // Phase H — sub-builder for leaf widgets that hold no children (UTextBlock,

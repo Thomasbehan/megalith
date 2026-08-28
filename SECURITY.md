@@ -4,7 +4,7 @@
 
 If you find a security issue in Megalith, **please report it privately first**:
 
-- **Preferred:** Open a [GitHub Security Advisory](https://github.com/tumourlove/megalith/security/advisories/new)
+- **Preferred:** Open a [GitHub Security Advisory](https://github.com/Thomasbehan/megalith/security/advisories/new)
 - **Alternative:** Email `leviathansteam666@gmail.com` with `[Megalith Security]` in the subject
 
 I aim to acknowledge reports within 7 days and ship a fix or mitigation in the next release. Please do **not** open a public GitHub issue for security-impacting findings before that window.

@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "CoreMinimal.h"

@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // EffectSurfaceBuilder.cpp
 //
 // Phase H — apply FUISpecEffect onto a constructed UEffectSurface widget.

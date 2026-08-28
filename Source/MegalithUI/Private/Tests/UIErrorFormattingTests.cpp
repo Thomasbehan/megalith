@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UIErrorFormattingTests.cpp
 //
 // Phase K — automation tests for the LLM-shaped error reporting surface.

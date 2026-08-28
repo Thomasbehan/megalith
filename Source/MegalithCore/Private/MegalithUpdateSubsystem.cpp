@@ -29,7 +29,7 @@
 #include "Widgets/Input/SButton.h"
 #include "Styling/AppStyle.h"
 
-#define MEGALITH_GITHUB_API TEXT("https://api.github.com/repos/tumourlove/megalith/releases/latest")
+#define MEGALITH_GITHUB_API TEXT("https://api.github.com/repos/Thomasbehan/megalith/releases/latest")
 
 // ─── FMegalithVersionInfo ───────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // MegalithUIEffectActions.h
 //
 // Phase F (2026-04-26) -- MCP action wrappers for the UEffectSurface widget

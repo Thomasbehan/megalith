@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UISpecAnimation.h
 //
 // Phase I — animation-side surface of the FUISpecDocument.

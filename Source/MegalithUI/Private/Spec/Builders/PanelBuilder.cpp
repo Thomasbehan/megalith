@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // PanelBuilder.cpp
 //
 // Phase H — multi-child panel sub-builder. Constructs the panel widget,

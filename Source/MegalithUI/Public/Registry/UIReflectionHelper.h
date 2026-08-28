@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UIReflectionHelper.h
 //
 // Allowlist-gated, type-aware property writer used by `set_widget_property`

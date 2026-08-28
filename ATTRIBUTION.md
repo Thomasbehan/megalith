@@ -10,10 +10,10 @@ module reimplements this functionality from scratch in C++/Python but credits Co
 the original idea and approach. The original project is licensed under PolyForm Noncommercial
 and is not bundled or derived from — only the concept is carried forward.
 
-## Original tumourlove Servers
+## Original Thomasbehan Servers
 
 Megalith consolidates the following original MCP servers and C++ plugins, all authored by
-tumourlove and now unified into this single package:
+Thomasbehan and now unified into this single package:
 
 ### Python MCP Servers (Replaced)
 - `unreal-blueprint-mcp` — Blueprint graph inspection (5 tools)

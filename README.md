@@ -10,9 +10,9 @@
 
 ## Why This Fork Exists
 
-This is a community-focused fork of Megalith created to continue its development under a transparent, contributor-first model.
+This is a community-focused fork of the original Monolith project, renamed to Megalith, created to continue its development under a transparent, contributor-first model.
 
-After contributing substantive changes to upstream Megalith, this fork was established to ensure that **contributors retain clear authorship, proper credit, and intact Git history for their work**.
+After contributing substantive changes to upstream, this fork (Megalith) was established to ensure that **contributors retain clear authorship, proper credit, and intact Git history for their work**.
 
 The goal is straightforward: build world-class Unreal Engine AI tooling while fostering an open development process that values contributors, maintains accurate repository history, and encourages active collaboration.
 
@@ -42,7 +42,7 @@ Covered domains: Blueprints, Materials, Animation, Niagara, Mesh, UI (incl. Comm
 
 **New in v0.18.0:** Niagara HLSL direct-editing — read and overwrite the HLSL source on a `CustomHlsl` node (`get_custom_hlsl_text` / `set_custom_hlsl_text`), plus simulation-stage / event-handler selectors on the module-stack actions and a ParameterMap bridge for `create_module_from_hlsl` (PR #65, thanks @middle233). Niagara also gains a search & discovery pack (`search_by_parameter`, `search_by_data_interface`, `query_niagara`, `find_similar_systems`, `search_by_material`, `find_niagara_references`, `list_system_data_interfaces`).
 
-Full per-namespace breakdown: **[Tool Reference (wiki)](https://github.com/tumourlove/megalith/wiki/Tool-Reference)**.
+Full per-namespace breakdown: **[Tool Reference (wiki)](https://github.com/Thomasbehan/megalith/wiki/Tool-Reference)**.
 
 Works with **Claude Code**, **Cursor**, **Cline**, or any MCP-compatible client. Windows, macOS, Linux.
 
@@ -54,10 +54,10 @@ Works with **Claude Code**, **Cursor**, **Cline**, or any MCP-compatible client.
 
 ```bash
 cd YourProject/Plugins
-git clone https://github.com/tumourlove/megalith.git Megalith
+git clone https://github.com/Thomasbehan/megalith.git Megalith
 ```
 
-(Or grab the [latest release zip](https://github.com/tumourlove/megalith/releases) and extract to the same path. The release zip includes precompiled DLLs so Blueprint-only projects can open the editor immediately without rebuilding. Megalith builds on **UE 5.7 and 5.8** from a single source tree — but the precompiled DLLs are engine-locked, so Blueprint-only users grab the zip for their engine, `Megalith-vX.Y.Z-UE5.7.zip` or `-UE5.8.zip`. Building from source works on either.)
+(Or grab the [latest release zip](https://github.com/Thomasbehan/megalith/releases) and extract to the same path. The release zip includes precompiled DLLs so Blueprint-only projects can open the editor immediately without rebuilding. Megalith builds on **UE 5.7 and 5.8** from a single source tree — but the precompiled DLLs are engine-locked, so Blueprint-only users grab the zip for their engine, `Megalith-vX.Y.Z-UE5.7.zip` or `-UE5.8.zip`. Building from source works on either.)
 
 **2. Create `.mcp.json`** in your project root (same directory as your `.uproject`):
 
@@ -72,11 +72,11 @@ git clone https://github.com/tumourlove/megalith.git Megalith
 }
 ```
 
-The native C++ proxy keeps your AI session alive when the editor restarts. For **Cursor/Cline**, **macOS/Linux**, or the **Python fallback**, see the [Installation wiki page](https://github.com/tumourlove/megalith/wiki/Installation).
+The native C++ proxy keeps your AI session alive when the editor restarts. For **Cursor/Cline**, **macOS/Linux**, or the **Python fallback**, see the [Installation wiki page](https://github.com/Thomasbehan/megalith/wiki/Installation).
 
 **3. Open the editor.** Wait 30-60 seconds for the first-launch index. When you see `Megalith MCP server listening on port 9316` in the Output Log (filter `LogMegalith`), connect your AI client and ask *"what Megalith tools do you have?"* to verify.
 
-Project-instructions files (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, etc.) vary per assistant — just paste the namespace list into your AI and ask it to generate the right format for your toolchain. Full install variants, troubleshooting, and post-install setup live on the [Installation wiki](https://github.com/tumourlove/megalith/wiki/Installation).
+Project-instructions files (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, etc.) vary per assistant — just paste the namespace list into your AI and ask it to generate the right format for your toolchain. Full install variants, troubleshooting, and post-install setup live on the [Installation wiki](https://github.com/Thomasbehan/megalith/wiki/Installation).
 
 ---
 
@@ -87,13 +87,13 @@ Two zero-dependency C++ executables ship in `Binaries/` and work without the edi
 - **`megalith_proxy.exe`** — MCP stdio↔HTTP proxy. Keeps your AI session alive across editor restarts. Used by the `.mcp.json` config above.
 - **`megalith_query.exe`** — Offline query tool. Serves the engine source index, project asset index, and the full Reflection Intelligence surface (`decision` / `risk` / `cppreflect` / `network`) without launching UE — byte-identical to the live server, verified by a ship-blocking parity guard. Instant startup; useful for terminal-side lookups and CI when the editor is down.
 
-Details: [wiki Tool Reference](https://github.com/tumourlove/megalith/wiki/Tool-Reference).
+Details: [wiki Tool Reference](https://github.com/Thomasbehan/megalith/wiki/Tool-Reference).
 
 ---
 
 ## Auto-updater
 
-Off by default as of v0.14.6. Opt in via **Auto Update Enabled** in Editor Preferences > Plugins > Megalith — checks GitHub Releases on editor startup, verifies the downloaded zip's SHA256 against the release-notes marker, swaps the plugin on editor exit (after a Y/N prompt). See [Auto-Updater wiki](https://github.com/tumourlove/megalith/wiki/Auto-Updater).
+Off by default as of v0.14.6. Opt in via **Auto Update Enabled** in Editor Preferences > Plugins > Megalith — checks GitHub Releases on editor startup, verifies the downloaded zip's SHA256 against the release-notes marker, swaps the plugin on editor exit (after a Y/N prompt). See [Auto-Updater wiki](https://github.com/Thomasbehan/megalith/wiki/Auto-Updater).
 
 ---
 
@@ -109,7 +109,7 @@ See [SECURITY.md](SECURITY.md) for the full threat model and disclosure policy.
 
 ## Documentation
 
-- **[Wiki](https://github.com/tumourlove/megalith/wiki)** — installation variants, tool reference, connecting your AI, configuration, auto-updater, FAQ, skills, optional modules, engine source index details, mesh module deep dive, horror level design, procedural geometry, genre presets, test status
+- **[Wiki](https://github.com/Thomasbehan/megalith/wiki)** — installation variants, tool reference, connecting your AI, configuration, auto-updater, FAQ, skills, optional modules, engine source index details, mesh module deep dive, horror level design, procedural geometry, genre presets, test status
 - **[API_REFERENCE.md](Docs/API_REFERENCE.md)** — full per-action parameter reference, regenerated from the live registry each release
 - **[SPEC_CORE.md](Docs/SPEC_CORE.md)** — technical specification and architecture; per-module specs at [`Docs/specs/`](Docs/specs/)
 - **[CHANGELOG.md](CHANGELOG.md)** — version history, contributor credits, breaking-change notes

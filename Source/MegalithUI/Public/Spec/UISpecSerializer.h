@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UISpecSerializer.h
 //
 // Phase J -- inverse of `FUISpecBuilder`. Reads a live `UWidgetBlueprint` and

@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // EffectSurfaceBuilder.h
 //
 // Phase H — sub-builder for the UEffectSurface widget. Translates the

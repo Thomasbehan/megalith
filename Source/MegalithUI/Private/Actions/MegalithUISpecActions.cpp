@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // MegalithUISpecActions.cpp
 //
 // Phase H — registers the two LLM-facing entry points:

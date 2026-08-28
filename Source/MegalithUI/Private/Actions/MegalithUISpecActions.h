@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // MegalithUISpecActions.h
 //
 // Phase H — entry point for `ui::build_ui_from_spec` + `ui::dump_ui_spec_schema`.

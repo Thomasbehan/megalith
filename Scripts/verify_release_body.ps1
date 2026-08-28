@@ -35,7 +35,7 @@ param(
     [Parameter(Mandatory = $false)] [string] $Version,
     # Runs the pre-v2 detector fixtures and exits. Touches no network and no release.
     [Parameter(Mandatory = $false)] [switch] $SelfTest,
-    [Parameter(Mandatory = $false)] [string] $Repo        = "tumourlove/megalith",
+    [Parameter(Mandatory = $false)] [string] $Repo        = "Thomasbehan/megalith",
     # Defaults to the host project root, which is where make_release.ps1 writes the
     # zips: this script lives at <ProjectRoot>\Plugins\Megalith\Scripts\, so three
     # levels up is the project root. Derived rather than hardcoded so the script

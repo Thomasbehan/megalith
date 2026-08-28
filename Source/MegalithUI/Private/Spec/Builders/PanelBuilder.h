@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // PanelBuilder.h
 //
 // Phase H — sub-builder for multi-child panel widgets (UVerticalBox,

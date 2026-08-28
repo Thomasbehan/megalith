@@ -115,7 +115,7 @@ Get Megalith server health: version, uptime, port, registered action count, name
 
 ### `megalith.update`
 
-Check for or install Megalith updates from GitHub Releases. Auto-updater hits `https://api.github.com/repos/tumourlove/megalith/releases/latest`.
+Check for or install Megalith updates from GitHub Releases. Auto-updater hits `https://api.github.com/repos/Thomasbehan/megalith/releases/latest`.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -1744,7 +1744,7 @@ Both invoke the same SQLite indexes the live MCP uses.
 - **SPEC_Megalith*.md** — Per-module deep specs in `Plugins/Megalith/Docs/specs/`
 - **SIBLING_PLUGIN_GUIDE.md** — How to build a sibling plugin against `FMegalithToolRegistry`
 - **CHANGELOG.md** — Release-by-release change history (Keep a Changelog format)
-- **Wiki** — User-facing tutorials at `https://github.com/tumourlove/megalith/wiki`
+- **Wiki** — User-facing tutorials at `https://github.com/Thomasbehan/megalith/wiki`
 
 ---
 

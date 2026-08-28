@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UISpecBuilder.cpp
 //
 // Phase H — implementation of the transactional `build_ui_from_spec` pipeline.

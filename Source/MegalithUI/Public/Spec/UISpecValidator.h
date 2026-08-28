@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UISpecValidator.h
 //
 // Pre-mutation validator for the FUISpecDocument schema. The builder calls

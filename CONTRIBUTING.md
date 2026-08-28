@@ -16,10 +16,10 @@ Thanks for your interest in contributing. This guide covers everything you need 
 ```bash
 # Clone into your project's Plugins directory
 cd YourProject/Plugins
-git clone https://github.com/tumourlove/megalith.git Megalith
+git clone https://github.com/Thomasbehan/megalith.git Megalith
 
 # Or clone the standalone development repo
-git clone https://github.com/tumourlove/megalith.git C:\Projects\Megalith
+git clone https://github.com/Thomasbehan/megalith.git C:\Projects\Megalith
 ```
 
 Generate project files and build from your UE project as usual. Megalith is an editor-only plugin — all 13 modules have `Type: "Editor"`.

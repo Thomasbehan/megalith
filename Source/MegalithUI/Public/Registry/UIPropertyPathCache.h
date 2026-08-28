@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // UIPropertyPathCache.h
 //
 // LRU cache for resolved property chains used by `FUIReflectionHelper`. The

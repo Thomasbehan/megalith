@@ -82,7 +82,7 @@ bool FMegalithGuideTool::LoadGuideMarkdown(FString& OutMarkdown, FString& OutErr
 	TSharedPtr<IPlugin> Plugin = IPluginManager::Get().FindPlugin(TEXT("Megalith"));
 	if (!Plugin.IsValid())
 	{
-		OutErrorMessage = TEXT("Could not resolve the 'Megalith' plugin via IPluginManager — the plugin is not mounted. This should be impossible from inside a Megalith action; report at github.com/tumourlove/megalith.");
+		OutErrorMessage = TEXT("Could not resolve the 'Megalith' plugin via IPluginManager — the plugin is not mounted. This should be impossible from inside a Megalith action; report at github.com/Thomasbehan/megalith.");
 		return false;
 	}
 

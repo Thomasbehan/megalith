@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // CommonUIBuilder.h
 //
 // Phase H — sub-builder for nodes that opt into the FUISpecCommonUI sub-bag.

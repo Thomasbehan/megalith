@@ -1,4 +1,4 @@
-// Copyright tumourlove. All Rights Reserved.
+// Copyright Thomasbehan and Contributors. All Rights Reserved.
 // CommonUIBuilder.cpp
 //
 // Phase H — apply CommonUI sub-bag fields onto a constructed widget. Wires
