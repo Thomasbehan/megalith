@@ -42,7 +42,9 @@ param(
     # DANGEROUS: skips the only check that proves shipped DLLs do not hard-link optional
     # plugins (issue #30 / #71 failure mode). Real releases NEVER set this -- it exists
     # only so a dev machine without VS Build Tools can produce a non-shippable test zip.
-    [switch]$AllowUnverifiedImports
+    [switch]$AllowUnverifiedImports,
+    # Skip building the UE5.8 version (ignores missing FIVEPOINT8 project).
+    [switch]$SkipUE58
 )
 
 $ErrorActionPreference = "Stop"
@@ -142,6 +144,10 @@ $EngineMatrix = @(
         IsLegacy   = $false
     }
 )
+
+if ($SkipUE58) {
+    $EngineMatrix = $EngineMatrix | Where-Object { $_.Tag -ne "UE5.8" }
+}
 
 Write-Host "Building Monolith v$Version release zips (per engine: $(( $EngineMatrix | ForEach-Object { $_.Tag }) -join ', '))..." -ForegroundColor Cyan
 
