@@ -14,7 +14,7 @@ This is a community-focused fork of Monolith created to continue its development
 
 After contributing substantive changes to upstream Monolith, this fork was established to ensure that **contributors retain clear authorship, proper credit, and intact Git history for their work**.
 
-Our goal is straightforward: build world-class Unreal Engine AI tooling while fostering an open development process that values contributors, maintains accurate repository history, and encourages active collaboration.
+The goal is straightforward: build world-class Unreal Engine AI tooling while fostering an open development process that values contributors, maintains accurate repository history, and encourages active collaboration.
 
 ---
 
