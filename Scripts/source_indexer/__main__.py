@@ -1,4 +1,4 @@
-"""Standalone indexer for Monolith plugin. Usage: python -m source_indexer --source PATH --db PATH [--shaders PATH] [--clean]"""
+"""Standalone indexer for Megalith plugin. Usage: python -m source_indexer --source PATH --db PATH [--shaders PATH] [--clean]"""
 import argparse
 import sqlite3
 import sys

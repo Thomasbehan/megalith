@@ -1,11 +1,11 @@
 ---
 name: unreal-combograph
-description: Use when working with ComboGraph plugin via Monolith MCP — creating and editing combo graphs, nodes, edges, effects, cues, and scaffolding combo abilities. Triggers on combo, combo graph, combo node, combo edge, combo ability, combo montage, attack chain, hit sequence.
+description: Use when working with ComboGraph plugin via Megalith MCP — creating and editing combo graphs, nodes, edges, effects, cues, and scaffolding combo abilities. Triggers on combo, combo graph, combo node, combo edge, combo ability, combo montage, attack chain, hit sequence.
 ---
 
 # Unreal ComboGraph Workflows
 
-**13 ComboGraph actions** via `combograph_query()`. Discover with `monolith_discover({ namespace: "combograph" })`.
+**13 ComboGraph actions** via `combograph_query()`. Discover with `megalith_discover({ namespace: "combograph" })`.
 
 ## Key Parameters
 
@@ -40,7 +40,7 @@ description: Use when working with ComboGraph plugin via Monolith MCP — creati
 - **Reflection-only** -- interacts via UObject reflection + Asset Registry, no direct C++ API linkage. Works with any ComboGraph version.
 - **EdGraph sync** -- action handlers update runtime graph AND reconstruct EdGraph automatically.
 - **`#if WITH_COMBOGRAPH`** -- probes Plugins/ and Plugins/Marketplace/. Absent = empty stub (0 actions).
-- **Settings toggle** -- `bEnableComboGraph` in UMonolithSettings (default: true).
+- **Settings toggle** -- `bEnableComboGraph` in UMegalithSettings (default: true).
 - **GAS integration** -- `create_combo_ability` and `link_ability_to_combo_graph` require both ComboGraph AND GameplayAbilities plugins.
 
 ## Common Workflows

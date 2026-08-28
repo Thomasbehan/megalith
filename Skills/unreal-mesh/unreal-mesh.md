@@ -1,6 +1,6 @@
 ---
 name: unreal-mesh
-description: Use when working with Unreal Engine meshes, scene spatial queries, level blockout, actor manipulation, 3D awareness, horror spatial analysis, accessibility validation, GeometryScript mesh operations, lighting analysis, audio/acoustics, performance budgeting, decal/detail placement, level design (lights, volumes, sublevels, prefabs), tech art (import, LOD, texel density, collision), context-aware prop placement (surface scatter, disturbance, physics sleep), procedural geometry (furniture, structures, mazes, pipes, terrain), procedural town generation (buildings, facades, roofs, streets, city blocks, floor plans, spatial registry, foundations, balconies, fire escapes, room furnishing, debug views, validation), genre presets, encounter design, or hospice accessibility reports via Monolith MCP. Triggers on mesh, StaticMesh, SkeletalMesh, blockout, spatial, raycast, overlap, scene, actor, spawn, LOD, collision, UV, triangle, bounds, scan volume, scatter, navmesh, sightline, hiding, horror, tension, accessibility, wheelchair, lighting, dark, audio, acoustic, surface, footstep, reverb, performance, budget, draw call, decal, blood trail, light, volume, trigger, sublevel, prefab, spline, import, texel, instancing, HISM, material swap, parametric, structure, maze, pipe, terrain, fragment, preset, encounter, patrol, safe room, hospice report, prop kit, disturbance, town, city, block, building, facade, roof, street, floor plan, archetype, lot, foundation, balcony, porch, fire escape, ramp, railing, furnish, furniture, bookmark, section view, validate building.
+description: Use when working with Unreal Engine meshes, scene spatial queries, level blockout, actor manipulation, 3D awareness, horror spatial analysis, accessibility validation, GeometryScript mesh operations, lighting analysis, audio/acoustics, performance budgeting, decal/detail placement, level design (lights, volumes, sublevels, prefabs), tech art (import, LOD, texel density, collision), context-aware prop placement (surface scatter, disturbance, physics sleep), procedural geometry (furniture, structures, mazes, pipes, terrain), procedural town generation (buildings, facades, roofs, streets, city blocks, floor plans, spatial registry, foundations, balconies, fire escapes, room furnishing, debug views, validation), genre presets, encounter design, or hospice accessibility reports via Megalith MCP. Triggers on mesh, StaticMesh, SkeletalMesh, blockout, spatial, raycast, overlap, scene, actor, spawn, LOD, collision, UV, triangle, bounds, scan volume, scatter, navmesh, sightline, hiding, horror, tension, accessibility, wheelchair, lighting, dark, audio, acoustic, surface, footstep, reverb, performance, budget, draw call, decal, blood trail, light, volume, trigger, sublevel, prefab, spline, import, texel, instancing, HISM, material swap, parametric, structure, maze, pipe, terrain, fragment, preset, encounter, patrol, safe room, hospice report, prop kit, disturbance, town, city, block, building, facade, roof, street, floor plan, archetype, lot, foundation, balcony, porch, fire escape, ramp, railing, furnish, furniture, bookmark, section view, validate building.
 ---
 
 # Unreal Mesh & Spatial Workflows
@@ -22,13 +22,13 @@ description: Use when working with Unreal Engine meshes, scene spatial queries, 
 ## Discovery
 
 ```
-monolith_discover({ namespace: "mesh" })
+megalith_discover({ namespace: "mesh" })
 ```
 
 ## Key Parameter Names
 
 - `asset_path` -- mesh asset path | `actor_name` -- placed level actor
-- `volume_name` -- BlockingVolume with Monolith.Blockout tag | `handle` -- GeometryScript mesh handle
+- `volume_name` -- BlockingVolume with Megalith.Blockout tag | `handle` -- GeometryScript mesh handle
 - `building_id` / `room_id` / `block_id` -- spatial registry identifiers (town gen)
 
 ## Action Reference
@@ -83,9 +83,9 @@ monolith_discover({ namespace: "mesh" })
 
 | Action | Key Params | Purpose |
 |--------|-----------|---------|
-| `get_blockout_volumes` | -- | List all Monolith.Blockout tagged volumes |
+| `get_blockout_volumes` | -- | List all Megalith.Blockout tagged volumes |
 | `get_blockout_volume_info` | `volume_name` | Volume details, primitive list |
-| `setup_blockout_volume` | `volume_name`, `room_type`, `tags`?, `density`? | Apply Monolith tags |
+| `setup_blockout_volume` | `volume_name`, `room_type`, `tags`?, `density`? | Apply Megalith tags |
 | `create_blockout_primitive` | `shape`, `location`, `scale`, `label`?, `volume_name`? | Spawn tagged primitive |
 | `create_blockout_primitives_batch` | `primitives`, `volume_name`? | Batch placement (cap 200) |
 | `create_blockout_grid` | `volume_name`, `cell_size` | Floor grid in volume |
@@ -336,14 +336,14 @@ Layered pipeline: floor plans -> grid geometry -> facades -> roofs -> streets ->
 ## Blockout Tag Convention
 
 ```
-Monolith.Blockout                -- sentinel (required)
-Monolith.Room:Kitchen            -- room type
-Monolith.Tag:Furniture.Kitchen   -- asset matching tag
-Monolith.Density:Normal          -- Sparse/Normal/Dense/Cluttered
-Monolith.AllowPhysics            -- presence = true
-Monolith.Owner:BV_Kitchen        -- on primitives, links to volume
-Monolith.BlockoutPrimitive       -- marks as blockout primitive
-Monolith.Label:Counter_North     -- human-readable label
+Megalith.Blockout                -- sentinel (required)
+Megalith.Room:Kitchen            -- room type
+Megalith.Tag:Furniture.Kitchen   -- asset matching tag
+Megalith.Density:Normal          -- Sparse/Normal/Dense/Cluttered
+Megalith.AllowPhysics            -- presence = true
+Megalith.Owner:BV_Kitchen        -- on primitives, links to volume
+Megalith.BlockoutPrimitive       -- marks as blockout primitive
+Megalith.Label:Counter_North     -- human-readable label
 ```
 
 ## Typical Workflows
@@ -369,7 +369,7 @@ Monolith.Label:Counter_North     -- human-readable label
 - `editor_query("capture_scene_preview", { asset_path, asset_type: "static_mesh" })` or `asset_type: "skeletal_mesh"` -- preview render of a mesh asset (skeletal-mesh variant accepts optional `animation_path` + `seek_time` for a posed frame).
 - `editor_query("capture_with_overlay", { asset_path, mode })` -- single static-mesh capture under one of 5 engine debug-view modes: `wireframe`, `normals`, `uv_density`, `lightmap_density`, `shader_complexity`. Use for tech-art audits (texel density, UV stretch, complexity hotspots).
 
-See `monolith_guide(section="recipes")` entry "Visual introspection -- going beyond thumbnails".
+See `megalith_guide(section="recipes")` entry "Visual introspection -- going beyond thumbnails".
 
 ## Gotchas
 
@@ -378,7 +378,7 @@ See `monolith_guide(section="recipes")` entry "Visual introspection -- going bey
 - `batch_execute` rejects nesting, caps at 200
 - `set_actor_properties`: Mobility must be "Movable" BEFORE enabling SimulatePhysics
 - `query_radial_sweep`: `ray_count * vertical_angles <= 512`
-- `search_meshes_by_size` requires `monolith_reindex()` first
+- `search_meshes_by_size` requires `megalith_reindex()` first
 - All spatial queries work in editor WITHOUT play session
 - `query_` = active physics queries, `get_` = reads stored data
 - `create_city_block` calls full pipeline internally -- use step-by-step for fine control

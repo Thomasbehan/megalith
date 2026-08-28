@@ -1,11 +1,11 @@
 ---
 name: unreal-materials
-description: Use when creating, editing, or inspecting Unreal Engine materials via Monolith MCP. Covers PBR setup, graph building, material instances, templates, HLSL nodes, validation, and previews. Triggers on material, shader, PBR, texture, material instance, material graph.
+description: Use when creating, editing, or inspecting Unreal Engine materials via Megalith MCP. Covers PBR setup, graph building, material instances, templates, HLSL nodes, validation, and previews. Triggers on material, shader, PBR, texture, material instance, material graph.
 ---
 
 # Unreal Material Workflows
 
-**63 material actions** via `material_query()`. Discover first: `monolith_discover({ namespace: "material" })`
+**63 material actions** via `material_query()`. Discover first: `megalith_discover({ namespace: "material" })`
 
 ## Key Parameters
 
@@ -173,7 +173,7 @@ For AI agents reasoning about materials without round-tripping through `render_p
 - `editor_query("capture_material_grid", { material_paths: [...] })` — N material instances (1-16) side-by-side under shared lighting; auto-grid `ceil(sqrt(N))` columns. Returns one PNG.
 - `editor_query("capture_scene_preview", { asset_path, asset_type: "material" })` — single-material preview render.
 
-See `monolith_guide(section="recipes")` entries "Visual introspection — going beyond thumbnails" and "Reading asset structure without rendering".
+See `megalith_guide(section="recipes")` entries "Visual introspection — going beyond thumbnails" and "Reading asset structure without rendering".
 
 ## Rules
 

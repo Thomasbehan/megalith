@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-check_offline_exe_fresh.py -- staleness guard for the offline Monolith CLI.
+check_offline_exe_fresh.py -- staleness guard for the offline Megalith CLI.
 
-The offline tool monolith_query.exe is built from Tools/MonolithQuery/monolith_query.cpp
-by Tools/MonolithQuery/build.bat. That build injects the SHA256-first-16 of the source
+The offline tool megalith_query.exe is built from Tools/MegalithQuery/megalith_query.cpp
+by Tools/MegalithQuery/build.bat. That build injects the SHA256-first-16 of the source
 as a /DSOURCE_HASH define, which the exe echoes back under --version as "source_hash".
 
 This script recomputes that same hash from the on-disk source, asks the exe what it was
@@ -13,12 +13,12 @@ to the tracked source and must be rebuilt.
 An exe built before the hash-injection landed reports source_hash="dev"; that will never
 match a real hex hash, so such an exe is correctly reported STALE.
 
-Usage (run from the Monolith plugin root):
+Usage (run from the Megalith plugin root):
     python Scripts/check_offline_exe_fresh.py
 
 Exit codes:
     0  exe source_hash matches the current source (fresh)
-    1  mismatch (STALE -- rebuild via Tools/MonolithQuery/build.bat)
+    1  mismatch (STALE -- rebuild via Tools/MegalithQuery/build.bat)
     4  preflight failure (source or exe missing, or --version unparseable)
 
 stdlib-only. Do not add third-party deps.
@@ -30,11 +30,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Script lives in <MonolithRoot>/Scripts/, so the plugin root is parent.parent.
+# Script lives in <MegalithRoot>/Scripts/, so the plugin root is parent.parent.
 SCRIPT_DIR = Path(__file__).resolve().parent
 MONO_ROOT = SCRIPT_DIR.parent
-SRC_PATH = MONO_ROOT / "Tools" / "MonolithQuery" / "monolith_query.cpp"
-EXE_PATH = MONO_ROOT / "Binaries" / "monolith_query.exe"
+SRC_PATH = MONO_ROOT / "Tools" / "MegalithQuery" / "megalith_query.cpp"
+EXE_PATH = MONO_ROOT / "Binaries" / "megalith_query.exe"
 
 # Must match build.bat: first 16 hex chars of the source's SHA256.
 HASH_PREFIX_LEN = 16
@@ -101,7 +101,7 @@ def main():
         return 0
 
     print("\nRESULT: STALE -- exe was built from different (or pre-hash) source.")
-    print("  exe is STALE - rebuild via Tools/MonolithQuery/build.bat")
+    print("  exe is STALE - rebuild via Tools/MegalithQuery/build.bat")
     return 1
 
 

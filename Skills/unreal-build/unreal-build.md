@@ -23,7 +23,7 @@ Analyze the files you modified. Classify each change:
 
 ## Step 2: Check Editor Status
 
-Try calling Monolith MCP: `editor_query({action: 'get_build_status'})` or `monolith_status()`.
+Try calling Megalith MCP: `editor_query({action: 'get_build_status'})` or `megalith_status()`.
 
 - **MCP responds** → Editor is running
 - **MCP fails/timeout** → Editor is closed

@@ -1,6 +1,6 @@
 # Niagara HLSL Authoring Guide
 
-Complete reference for writing custom HLSL in Niagara via Monolith MCP.
+Complete reference for writing custom HLSL in Niagara via Megalith MCP.
 
 ## Table of Contents
 1. [New MCP Actions](#new-mcp-actions)
@@ -327,4 +327,4 @@ A: Use `get_system_diagnostics` for compile errors. Node-level diagnostics comin
 ## Source References
 - Engine: `Engine/Plugins/FX/Niagara/Source/Niagara/Private/NiagaraDataInterfaceGrid*Collection.cpp`
 - Shaders: `Engine/Plugins/FX/Niagara/Shaders/Private/NiagaraDataInterfaceGrid*Collection.ush`
-- Spec: `Docs/specs/SPEC_MonolithNiagara.md`
+- Spec: `Docs/specs/SPEC_MegalithNiagara.md`

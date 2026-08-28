@@ -3,19 +3,19 @@
 **Status:** Spec only — implementation tests pending I2 landing + editor restart.
 
 **Source plan:** `Docs/plans/2026-04-26-bt-gas-ability-task.md` (H2 design, I2 implementation)
-**Phase J brief:** `Plugins/Monolith/Docs/plans/2026-04-25-comprehensive-fix-plan.md:336-340`
+**Phase J brief:** `Plugins/Megalith/Docs/plans/2026-04-25-comprehensive-fix-plan.md:336-340`
 **Action surface under test:** `ai::add_bt_use_ability_task`
-**Runtime classes under test:** `UBTTask_TryActivateAbility` (new C++ in `MonolithAI/Public/BehaviorTreeTasks/`)
+**Runtime classes under test:** `UBTTask_TryActivateAbility` (new C++ in `MegalithAI/Public/BehaviorTreeTasks/`)
 
 ---
 
 ## Setup
 
 ### Prerequisites
-1. **I2 has landed** — UBT clean, MonolithAI module rebuilt with GameplayAbilities dependency, `monolith_discover("ai")` reports `add_bt_use_ability_task`.
+1. **I2 has landed** — UBT clean, MegalithAI module rebuilt with GameplayAbilities dependency, `megalith_discover("ai")` reports `add_bt_use_ability_task`.
 2. **Editor up**, MCP connected, project loaded.
 3. **GAS plugin enabled**, `WITH_GAMEPLAYABILITIES==1` confirmed via `source_query` probe.
-4. **Disposable test abilities** under `/Game/Tests/Monolith/Abilities/` (create as disposables; verified 2026-04-26 — these may already exist from prior test runs):
+4. **Disposable test abilities** under `/Game/Tests/Megalith/Abilities/` (create as disposables; verified 2026-04-26 — these may already exist from prior test runs):
    - `GA_Test_Instant` — succeeds in one tick (calls `EndAbility` from `ActivateAbility`); cost 0; no cooldown.
    - `GA_Test_Duration1s` — calls `K2_EndAbility` after 1.0s `WaitDelay`.
    - `GA_Test_Duration5s` — same pattern, 5.0s duration. Used for abort tests.
@@ -24,26 +24,26 @@
    - `GA_Test_MeleeLight` — tagged `Ability.Combat.Melee.Light + Ability.Combat.Melee` for tag-based activation tests. (F16: uses existing `Ability.Combat.Melee.Light` registry tag; `Ability.Combat.Punch` deliberately not in tree per survival-horror curation — see `Config/DefaultGameplayTags.ini:20-37`.)
    - `GA_Test_MeleeHeavy` — tagged `Ability.Combat.Melee.Heavy + Ability.Combat.Melee`. (F16: uses existing `Ability.Combat.Melee.Heavy` registry tag; `Ability.Combat.Kick` deliberately not in tree per survival-horror curation.)
    - `GA_Test_Cancellable` — 5s duration, registers `CancelAbilitiesWithTag = Ability.CancelMe`. Used for cancellation test.
-   - If absent, author each via `gas::create_ability` (or `gas::create_ability_from_template`) under `/Game/Tests/Monolith/Abilities/`.
+   - If absent, author each via `gas::create_ability` (or `gas::create_ability_from_template`) under `/Game/Tests/Megalith/Abilities/`.
 
-5. **Disposable test BTs** under `/Game/Tests/Monolith/AI/` — **DO NOT pre-exist** (verified 2026-04-26 — `Content/Tests/Monolith/AI/` directory not present). Author both as part of test setup:
-   - `ai_query("create_behavior_tree", {asset_path: "/Game/Tests/Monolith/AI/BT_AbilityTest_Empty"})` — empty BT (root only) for TCs that author single nodes off the root composite.
-   - `ai_query("create_behavior_tree", {asset_path: "/Game/Tests/Monolith/AI/BT_AbilityTest_Sequence"})` then `ai_query("add_bt_node", {asset_path: "/Game/Tests/Monolith/AI/BT_AbilityTest_Sequence", node_class: "/Script/AIModule.BTComposite_Sequence", parent_id: ""})` — root + Sequence composite for TCs that need parented nodes (TC2.18). Capture the returned `node_id` for the Sequence — TC2.18 needs that GUID as the `parent_id`.
+5. **Disposable test BTs** under `/Game/Tests/Megalith/AI/` — **DO NOT pre-exist** (verified 2026-04-26 — `Content/Tests/Megalith/AI/` directory not present). Author both as part of test setup:
+   - `ai_query("create_behavior_tree", {asset_path: "/Game/Tests/Megalith/AI/BT_AbilityTest_Empty"})` — empty BT (root only) for TCs that author single nodes off the root composite.
+   - `ai_query("create_behavior_tree", {asset_path: "/Game/Tests/Megalith/AI/BT_AbilityTest_Sequence"})` then `ai_query("add_bt_node", {asset_path: "/Game/Tests/Megalith/AI/BT_AbilityTest_Sequence", node_class: "/Script/AIModule.BTComposite_Sequence", parent_id: ""})` — root + Sequence composite for TCs that need parented nodes (TC2.18). Capture the returned `node_id` for the Sequence — TC2.18 needs that GUID as the `parent_id`.
    - **Note (Phase J F1 BT crash hardening):** F-Phase F1 added a Tier-1 invariant — tasks may NOT attach as direct children of root. Always wire a composite first, then parent tasks under that composite. See §Failure Modes "F1 BT crash hardening" rows below for the protected error messages.
 
-6. **Disposable test pawn** `/Game/Tests/Monolith/AI/BP_TestAIPawn` — **DO NOT pre-exist** (verified 2026-04-26 — project ships no ASC-bearing pawn). Author via:
-   1. `blueprint_query("create_blueprint", {parent_class: "/Script/Engine.Pawn", path: "/Game/Tests/Monolith/AI/BP_TestAIPawn"})`
-   2. `blueprint_query("add_component", {bp_path: "/Game/Tests/Monolith/AI/BP_TestAIPawn", component_class: "/Script/GameplayAbilities.AbilitySystemComponent", component_name: "AbilitySystem"})` (replication mode = Mixed for multiplayer TCs).
+6. **Disposable test pawn** `/Game/Tests/Megalith/AI/BP_TestAIPawn` — **DO NOT pre-exist** (verified 2026-04-26 — project ships no ASC-bearing pawn). Author via:
+   1. `blueprint_query("create_blueprint", {parent_class: "/Script/Engine.Pawn", path: "/Game/Tests/Megalith/AI/BP_TestAIPawn"})`
+   2. `blueprint_query("add_component", {bp_path: "/Game/Tests/Megalith/AI/BP_TestAIPawn", component_class: "/Script/GameplayAbilities.AbilitySystemComponent", component_name: "AbilitySystem"})` (replication mode = Mixed for multiplayer TCs).
    3. Author or assign `AAIController` BP that calls `RunBehaviorTree` driving a configurable BT slot.
-   4. Author a `BeginPlay` event that calls `ASC->InitAbilityActorInfo(this, this)`. For ability granting: **preferred** (Phase J F8) — call `gas_query("grant_ability_to_pawn", {pawn_bp_path: "/Game/Tests/Monolith/AI/BP_TestAIPawn", ability_class_path: "/Game/Tests/Monolith/Abilities/GA_Test_Instant"})` per ability. NOTE: requires the ASC subclass to expose a `TArray<TSubclassOf<UGameplayAbility>>` UPROPERTY whose name contains "Ability" (stock `UAbilitySystemComponent` does NOT — author a project ASC subclass with `StartupAbilities` first). Fallback if no ASC subclass is in play: author a one-shot BeginPlay test helper that loops `gas::give_ability` at runtime.
-   5. `blueprint_query("compile_blueprint", {bp_path: "/Game/Tests/Monolith/AI/BP_TestAIPawn"})` — assert `ok=true`.
+   4. Author a `BeginPlay` event that calls `ASC->InitAbilityActorInfo(this, this)`. For ability granting: **preferred** (Phase J F8) — call `gas_query("grant_ability_to_pawn", {pawn_bp_path: "/Game/Tests/Megalith/AI/BP_TestAIPawn", ability_class_path: "/Game/Tests/Megalith/Abilities/GA_Test_Instant"})` per ability. NOTE: requires the ASC subclass to expose a `TArray<TSubclassOf<UGameplayAbility>>` UPROPERTY whose name contains "Ability" (stock `UAbilitySystemComponent` does NOT — author a project ASC subclass with `StartupAbilities` first). Fallback if no ASC subclass is in play: author a one-shot BeginPlay test helper that loops `gas::give_ability` at runtime.
+   5. `blueprint_query("compile_blueprint", {bp_path: "/Game/Tests/Megalith/AI/BP_TestAIPawn"})` — assert `ok=true`.
 
    The BeginPlay event-graph authoring may exceed agent-MCP fluency; if so, fall back to Lucas-driven manual authoring of just that event graph, but the asset path + ASC component + class parent above are MCP-reachable and SHOULD be authored that way.
 
 7. **No-ASC variant pawn** `BP_TestAIPawn_NoASC` — same author steps as #6 MINUS step 2 (no ASC component) and step 4 (no ability grants). Used for missing-ASC failure path.
 
 ### Initial-state assertions before any test runs
-- `monolith_discover("ai")` includes `add_bt_use_ability_task`.
+- `megalith_discover("ai")` includes `add_bt_use_ability_task`.
 - Action count for `ai` namespace == previous count + 1 (record current count first via discovery).
 - `BT_AbilityTest_Empty` has exactly one node (root) before any test runs.
 
@@ -54,7 +54,7 @@
 ### TC2.1 — Golden path: ability fires when task ticks (instant)
 **Goal:** Action authors a node; pawn running the BT activates the instant ability immediately.
 **Setup:**
-- Author task: `ai::add_bt_use_ability_task(asset_path=/Game/Tests/Monolith/AI/BT_AbilityTest_Empty, ability_class=/Game/Tests/Monolith/Abilities/GA_Test_Instant, wait_for_end=true)`.
+- Author task: `ai::add_bt_use_ability_task(asset_path=/Game/Tests/Megalith/AI/BT_AbilityTest_Empty, ability_class=/Game/Tests/Megalith/Abilities/GA_Test_Instant, wait_for_end=true)`.
 - Verify response shape (TC2.10).
 - Spawn `BP_TestAIPawn` running `BT_AbilityTest_Empty`.
 **Steps:**
@@ -62,7 +62,7 @@
 2. Hook `ASC->OnAbilityEnded` and count fires.
 3. Run BT for 0.5s.
 4. Read fire counts.
-5. Read BT execution trail by tailing the editor log: `mcp__leviathan-dev-toolkit__tail_log({lines: 200})` and grep for `LogMonolithAI` / `LogBehaviorTree` lines emitted by the new task. (Note: `ai::get_bt_execution_log` does NOT exist and is NOT in the Phase F8 scope — log-tailing is the canonical mechanism. A structured execution-log action remains an open extension if a future phase decides it's worth the engine-instrumentation cost.)
+5. Read BT execution trail by tailing the editor log: `mcp__leviathan-dev-toolkit__tail_log({lines: 200})` and grep for `LogMegalithAI` / `LogBehaviorTree` lines emitted by the new task. (Note: `ai::get_bt_execution_log` does NOT exist and is NOT in the Phase F8 scope — log-tailing is the canonical mechanism. A structured execution-log action remains an open extension if a future phase decides it's worth the engine-instrumentation cost.)
 **Expected:** Activation count >= 1. End count >= 1. Task reports `Succeeded`.
 **Pass criteria:** Both counts > 0. Final BT node status `Succeeded`. No `Failed` events on the task during the run.
 
@@ -99,7 +99,7 @@
 **Expected:**
 - Variant A: `TryActivateAbilityByClass` returns false; task `Failed` immediately; no end-delegate subscribed (verify weak-ptr count).
 - Variant B: Same activation result but task `Succeeded`.
-**Pass criteria:** Variant A reports Failed; Variant B reports Succeeded; in BOTH variants `OnAbilityActivated` count == 0; `OnAbilityEnded` count == 0; `LogMonolithAI Warning` line emitted explaining "activation blocked: cooldown".
+**Pass criteria:** Variant A reports Failed; Variant B reports Succeeded; in BOTH variants `OnAbilityActivated` count == 0; `OnAbilityEnded` count == 0; `LogMegalithAI Warning` line emitted explaining "activation blocked: cooldown".
 
 ### TC2.5 — Ability requirements not met (missing ASC)
 **Goal:** Pawn without ASC -> task fails immediately, no crash.
@@ -111,7 +111,7 @@
 2. Run BT.
 3. Read result.
 **Expected:** No crash. No null deref in `ResolveASC`. Log message identifies the ASC-resolution failure.
-**Pass criteria:** Variant A `Failed`, Variant B `Succeeded`. Log line `LogMonolithAI Warning: BTTask_TryActivateAbility: no ASC on pawn 'BP_TestAIPawn_NoASC_C_0'`. Zero crashes; zero ensures.
+**Pass criteria:** Variant A `Failed`, Variant B `Succeeded`. Log line `LogMegalithAI Warning: BTTask_TryActivateAbility: no ASC on pawn 'BP_TestAIPawn_NoASC_C_0'`. Zero crashes; zero ensures.
 
 ### TC2.6 — Ability blocked by tag query
 **Goal:** Block-by-tag is treated identically to cooldown (activation false).
@@ -201,7 +201,7 @@
 
 ### TC2.14 — ABP / ability recompile survival
 **Goal:** Recompiling the GA Blueprint while BT exists doesn't crash node instances.
-**Setup:** Author task with a Blueprint ability `/Game/Tests/Monolith/Abilities/GA_Test_BP_Instant`. Save BT.
+**Setup:** Author task with a Blueprint ability `/Game/Tests/Megalith/Abilities/GA_Test_BP_Instant`. Save BT.
 **Steps:**
 1. Spawn pawn, run BT once - verify pass.
 2. Open `GA_Test_BP_Instant`, modify a tag, recompile.
@@ -230,10 +230,10 @@
 ```jsonc
 {
   "ok": true,
-  "asset_path": "/Game/Tests/Monolith/AI/BT_AbilityTest_Empty",
+  "asset_path": "/Game/Tests/Megalith/AI/BT_AbilityTest_Empty",
   "node_id": "<GUID>",
   "node_class": "BTTask_TryActivateAbility",
-  "ability_class": "/Game/Tests/Monolith/Abilities/GA_Test_Instant",
+  "ability_class": "/Game/Tests/Megalith/Abilities/GA_Test_Instant",
   // ability_tags  — OMITTED when not set (mutually exclusive with ability_class)
   "wait_for_end": true,
   "succeed_on_blocked": false,
@@ -254,9 +254,9 @@
 **Goal:** Adding under a Sequence puts the node as that Sequence's child, not root's.
 **Steps:**
 1. On `BT_AbilityTest_Sequence`, capture the Sequence node's GUID. Three options:
-   - **Preferred:** `ai_query("get_bt_graph", {asset_path: "/Game/Tests/Monolith/AI/BT_AbilityTest_Sequence"})` (Phase J F8) — returns a flat node array; find the row with `node_class="BTComposite_Sequence"` and read its `node_id`.
+   - **Preferred:** `ai_query("get_bt_graph", {asset_path: "/Game/Tests/Megalith/AI/BT_AbilityTest_Sequence"})` (Phase J F8) — returns a flat node array; find the row with `node_class="BTComposite_Sequence"` and read its `node_id`.
    - **Equivalent:** the GUID returned by the `add_bt_node` call in §Setup #5 (creating the Sequence) — store and reuse if you have it.
-   - **Fallback:** `ai_query("export_bt_spec", {asset_path: "/Game/Tests/Monolith/AI/BT_AbilityTest_Sequence"})` and parse the returned spec for the Sequence node's `node_id`.
+   - **Fallback:** `ai_query("export_bt_spec", {asset_path: "/Game/Tests/Megalith/AI/BT_AbilityTest_Sequence"})` and parse the returned spec for the Sequence node's `node_id`.
 2. Author task with `parent_id=<sequence-guid>`.
 3. Read graph (via `export_bt_spec` again) — task is child of Sequence, not root.
 **Pass criteria:** Verified via reading the graph topology (export_bt_spec) after authoring.
@@ -270,7 +270,7 @@
 | Both `ability_class` and `ability_tags` set | both populated | `ok=false, error="Specify exactly one of ability_class or ability_tags, not both"` |
 | Neither set | both null/empty | `ok=false, error="Must specify either ability_class or ability_tags"` |
 | `ability_class` path doesn't exist | `/Game/Bogus/GA_None` | `ok=false, error="Ability class asset not found: /Game/Bogus/GA_None"` |
-| `ability_class` path exists but isn't `UGameplayAbility` subclass | path to `/Game/Tests/Monolith/UIBinding/AS_TestVitals` (the AttributeSet authored in J1 §Setup; verified to exist 2026-04-26) | `ok=false, error="Asset at /Game/Tests/Monolith/UIBinding/AS_TestVitals is not a UGameplayAbility subclass (got AttributeSet)"` |
+| `ability_class` path exists but isn't `UGameplayAbility` subclass | path to `/Game/Tests/Megalith/UIBinding/AS_TestVitals` (the AttributeSet authored in J1 §Setup; verified to exist 2026-04-26) | `ok=false, error="Asset at /Game/Tests/Megalith/UIBinding/AS_TestVitals is not a UGameplayAbility subclass (got AttributeSet)"` |
 | Native class name not found | `ability_class="UNotARealAbility"` | `ok=false, error="Native class 'UNotARealAbility' not found"` |
 | `ability_tags` empty array | `ability_tags=[]` | `ok=false, error="ability_tags must contain at least one tag"` |
 | `ability_tags` all invalid | `ability_tags=["Bogus.Tag"]` (not registered) | `ok=false, error="No valid GameplayTags in ability_tags. Unknown: [Bogus.Tag]"` (if strict) OR `ok=true, warnings=["Unknown tag: Bogus.Tag"]` (if permissive — H2 plan defaults permissive via RequestGameplayTag bErrorIfNotFound=false) |
@@ -280,7 +280,7 @@
 | `parent_id` not a valid GUID in this BT | `parent_id="abc"` (not a GUID) | `ok=false, error="parent_id 'abc' is not a valid GUID"` |
 | `parent_id` valid GUID but not a node in this BT | random valid GUID | `ok=false, error="No node with GUID '...' in BT 'BT_X'"` |
 | `parent_id` is a non-composite (e.g., a Task itself) | leaf GUID | `ok=false, error="parent node 'Task_X' is not a composite (cannot have children)"` |
-| Ability not granted on ASC at runtime | `TryActivate*` returns false | `LogMonolithAI Warning: TryActivate failed for class GA_X on ASC ASC_Y` — not an action error, runtime path |
+| Ability not granted on ASC at runtime | `TryActivate*` returns false | `LogMegalithAI Warning: TryActivate failed for class GA_X on ASC ASC_Y` — not an action error, runtime path |
 
 ### Failure Modes — Phase F1 BT crash hardening (added 2026-04-26)
 
@@ -318,7 +318,7 @@ These guard the Tier-1 `ValidateParentForChildTask` invariant introduced for the
 1. **`UGameplayAbility::WasCancelled()` availability (H2 open question 1)** — TC2.3 / TC2.7 rely on it. Implementation must verify via `source_query`. If absent in 5.7, switch to `OnAbilityEndedWithData` and read `bWasCancelled` from `FAbilityEndedData`. Test author for J2 should assume `WasCancelled()` works; if PR review flags switch, test code shifts to use the data variant.
 2. **TC2.11 spec-handle filtering (H2 open question 3)** — currently drafted as a test that will FAIL if implementation uses tag-only filtering. Confirm with I2 implementer whether spec-handle capture lands; if not, mark TC2.11 as "expected fail, deferred fix" until follow-up.
 3. **Native class name resolution (H2 open question 2)** — TC2.16 covers the asset-path path; add TC2.19 if native class strings are accepted: author task with `ability_class="UGA_DefaultMeleeAttack"` (native). Validate via `FindFirstObject<UClass>`.
-4. **TC2.5 missing-ASC log message** — implementation should emit a clear, controller-name-tagged log line. Verify it's `LogMonolithAI` not `LogTemp`.
+4. **TC2.5 missing-ASC log message** — implementation should emit a clear, controller-name-tagged log line. Verify it's `LogMegalithAI` not `LogTemp`.
 5. **TC2.9 first-match determinism** — UE's `TryActivateAbilitiesByTag` order is "first matching ability spec by handle order". This is not a stable contract across spec re-grants. Test currently asserts "exactly ONE fires"; do NOT assert which one without spec-order control.
 
 ### Dependencies on I-phase landing

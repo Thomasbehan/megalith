@@ -1,11 +1,11 @@
 ---
 name: unreal-blueprints
-description: Use when working with Unreal Engine Blueprints via Monolith MCP — reading, creating, modifying, compiling Blueprints. Covers variables, components, functions, nodes, pins, interfaces, graph management, DataTables, structs, enums, templates, layout, timelines, level blueprints, CDO properties, and graph export/import. Triggers on Blueprint, BP, event graph, node, variable, function graph, component, compile, interface, DataTable, struct, enum, template, layout, timeline, level blueprint, CDO.
+description: Use when working with Unreal Engine Blueprints via Megalith MCP — reading, creating, modifying, compiling Blueprints. Covers variables, components, functions, nodes, pins, interfaces, graph management, DataTables, structs, enums, templates, layout, timelines, level blueprints, CDO properties, and graph export/import. Triggers on Blueprint, BP, event graph, node, variable, function graph, component, compile, interface, DataTable, struct, enum, template, layout, timeline, level blueprint, CDO.
 ---
 
 # Unreal Blueprint Workflows
 
-**89 Blueprint actions** via `blueprint_query()`. Discover first: `monolith_discover({ namespace: "blueprint" })`
+**89 Blueprint actions** via `blueprint_query()`. Discover first: `megalith_discover({ namespace: "blueprint" })`
 
 Also works on: Level Blueprints (map path or `$current`), Widget Blueprints.
 
@@ -184,7 +184,7 @@ Nodes use spec IDs (e.g., `"id": "evt"`) mapped to real IDs in connections/pin_d
 | `compare_blueprints` | `asset_path_a`, `asset_path_b` | Structural diff |
 | `list_templates` | — | Available templates |
 | `apply_template` | `template_name`, `asset_path`, `params`? | Apply template |
-| `auto_layout` | `asset_path`, `graph_name`?, `layout_mode`?, `formatter`? | Auto-arrange. Modes: `all`/`new_only`/`selected`. Formatter: `monolith`/`blueprint_assist` |
+| `auto_layout` | `asset_path`, `graph_name`?, `layout_mode`?, `formatter`? | Auto-arrange. Modes: `all`/`new_only`/`selected`. Formatter: `megalith`/`blueprint_assist` |
 | `add_event_node` | `asset_path`, `event_name`, `replication`?, `reliable`? | Override/custom event with RPC |
 | `add_comment_node` | `asset_path`, `text`, `node_ids`?, `color`? | Comment box |
 | `batch_execute` | `asset_path`, `operations`, `compile_on_complete`? | Multiple ops, one round-trip |

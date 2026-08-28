@@ -1,11 +1,11 @@
 ---
 name: unreal-gas
-description: Use when working with Unreal Engine Gameplay Ability System (GAS) via Monolith MCP — creating and editing abilities, attribute sets, gameplay effects, ASC setup, gameplay tags, gameplay cues, targeting, input binding, runtime inspection, and project scaffolding. Triggers on GAS, ability, attribute, gameplay effect, gameplay tag, gameplay cue, ASC, ability system, cooldown, modifier, stacking, ability task.
+description: Use when working with Unreal Engine Gameplay Ability System (GAS) via Megalith MCP — creating and editing abilities, attribute sets, gameplay effects, ASC setup, gameplay tags, gameplay cues, targeting, input binding, runtime inspection, and project scaffolding. Triggers on GAS, ability, attribute, gameplay effect, gameplay tag, gameplay cue, ASC, ability system, cooldown, modifier, stacking, ability task.
 ---
 
 # Unreal GAS Workflows
 
-**130 GAS actions** across 10 categories via `gas_query()`. Discover first: `monolith_discover({ namespace: "gas" })`
+**130 GAS actions** across 10 categories via `gas_query()`. Discover first: `megalith_discover({ namespace: "gas" })`
 
 ## Key Parameters
 

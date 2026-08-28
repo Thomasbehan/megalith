@@ -1,11 +1,11 @@
 ---
 name: unreal-audio
-description: Use when creating, editing, or inspecting Unreal Engine audio assets via Monolith MCP. Covers Sound Cues, MetaSounds, attenuation, sound classes, submixes, batch ops, and templates. Triggers on audio, sound, metasound, sound cue, attenuation, submix, reverb.
+description: Use when creating, editing, or inspecting Unreal Engine audio assets via Megalith MCP. Covers Sound Cues, MetaSounds, attenuation, sound classes, submixes, batch ops, and templates. Triggers on audio, sound, metasound, sound cue, attenuation, submix, reverb.
 ---
 
 # Unreal Audio Workflows
 
-**81 audio actions** via `audio_query()`. Discover first: `monolith_discover({ namespace: "audio" })`
+**81 audio actions** via `audio_query()`. Discover first: `megalith_discover({ namespace: "audio" })`
 
 ## Key Parameters
 

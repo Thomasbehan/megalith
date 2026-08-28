@@ -2,7 +2,7 @@
 """Lint agent .md files for frontmatter tool-allowlist drift.
 
 Walks every agent file in `.claude/agents/` and verifies that any
-`mcp__monolith__<name>` dispatcher referenced in the prompt body is
+`mcp__megalith__<name>` dispatcher referenced in the prompt body is
 also declared in the YAML frontmatter `tools:` line. ToolSearch's
 `select:` operates over the agent's surfaced deferred-tool universe,
 so anything absent from `tools:` is invisible to `select:` -- which
@@ -17,12 +17,12 @@ import re
 import sys
 from pathlib import Path
 
-# Project root is two parents up from Plugins/Monolith/Scripts/.
+# Project root is two parents up from Plugins/Megalith/Scripts/.
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent
 AGENTS_DIR = PROJECT_ROOT / ".claude" / "agents"
 
-DISPATCHER_RE = re.compile(r"mcp__monolith__[A-Za-z_]+")
+DISPATCHER_RE = re.compile(r"mcp__megalith__[A-Za-z_]+")
 
 
 def parse_tools_line(text: str) -> tuple[set[str], int] | None:

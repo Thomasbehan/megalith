@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""tag_path_params.py — Monolith param-kind tagging maintenance tool.
+"""tag_path_params.py — Megalith param-kind tagging maintenance tool.
 
 Rewrites `.Required(TEXT("x_path"), TEXT("string"), TEXT("desc"))` style
 FParamSchemaBuilder calls into the path-kind sugar overloads
 (`RequiredAssetPath` / `OptionalAssetPath` / `RequiredDiskPath` /
 `OptionalDiskPath`, plus the `*WithDefault` and alias variants) defined in
-`MonolithCore/Public/MonolithParamSchema.h`.
+`MegalithCore/Public/MegalithParamSchema.h`.
 
 Only string-typed params whose NAME matches a path pattern are considered.
 Classification (AssetPath vs DiskPath vs leave-Other) is heuristic, driven by
@@ -24,7 +24,7 @@ import os
 import re
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Plugins/Monolith
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Plugins/Megalith
 
 # A single .Required/.Optional call. Captures the method and the raw arg list.
 # We then sub-parse the arg list manually because TEXT("...") strings can
@@ -291,7 +291,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--apply', action='store_true', help='write changes in place')
     args = ap.parse_args()
-    files = glob.glob(os.path.join(ROOT, 'Source', 'Monolith*', '**', '*Actions.cpp'), recursive=True)
+    files = glob.glob(os.path.join(ROOT, 'Source', 'Megalith*', '**', '*Actions.cpp'), recursive=True)
     report = {'asset': [], 'disk': [], 'other': [], 'files': set()}
     total_edits = 0
     for f in sorted(files):

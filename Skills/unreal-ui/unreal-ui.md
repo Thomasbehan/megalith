@@ -1,13 +1,13 @@
 ---
 name: unreal-ui
-description: Use when working with Unreal Engine UI via Monolith MCP — creating widget blueprints, building HUDs, menus, settings panels, styling, animations, data binding, save systems, and accessibility. Triggers on UI, HUD, widget, menu, settings, save game, accessibility, font, anchor, toast, dialog, loading screen.
+description: Use when working with Unreal Engine UI via Megalith MCP — creating widget blueprints, building HUDs, menus, settings panels, styling, animations, data binding, save systems, and accessibility. Triggers on UI, HUD, widget, menu, settings, save game, accessibility, font, anchor, toast, dialog, loading screen.
 ---
 
 # Unreal UI Workflows
 
-**117 UI actions** via `ui_query()` in full-stack: 66 always-on + 51 CommonUI conditional on CommonUI plugin (post Phase A–L MonolithUI architecture expansion, 2026-04-26). Discover with `monolith_discover({ namespace: "ui" })`. Filter to CommonUI only: `monolith_discover({ namespace: "ui", category: "CommonUI" })`. Always-on surface: Widget CRUD (7), Slot (3), Templates (8), Styling (6), v1 Animation (5 — `create_animation` + `add_animation_keyframe` `[DEPRECATED]` Phase L; prefer `create_animation_v2`), v2 Animation hoisted (5), Bindings (4), Settings scaffolds (5), Accessibility (4), Hoisted Design Import (5), EffectSurface (10), **Spec Builder (3 — `build_ui_from_spec`, `dump_ui_spec_schema`, `dump_ui_spec`)**, Type Registry diagnostic (1).
+**117 UI actions** via `ui_query()` in full-stack: 66 always-on + 51 CommonUI conditional on CommonUI plugin (post Phase A–L MegalithUI architecture expansion, 2026-04-26). Discover with `megalith_discover({ namespace: "ui" })`. Filter to CommonUI only: `megalith_discover({ namespace: "ui", category: "CommonUI" })`. Always-on surface: Widget CRUD (7), Slot (3), Templates (8), Styling (6), v1 Animation (5 — `create_animation` + `add_animation_keyframe` `[DEPRECATED]` Phase L; prefer `create_animation_v2`), v2 Animation hoisted (5), Bindings (4), Settings scaffolds (5), Accessibility (4), Hoisted Design Import (5), EffectSurface (10), **Spec Builder (3 — `build_ui_from_spec`, `dump_ui_spec_schema`, `dump_ui_spec`)**, Type Registry diagnostic (1).
 
-**CommonUI actions require the CommonUI engine plugin** (stock UE 5.7, `Engine/Plugins/Runtime/CommonUI/`). When absent, 51 actions silently unregister (50 in `Source/MonolithUI/Private/CommonUI/*.cpp` + 1 inline `dump_style_cache_stats` lambda). Detect via `monolith_discover`.
+**CommonUI actions require the CommonUI engine plugin** (stock UE 5.7, `Engine/Plugins/Runtime/CommonUI/`). When absent, 51 actions silently unregister (50 in `Source/MegalithUI/Private/CommonUI/*.cpp` + 1 inline `dump_style_cache_stats` lambda). Detect via `megalith_discover`.
 
 ## Key Parameters
 
@@ -87,7 +87,7 @@ description: Use when working with Unreal Engine UI via Monolith MCP — creatin
 
 ## Capturing UMG Widgets to PNG (editor:: action)
 
-`editor_query("capture_scene_preview", { asset_path: "/Game/UI/WBP_Foo", asset_type: "widget", scale: 1.5 })` renders a Widget Blueprint offscreen via `FWidgetRenderer` and writes a PNG. Optional `scale` is a DPI multiplier. Useful for design reviews, accessibility audits, and verifying menu scaffolds before PIE. See `monolith_guide(section="recipes")` entry "Visual introspection -- going beyond thumbnails".
+`editor_query("capture_scene_preview", { asset_path: "/Game/UI/WBP_Foo", asset_type: "widget", scale: 1.5 })` renders a Widget Blueprint offscreen via `FWidgetRenderer` and writes a PNG. Optional `scale` is a DPI multiplier. Useful for design reviews, accessibility audits, and verifying menu scaffolds before PIE. See `megalith_guide(section="recipes")` entry "Visual introspection -- going beyond thumbnails".
 
 ## Horror UI + Accessibility Guidelines
 
@@ -112,7 +112,7 @@ description: Use when working with Unreal Engine UI via Monolith MCP — creatin
 
 Require the CommonUI engine plugin. Stock in UE 5.7 at `Engine/Plugins/Runtime/CommonUI/`. Build.cs detects via 3-location scan; missing plugin → actions silently unregister.
 
-Filter the listing: `monolith_discover({ namespace: "ui", category: "CommonUI" })`. Runtime-phase actions marked `[RUNTIME]` require a PIE session.
+Filter the listing: `megalith_discover({ namespace: "ui", category: "CommonUI" })`. Runtime-phase actions marked `[RUNTIME]` require a PIE session.
 
 ### A: Activatable Lifecycle (8)
 

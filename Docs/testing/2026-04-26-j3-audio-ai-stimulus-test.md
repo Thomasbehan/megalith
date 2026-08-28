@@ -3,37 +3,37 @@
 **Status:** Spec only — implementation tests pending I3 landing + editor restart.
 
 **Source plan:** `Docs/plans/2026-04-26-audio-ai-stimulus-binding.md` (H3 design, I3 implementation)
-**Phase J brief:** `Plugins/Monolith/Docs/plans/2026-04-25-comprehensive-fix-plan.md:341-346`
+**Phase J brief:** `Plugins/Megalith/Docs/plans/2026-04-25-comprehensive-fix-plan.md:341-346`
 **Action surface under test:** `audio::bind_sound_to_perception`, `audio::unbind_sound_from_perception`, `audio::get_sound_perception_binding`, `audio::list_perception_bound_sounds`
-**Runtime classes under test:** `UMonolithSoundPerceptionUserData`, `UMonolithAudioPerceptionSubsystem`, `UMonolithAudioPerceptionStatics::PlaySoundAndReportNoise`
+**Runtime classes under test:** `UMegalithSoundPerceptionUserData`, `UMegalithAudioPerceptionSubsystem`, `UMegalithAudioPerceptionStatics::PlaySoundAndReportNoise`
 
 ---
 
 ## Setup
 
 ### Prerequisites
-1. **I3 has landed** — UBT clean, `MonolithAudio` rebuilt with AIModule dep, NEW `MonolithAudioRuntime` sub-module shipped + loaded, `Monolith.uplugin` Modules array updated.
+1. **I3 has landed** — UBT clean, `MegalithAudio` rebuilt with AIModule dep, NEW `MegalithAudioRuntime` sub-module shipped + loaded, `Megalith.uplugin` Modules array updated.
 2. **Editor up**, MCP connected, project loaded.
-3. **MonolithAudioRuntime module loaded** — preferred check: `editor_query("get_module_status", {module_names: ["MonolithAudioRuntime"]})` (Phase J F8) returns a row with `enabled=true, loaded=true, plugin_name="Monolith"`. Cross-check / fallback: `monolith_discover("audio")` should still return the four perception actions (`bind_sound_to_perception`, `unbind_sound_from_perception`, `get_sound_perception_binding`, `list_perception_bound_sounds`); their presence confirms the runtime sub-module ran `RegisterActions` and is loaded.
+3. **MegalithAudioRuntime module loaded** — preferred check: `editor_query("get_module_status", {module_names: ["MegalithAudioRuntime"]})` (Phase J F8) returns a row with `enabled=true, loaded=true, plugin_name="Megalith"`. Cross-check / fallback: `megalith_discover("audio")` should still return the four perception actions (`bind_sound_to_perception`, `unbind_sound_from_perception`, `get_sound_perception_binding`, `list_perception_bound_sounds`); their presence confirms the runtime sub-module ran `RegisterActions` and is loaded.
 
-4. **Disposable test audio assets** under `/Game/Tests/Monolith/Audio/` — **NONE pre-exist** (verified 2026-04-26 — no `Content/Tests/Monolith/Audio/` directory). Author each as part of test setup:
-   - `SC_PerceptionTestCue` — simple SoundCue with WavePlayer + Looping=false. ~0.5s duration. Used as the canonical bind target. Author: `audio_query("create_sound_cue", {asset_path: "/Game/Tests/Monolith/Audio/SC_PerceptionTestCue", wave_path: "<small_test_wave>"})`.
-   - `SC_PerceptionLoopCue` — same but Looping=true, 1s wave. Used for loop-fire-once test. Author: `audio_query("create_sound_cue", {asset_path: "/Game/Tests/Monolith/Audio/SC_PerceptionLoopCue", wave_path: "<small_test_wave>", looping: true})` (use the SoundCue's loop node if `looping` param not exposed).
-   - `MS_PerceptionTestSource` — empty MetaSoundSource (just an output gain). Used to verify AssetUserData on MetaSoundSource. Author: `audio_query("create_metasound_source", {asset_path: "/Game/Tests/Monolith/Audio/MS_PerceptionTestSource"})`.
+4. **Disposable test audio assets** under `/Game/Tests/Megalith/Audio/` — **NONE pre-exist** (verified 2026-04-26 — no `Content/Tests/Megalith/Audio/` directory). Author each as part of test setup:
+   - `SC_PerceptionTestCue` — simple SoundCue with WavePlayer + Looping=false. ~0.5s duration. Used as the canonical bind target. Author: `audio_query("create_sound_cue", {asset_path: "/Game/Tests/Megalith/Audio/SC_PerceptionTestCue", wave_path: "<small_test_wave>"})`.
+   - `SC_PerceptionLoopCue` — same but Looping=true, 1s wave. Used for loop-fire-once test. Author: `audio_query("create_sound_cue", {asset_path: "/Game/Tests/Megalith/Audio/SC_PerceptionLoopCue", wave_path: "<small_test_wave>", looping: true})` (use the SoundCue's loop node if `looping` param not exposed).
+   - `MS_PerceptionTestSource` — empty MetaSoundSource (just an output gain). Used to verify AssetUserData on MetaSoundSource. Author: `audio_query("create_metasound_source", {asset_path: "/Game/Tests/Megalith/Audio/MS_PerceptionTestSource"})`.
    - `SW_PerceptionTestWave` — bare USoundWave (5kB blip). Used to verify AssetUserData on USoundWave directly. SoundWave creation requires a real `.wav` import — either reuse a project-existing tiny wave (numerous available under `Content\Sounds\` and `Plugins\Resonance\Content\`) by reference, or import a 0.5s 1kHz tone via an editor import action. If neither is reachable via MCP, fall back to Lucas-driven manual import.
-   - `SC_PerceptionDisabled` — same as `SC_PerceptionTestCue` but bound with `enabled=false`. Author: `audio_query("create_sound_cue", {asset_path: "/Game/Tests/Monolith/Audio/SC_PerceptionDisabled", wave_path: "<same_wave>"})`.
+   - `SC_PerceptionDisabled` — same as `SC_PerceptionTestCue` but bound with `enabled=false`. Author: `audio_query("create_sound_cue", {asset_path: "/Game/Tests/Megalith/Audio/SC_PerceptionDisabled", wave_path: "<same_wave>"})`.
 
-5. **Disposable test scene** `/Game/Tests/Monolith/Audio/Map_AudioPerceptionH3.umap` — **DOES NOT pre-exist** (verified 2026-04-26 — no `Map_*` assets under `Content/Tests/Monolith/`). Author and populate:
-   - **Map authoring:** `editor_query("create_empty_map", {path: "/Game/Tests/Monolith/Audio/Map_AudioPerceptionH3", map_template: "blank"})` (Phase J F8) — creates a fully blank UWorld asset and saves the package.
+5. **Disposable test scene** `/Game/Tests/Megalith/Audio/Map_AudioPerceptionH3.umap` — **DOES NOT pre-exist** (verified 2026-04-26 — no `Map_*` assets under `Content/Tests/Megalith/`). Author and populate:
+   - **Map authoring:** `editor_query("create_empty_map", {path: "/Game/Tests/Megalith/Audio/Map_AudioPerceptionH3", map_template: "blank"})` (Phase J F8) — creates a fully blank UWorld asset and saves the package.
    - **Listener AI pawn `BP_TestHearingPawn`** — does NOT pre-exist; create as disposable:
-     1. `blueprint_query("create_blueprint", {parent_class: "/Script/Engine.Pawn", path: "/Game/Tests/Monolith/Audio/BP_TestHearingPawn"})`
-     2. `ai_query("add_perception_to_actor", {actor_bp_path: "/Game/Tests/Monolith/Audio/BP_TestHearingPawn", senses: ["Hearing"], hearing_range: 3000})` (Phase J F8) — adds the perception component + Hearing sense in one call. Replaces the prior `blueprint_query("add_component")` + manual SenseConfig wiring path.
+     1. `blueprint_query("create_blueprint", {parent_class: "/Script/Engine.Pawn", path: "/Game/Tests/Megalith/Audio/BP_TestHearingPawn"})`
+     2. `ai_query("add_perception_to_actor", {actor_bp_path: "/Game/Tests/Megalith/Audio/BP_TestHearingPawn", senses: ["Hearing"], hearing_range: 3000})` (Phase J F8) — adds the perception component + Hearing sense in one call. Replaces the prior `blueprint_query("add_component")` + manual SenseConfig wiring path.
      3. Author or assign `AAIController` BP that possesses on spawn.
      4. Test-only listener: a Blueprint event graph (or C++ helper) that subscribes to `Perception->OnPerceptionUpdated` and pushes `FActorPerceptionUpdateInfo` entries into an array readable by the test agent.
-     5. `blueprint_query("compile_blueprint", {bp_path: "/Game/Tests/Monolith/Audio/BP_TestHearingPawn"})` — assert `ok=true`.
+     5. `blueprint_query("compile_blueprint", {bp_path: "/Game/Tests/Megalith/Audio/BP_TestHearingPawn"})` — assert `ok=true`.
    - **Noise-source actor `BP_TestNoiseEmitter`** — does NOT pre-exist; create as disposable:
-     1. `blueprint_query("create_blueprint", {parent_class: "/Script/Engine.Actor", path: "/Game/Tests/Monolith/Audio/BP_TestNoiseEmitter"})`
-     2. `blueprint_query("add_component", {bp_path: "/Game/Tests/Monolith/Audio/BP_TestNoiseEmitter", component_class: "/Script/Engine.AudioComponent", component_name: "Audio"})` — set `bAutoActivate=false`; sound assigned per-test.
+     1. `blueprint_query("create_blueprint", {parent_class: "/Script/Engine.Actor", path: "/Game/Tests/Megalith/Audio/BP_TestNoiseEmitter"})`
+     2. `blueprint_query("add_component", {bp_path: "/Game/Tests/Megalith/Audio/BP_TestNoiseEmitter", component_class: "/Script/Engine.AudioComponent", component_name: "Audio"})` — set `bAutoActivate=false`; sound assigned per-test.
    - **Wall actor `BP_TestWall`** (used by TC3.3) — does NOT pre-exist; create as disposable. Either:
      - `editor_query("spawn_actor", {class_path: "/Script/Engine.StaticMeshActor", static_mesh_path: "/Engine/BasicShapes/Cube", world_transform: {...}, bBlockVisibility: true})` (preferred — pure spawn, no asset to clean up after the run), OR
      - Lucas-driven manual placement of a BSP block in the test map.
@@ -42,8 +42,8 @@
 6. **No-owner emitter actor** for 2D-style sounds: not strictly required since the subsystem path falls back to `ReportNoiseEvent` directly when AC has no owner — testable via creating a transient `UAudioComponent` programmatically.
 
 ### Initial-state assertions before any test runs
-- `monolith_discover("audio")` includes `bind_sound_to_perception`, `unbind_sound_from_perception`, `get_sound_perception_binding`, `list_perception_bound_sounds`.
-- All test sounds initially have NO `UMonolithSoundPerceptionUserData` (verify via `get_sound_perception_binding` returns `bound: false`).
+- `megalith_discover("audio")` includes `bind_sound_to_perception`, `unbind_sound_from_perception`, `get_sound_perception_binding`, `list_perception_bound_sounds`.
+- All test sounds initially have NO `UMegalithSoundPerceptionUserData` (verify via `get_sound_perception_binding` returns `bound: false`).
 - Listener pawn in scene receives no perception events on idle (5-frame baseline check).
 
 ---
@@ -76,7 +76,7 @@
 2. Wait 10 frames.
 3. Read event list.
 **Expected:** Zero perception events.
-**Pass criteria:** Event count delta == 0. No `OnPerceptionUpdated` calls. `FAINoiseEvent` was still dispatched (verify via `LogMonolithAudioRuntime Verbose` or test hook on `MakeNoise` call) — the engine's hearing-sense range check is what filters, not the action.
+**Pass criteria:** Event count delta == 0. No `OnPerceptionUpdated` calls. `FAINoiseEvent` was still dispatched (verify via `LogMegalithAudioRuntime Verbose` or test hook on `MakeNoise` call) — the engine's hearing-sense range check is what filters, not the action.
 
 ### TC3.3 — Hearing has no LOS check (max_range matters, walls don't)
 **Goal:** Confirm hearing sense ignores LOS even with a wall between emitter and listener.
@@ -117,7 +117,7 @@
 1. AC with no owner plays.
 2. Read event list.
 **Expected:** Zero events.
-**Pass criteria:** Event count delta == 0. `LogMonolithAudioRuntime Verbose` line: "skipping perception fire (no owner, bRequireOwningActor=true)".
+**Pass criteria:** Event count delta == 0. `LogMegalithAudioRuntime Verbose` line: "skipping perception fire (no owner, bRequireOwningActor=true)".
 
 ### TC3.7 — Authority gate (HasAuthority check)
 **Goal:** `MakeNoise` is `BlueprintAuthorityOnly`; on a remote client (non-authority), the subsystem must NOT fire.
@@ -145,11 +145,11 @@
 **Pass criteria:** Either outcome is acceptable as long as it's CONSISTENT and DOCUMENTED. The TC's role is to verify that whichever behaviour the implementation chose, it's intentional and not a crash. NO crash, NO ensure, NO null-deref. Implementation note required if path (b): document that dedicated-server perception requires the static helper `PlaySoundAndReportNoise` rather than the auto-hook subsystem.
 
 ### TC3.9 — Fire-and-forget mitigation: `PlaySoundAndReportNoise` static
-**Goal:** `UMonolithAudioPerceptionStatics::PlaySoundAndReportNoise` covers the gap that `UGameplayStatics::PlaySoundAtLocation` leaves.
+**Goal:** `UMegalithAudioPerceptionStatics::PlaySoundAndReportNoise` covers the gap that `UGameplayStatics::PlaySoundAtLocation` leaves.
 **Setup:** Bind `SC_PerceptionTestCue`. NO UAudioComponent — just call the static.
 **Steps:**
 1. Snapshot perception event count.
-2. Call `UMonolithAudioPerceptionStatics::PlaySoundAndReportNoise(World, SC_PerceptionTestCue, FVector(1500,0,0), 1.0, -1, instigator)` where `LoudnessOverride=-1` means "use UserData".
+2. Call `UMegalithAudioPerceptionStatics::PlaySoundAndReportNoise(World, SC_PerceptionTestCue, FVector(1500,0,0), 1.0, -1, instigator)` where `LoudnessOverride=-1` means "use UserData".
 3. Wait 5 frames.
 4. Read events.
 **Expected:** Listener receives stimulus at (1500,0,0) with the bound loudness/range/tag.
@@ -289,7 +289,7 @@
 ```jsonc
 {
   "ok": true,
-  "asset_path": "/Game/Tests/Monolith/Audio/SC_PerceptionTestCue",
+  "asset_path": "/Game/Tests/Megalith/Audio/SC_PerceptionTestCue",
   "asset_class": "SoundCue",
   "binding": {
     "loudness": 1.0,
@@ -330,15 +330,15 @@
 | `tag` over 255 chars | huge string | `ok=false, error="tag exceeds 255 characters"` (FName length limit) |
 | `sense_class` unknown | `sense_class="Smell"` | `ok=false, error="Unsupported sense_class 'Smell'. v1 supports: [Hearing]"` |
 | `sense_class` valid future class but not mapped | `sense_class="Sight"` | `ok=false, error="sense_class 'Sight' deferred to v2"` (or similar — until visual stimuli are spec'd) |
-| Subsystem hook fails (audio engine null) | dedicated server, no audio | `LogMonolithAudioRuntime Warning: skipping AC hook (no audio device)` — runtime path, not action error |
-| `PlaySoundAndReportNoise` with null Sound | `Sound=nullptr` | runtime no-op, `LogMonolithAudioRuntime Warning: PlaySoundAndReportNoise called with null Sound`, no crash |
+| Subsystem hook fails (audio engine null) | dedicated server, no audio | `LogMegalithAudioRuntime Warning: skipping AC hook (no audio device)` — runtime path, not action error |
+| `PlaySoundAndReportNoise` with null Sound | `Sound=nullptr` | runtime no-op, `LogMegalithAudioRuntime Warning: PlaySoundAndReportNoise called with null Sound`, no crash |
 | `unbind` on path that's not a USoundBase | path to BP | `ok=false, error="Asset is not a USoundBase"` |
 | `list_perception_bound_sounds` empty world | no bound assets | `ok=true, sounds=[]` (NOT an error) |
 | Binding action called when AssetRegistry not ready | called during cooker startup | `ok=false, error="AssetRegistry not yet scanned; retry in editor session"` |
 
 ### Phase F11 — Audio Perception Validation Coverage (added 2026-04-26)
 
-These rows pin the F11 validation patch — `ValidateBindingParams` pre-flight + strict `ParseSenseClass` allowlist — that closed five silent-accept seams previously logged as J3 FAILs (results doc lines 103–107). Pattern mirrors the F2/F3 hardening pass on `MonolithGASUIBindingActions.cpp`. All checks apply to `bind_sound_to_perception` only; sibling read/list actions take no validation-relevant params.
+These rows pin the F11 validation patch — `ValidateBindingParams` pre-flight + strict `ParseSenseClass` allowlist — that closed five silent-accept seams previously logged as J3 FAILs (results doc lines 103–107). Pattern mirrors the F2/F3 hardening pass on `MegalithGASUIBindingActions.cpp`. All checks apply to `bind_sound_to_perception` only; sibling read/list actions take no validation-relevant params.
 
 | TC ID | Case | Input | Expected |
 |-------|------|-------|----------|
@@ -370,7 +370,7 @@ These rows pin the F11 validation patch — `ValidateBindingParams` pre-flight +
 
 ### Dependencies on I-phase landing
 - I3 must ship before any TC runs.
-- New `MonolithAudioRuntime` sub-module must be added to `Monolith.uplugin` Modules array AND build as Type:Runtime.
+- New `MegalithAudioRuntime` sub-module must be added to `Megalith.uplugin` Modules array AND build as Type:Runtime.
 - `Map_AudioPerceptionH3.umap` is a test fixture, authored during test setup, not in I3 deliverables.
 - TC3.7 / TC3.8 require multiplayer or dedicated-server PIE configs — manual setup per Lucas (agents can spawn but can't drive multiplayer playthroughs).
 
@@ -395,5 +395,5 @@ Total this spec: **25 test cases + 11 failure-mode rows**.
 
 ### Issues uncovered while reading the H3 plan
 - **The H3 plan §3.3 Approach C "Cons" list** flags subsystem actor-spawn enumeration as the "most likely friction point" but does not make a final decision. TC3.16 + TC3.17 lock-in both paths as required behaviour; if I3 ships only one, the other test fails. Recommend I3 ships BOTH paths in the same patch.
-- **The fire-and-forget gap (`PlaySoundAtLocation`)** is documented but covered ONLY by the static helper. Projects using legacy `PlaySoundAtLocation` in untouched code will silently miss perception. Spec doc should call this out prominently in `SPEC_MonolithAudio.md`.
+- **The fire-and-forget gap (`PlaySoundAtLocation`)** is documented but covered ONLY by the static helper. Projects using legacy `PlaySoundAtLocation` in untouched code will silently miss perception. Spec doc should call this out prominently in `SPEC_MegalithAudio.md`.
 - **`bRequireOwningActor` default** — H3 plan defaults it `true`. Test TC3.5 / TC3.6 both pass against this default. If a project author wants 2D ambient audio to fire perception (e.g., a thunderclap), they must explicitly set `bRequireOwningActor=false`. Recommend a TC3.27 manual-confirmation test for this UX.

@@ -1,4 +1,4 @@
-# Contributing to Monolith
+# Contributing to Megalith
 
 Thanks for your interest in contributing. This guide covers everything you need to get started.
 
@@ -16,61 +16,61 @@ Thanks for your interest in contributing. This guide covers everything you need 
 ```bash
 # Clone into your project's Plugins directory
 cd YourProject/Plugins
-git clone https://github.com/tumourlove/monolith.git Monolith
+git clone https://github.com/tumourlove/megalith.git Megalith
 
 # Or clone the standalone development repo
-git clone https://github.com/tumourlove/monolith.git C:\Projects\Monolith
+git clone https://github.com/tumourlove/megalith.git C:\Projects\Megalith
 ```
 
-Generate project files and build from your UE project as usual. Monolith is an editor-only plugin — all 13 modules have `Type: "Editor"`.
+Generate project files and build from your UE project as usual. Megalith is an editor-only plugin — all 13 modules have `Type: "Editor"`.
 
 ### Development Workflow
 
 Clone the repo into your UE project's `Plugins/` folder and develop in-place:
 
 ```
-YourProject/Plugins/Monolith/   — edit, build, commit, push from here
+YourProject/Plugins/Megalith/   — edit, build, commit, push from here
 ```
 
 ---
 
 ## Code Structure
 
-Monolith has 13 modules, each owning a specific domain:
+Megalith has 13 modules, each owning a specific domain:
 
 | Module | Namespace | Actions | What It Does |
 |--------|-----------|---------|--------------|
-| **MonolithCore** | `monolith` | 4 | HTTP server, tool registry, discovery, settings, auto-updater |
-| **MonolithBlueprint** | `blueprint` | 86 | Blueprint read/write, variable/component/graph CRUD, node operations, compile, auto-layout |
-| **MonolithMaterial** | `material` | 57 | Material graph editing, inspection, CRUD, instances, functions, HLSL |
-| **MonolithAnimation** | `animation` | 115 | Sequences, montages, ABPs, curves, notifies, skeletons, PoseSearch, IKRig, Control Rig |
-| **MonolithNiagara** | `niagara` | 96 | Particle systems, emitters, modules, renderers, HLSL, dynamic inputs, event handlers, sim stages |
-| **MonolithMesh** | `mesh` | 242 | Mesh inspection, scene manipulation, spatial queries, blockout, procedural geometry, lighting, audio, town gen (197 core + 45 experimental) |
-| **MonolithEditor** | `editor` | 19 | Build triggers, live compile, log capture, crash context, scene capture, texture import |
-| **MonolithConfig** | `config` | 6 | INI resolution, explain, diff, search |
-| **MonolithIndex** | `project` | 7 | SQLite FTS5 deep project indexer |
-| **MonolithSource** | `source` | 11 | Engine source lookup, call graphs, class hierarchy |
-| **MonolithUI** | `ui` | 42 | Widget Blueprint CRUD, templates, styling, animation, settings scaffolding, accessibility |
-| **MonolithGAS** | `gas` | 130 | Gameplay Ability System: abilities, attributes, effects, ASC, tags, cues, targeting, input, inspect, scaffold |
-| **MonolithBABridge** | — | 0 | Optional Blueprint Assist integration bridge (no MCP actions — integration only) |
+| **MegalithCore** | `megalith` | 4 | HTTP server, tool registry, discovery, settings, auto-updater |
+| **MegalithBlueprint** | `blueprint` | 86 | Blueprint read/write, variable/component/graph CRUD, node operations, compile, auto-layout |
+| **MegalithMaterial** | `material` | 57 | Material graph editing, inspection, CRUD, instances, functions, HLSL |
+| **MegalithAnimation** | `animation` | 115 | Sequences, montages, ABPs, curves, notifies, skeletons, PoseSearch, IKRig, Control Rig |
+| **MegalithNiagara** | `niagara` | 96 | Particle systems, emitters, modules, renderers, HLSL, dynamic inputs, event handlers, sim stages |
+| **MegalithMesh** | `mesh` | 242 | Mesh inspection, scene manipulation, spatial queries, blockout, procedural geometry, lighting, audio, town gen (197 core + 45 experimental) |
+| **MegalithEditor** | `editor` | 19 | Build triggers, live compile, log capture, crash context, scene capture, texture import |
+| **MegalithConfig** | `config` | 6 | INI resolution, explain, diff, search |
+| **MegalithIndex** | `project` | 7 | SQLite FTS5 deep project indexer |
+| **MegalithSource** | `source` | 11 | Engine source lookup, call graphs, class hierarchy |
+| **MegalithUI** | `ui` | 42 | Widget Blueprint CRUD, templates, styling, animation, settings scaffolding, accessibility |
+| **MegalithGAS** | `gas` | 130 | Gameplay Ability System: abilities, attributes, effects, ASC, tags, cues, targeting, input, inspect, scaffold |
+| **MegalithBABridge** | — | 0 | Optional Blueprint Assist integration bridge (no MCP actions — integration only) |
 
 Each module follows the same file structure:
 
 ```
-Source/MonolithFoo/
+Source/MegalithFoo/
   Public/
-    MonolithFooModule.h
-    MonolithFooActions.h
+    MegalithFooModule.h
+    MegalithFooActions.h
   Private/
-    MonolithFooModule.cpp
-    MonolithFooActions.cpp
+    MegalithFooModule.cpp
+    MegalithFooActions.cpp
 ```
 
 ---
 
 ## How to Add a New Action
 
-Actions are the atomic units of functionality. Each domain module registers actions with the central `FMonolithToolRegistry`.
+Actions are the atomic units of functionality. Each domain module registers actions with the central `FMegalithToolRegistry`.
 
 ### 1. Declare the handler
 
@@ -85,7 +85,7 @@ static TSharedPtr<FJsonObject> HandleMyAction(const TSharedPtr<FJsonObject>& Par
 In your module's `Actions.cpp`:
 
 ```cpp
-TSharedPtr<FJsonObject> FMonolithFooActions::HandleMyAction(const TSharedPtr<FJsonObject>& Params)
+TSharedPtr<FJsonObject> FMegalithFooActions::HandleMyAction(const TSharedPtr<FJsonObject>& Params)
 {
     // Extract params
     FString AssetPath = Params->GetStringField(TEXT("asset_path"));
@@ -104,16 +104,16 @@ TSharedPtr<FJsonObject> FMonolithFooActions::HandleMyAction(const TSharedPtr<FJs
 In your module's `Module.cpp`:
 
 ```cpp
-void FMonolithFooModule::StartupModule()
+void FMegalithFooModule::StartupModule()
 {
-    FMonolithToolRegistry& Registry = FMonolithToolRegistry::Get();
+    FMegalithToolRegistry& Registry = FMegalithToolRegistry::Get();
 
     Registry.RegisterAction(
         TEXT("foo"),                    // namespace
         TEXT("my_action"),             // action name
         TEXT("Description of what it does"),
         TEXT("{\"asset_path\": \"string (required)\"}"),  // param schema
-        &FMonolithFooActions::HandleMyAction
+        &FMegalithFooActions::HandleMyAction
     );
 }
 ```
@@ -126,12 +126,12 @@ If your domain has a skill in `Skills/`, add the new action to its action table.
 
 ## How to Add a New Indexer
 
-MonolithIndex uses a plugin-style indexer system. Each indexer implements `IMonolithIndexer`.
+MegalithIndex uses a plugin-style indexer system. Each indexer implements `IMegalithIndexer`.
 
 ### 1. Create the indexer class
 
 ```cpp
-class FMyIndexer : public IMonolithIndexer
+class FMyIndexer : public IMegalithIndexer
 {
 public:
     virtual TArray<UClass*> GetSupportedClasses() const override
@@ -140,7 +140,7 @@ public:
     }
 
     virtual void IndexAsset(
-        FMonolithIndexDatabase& DB,
+        FMegalithIndexDatabase& DB,
         const FAssetData& AssetData,
         UObject* LoadedAsset) override
     {
@@ -154,7 +154,7 @@ public:
 
 ### 2. Register in the subsystem
 
-Add your indexer to `UMonolithIndexSubsystem::Initialize()`:
+Add your indexer to `UMegalithIndexSubsystem::Initialize()`:
 
 ```cpp
 Indexers.Add(MakeUnique<FMyIndexer>());
@@ -162,7 +162,7 @@ Indexers.Add(MakeUnique<FMyIndexer>());
 
 ### 3. Add DB tables if needed
 
-If your indexer needs new tables, add the schema in `FMonolithIndexDatabase::CreateSchema()`. Follow the existing pattern with `CREATE TABLE IF NOT EXISTS`.
+If your indexer needs new tables, add the schema in `FMegalithIndexDatabase::CreateSchema()`. Follow the existing pattern with `CREATE TABLE IF NOT EXISTS`.
 
 ---
 
@@ -176,12 +176,12 @@ If your indexer needs new tables, add the schema in `FMonolithIndexDatabase::Cre
 
 ### Logging
 
-Use the `LogMonolith` category for all log output:
+Use the `LogMegalith` category for all log output:
 
 ```cpp
-UE_LOG(LogMonolith, Log, TEXT("Something happened: %s"), *Value);
-UE_LOG(LogMonolith, Warning, TEXT("Something unexpected: %s"), *Value);
-UE_LOG(LogMonolith, Error, TEXT("Something failed: %s"), *Error);
+UE_LOG(LogMegalith, Log, TEXT("Something happened: %s"), *Value);
+UE_LOG(LogMegalith, Warning, TEXT("Something unexpected: %s"), *Value);
+UE_LOG(LogMegalith, Error, TEXT("Something failed: %s"), *Error);
 ```
 
 Do **not** use `LogTemp`.
@@ -213,10 +213,10 @@ return Error;
 
 ### Asset Loading
 
-Use the 4-tier fallback in `FMonolithAssetUtils`:
+Use the 4-tier fallback in `FMegalithAssetUtils`:
 
 ```cpp
-UBlueprint* BP = FMonolithAssetUtils::LoadAssetByPath<UBlueprint>(AssetPath);
+UBlueprint* BP = FMegalithAssetUtils::LoadAssetByPath<UBlueprint>(AssetPath);
 ```
 
 This handles: StaticLoadObject -> PackageName.ObjectName -> FindObject+_C suffix -> ForEachObjectWithPackage.
@@ -225,7 +225,7 @@ This handles: StaticLoadObject -> PackageName.ObjectName -> FindObject+_C suffix
 
 ## Testing
 
-Monolith exposes a Streamable HTTP MCP server. You can test with curl or any MCP client.
+Megalith exposes a Streamable HTTP MCP server. You can test with curl or any MCP client.
 
 ### curl Examples
 
@@ -247,7 +247,7 @@ curl -X POST http://localhost:9316/mcp \
 ```bash
 curl -X POST http://localhost:9316/mcp \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"monolith_status","arguments":{}}}'
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"megalith_status","arguments":{}}}'
 ```
 
 ### MCP Client
@@ -257,7 +257,7 @@ Configure your `.mcp.json` (see `Templates/.mcp.json.example`):
 ```json
 {
   "mcpServers": {
-    "monolith": {
+    "megalith": {
       "type": "streamableHttp",
       "url": "http://localhost:9316/mcp"
     }
@@ -269,7 +269,7 @@ Then use Claude Code or any MCP-compatible client to interact with the tools.
 
 ### What to Verify
 
-- Your action appears in `monolith_discover` output
+- Your action appears in `megalith_discover` output
 - Valid params return correct results
 - Missing/invalid params return clear error JSON (not crashes)
 - Asset paths with various formats work (the 4-tier fallback)
@@ -291,9 +291,9 @@ We follow a clear, contributor-friendly workflow where author credit and Git his
    ```
 
 2. **Develop & Test Direct**
-   - Build and test directly in your Unreal Engine project (`Plugins/Monolith`).
+   - Build and test directly in your Unreal Engine project (`Plugins/Megalith`).
    - Execute tests directly via MCP tool calls or HTTP endpoints to ensure clear visibility into parameters, responses, and errors.
-   - If adding new actions, verify the action registers with `monolith_discover` and schema validates with `describe_query`.
+   - If adding new actions, verify the action registers with `megalith_discover` and schema validates with `describe_query`.
 
 3. **Documentation Updates**
    If introducing or modifying actions:
@@ -327,7 +327,7 @@ We follow a clear, contributor-friendly workflow where author credit and Git his
 ## Architecture Notes
 
 - **Discovery/dispatch pattern** — Each domain exposes one `{namespace}_query(action, params)` MCP tool. The registry dispatches to the correct handler. This keeps AI context lean (15 tools instead of 815 individual endpoints).
-- **Thread safety** — `FMonolithToolRegistry` releases its lock before executing handlers. DB access uses `FCriticalSection`.
+- **Thread safety** — `FMegalithToolRegistry` releases its lock before executing handlers. DB access uses `FCriticalSection`.
 - **Stateless server** — No session tracking. Every request is independent.
 - **MCP protocol version** — 2025-03-26, Streamable HTTP transport.
 

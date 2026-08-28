@@ -2,29 +2,29 @@
 
 **Headline:** Phase D smoke confirms F12 did not regress F2/F3/F5/F6.
 
-**Executed:** 2026-04-26 against Monolith **v0.14.7** (post-F12 / dv.commit.425). Editor up, MCP nominal at port 9316, 1462 total actions, 20 namespaces. Engine `++UE5+Release-5.7-CL-51494982`.
+**Executed:** 2026-04-26 against Megalith **v0.14.7** (post-F12 / dv.commit.425). Editor up, MCP nominal at port 9316, 1462 total actions, 20 namespaces. Engine `++UE5+Release-5.7-CL-51494982`.
 
-**Scope:** Sample-based regression smoke after F12 added cross-namespace MCP dispatcher tooling to 5 agents' frontmatter. F12 is purely additive (frontmatter only, no GAS code touch). 11 high-leverage spot checks vs the J1 spec (`Plugins/Monolith/Docs/testing/2026-04-26-j1-ui-gas-binding-test.md`) and the J1 v0.14.6 baseline (`Plugins/Monolith/Docs/testing/2026-04-26-j1-results.md`).
+**Scope:** Sample-based regression smoke after F12 added cross-namespace MCP dispatcher tooling to 5 agents' frontmatter. F12 is purely additive (frontmatter only, no GAS code touch). 11 high-leverage spot checks vs the J1 spec (`Plugins/Megalith/Docs/testing/2026-04-26-j1-ui-gas-binding-test.md`) and the J1 v0.14.6 baseline (`Plugins/Megalith/Docs/testing/2026-04-26-j1-results.md`).
 
 ---
 
 ## Fixtures
 
-Created under `/Game/Tests/Monolith/J1/` per `feedback_test_assets_throwaway`:
+Created under `/Game/Tests/Megalith/J1/` per `feedback_test_assets_throwaway`:
 
 | Asset | Class | Purpose |
 |-------|-------|---------|
 | `WBP_J1_RegressionTarget` | UWidgetBlueprint (UserWidget root CanvasPanel) | Bind target. Children: `HealthBar` UProgressBar, `ManaCounter` UTextBlock. Authored via `ui::create_widget_blueprint` + 2x `ui::add_widget`. Compiled clean (`status: UpToDate, errors: 0, warnings: 0`). |
 | `BP_J1_NotAWidget` | UBlueprint (parent: AActor) | Non-WBP fixture for E2 LoadWBP wrong-class branch. |
 
-`ULeviathanVitalsSet` (F4 / 2026-04-26 / `Source/Leviathan/Public/GAS/LeviathanVitalsSet.h:40`) used directly as the AttributeSet target — no disposable BP fallback needed this run. Bind strings used the bare-class form `LeviathanVitalsSet.<Attr>` because the resolver's `U`-prefix retry path (`MonolithGASUIBindingActions.cpp:137`) doesn't strip a leading `U` from user input — it adds one. The spec example `ULeviathanVitalsSet.<Attr>` therefore needs the bare-name variant in practice. (Pre-existing impl/spec drift; **not** a Phase J regression.)
+`ULeviathanVitalsSet` (F4 / 2026-04-26 / `Source/Leviathan/Public/GAS/LeviathanVitalsSet.h:40`) used directly as the AttributeSet target — no disposable BP fallback needed this run. Bind strings used the bare-class form `LeviathanVitalsSet.<Attr>` because the resolver's `U`-prefix retry path (`MegalithGASUIBindingActions.cpp:137`) doesn't strip a leading `U` from user input — it adds one. The spec example `ULeviathanVitalsSet.<Attr>` therefore needs the bare-name variant in practice. (Pre-existing impl/spec drift; **not** a Phase J regression.)
 
 ---
 
 ## Per-Row Results
 
 ### A. F2 ParseOwner regression — 3/3 PASS
-Source: `MonolithGASUIBindingActions.cpp:185-221` (`ParseOwner`).
+Source: `MegalithGASUIBindingActions.cpp:185-221` (`ParseOwner`).
 
 | # | Input | Expected | Observed | Verdict |
 |---|-------|----------|----------|---------|
@@ -33,7 +33,7 @@ Source: `MonolithGASUIBindingActions.cpp:185-221` (`ParseOwner`).
 | A3 | `owner_resolver=named_socket:HUDTag` | `ok=true`, socket tag parsed | `ok=true, owner_resolver:"named_socket"`. Subsequent `list_attribute_bindings` confirms `owner_socket_tag:"HUDTag"` stored separately on the spec | **PASS** |
 
 ### B. F3 ValidateFormatStringPayload regression — 2/2 PASS
-Source: `MonolithGASUIBindingActions.cpp:275-297` (`ValidateFormatStringPayload`).
+Source: `MegalithGASUIBindingActions.cpp:275-297` (`ValidateFormatStringPayload`).
 
 | # | Input | Expected | Observed | Verdict |
 |---|-------|----------|----------|---------|
@@ -60,14 +60,14 @@ The Phase J F5 fix split the failure-mode row 9 (path-exists-but-wrong-class) ou
 
 | # | Input | Expected error | Observed | Verdict |
 |---|-------|----------------|----------|---------|
-| E1 | `wbp_path=/Game/Tests/Monolith/J1/DoesNotExist` | "Widget Blueprint asset not found: ..." | `Widget Blueprint asset not found: /Game/Tests/Monolith/J1/DoesNotExist` — byte-exact match vs FM row 8 | **PASS** |
-| E2 | `wbp_path=/Game/Tests/Monolith/J1/BP_J1_NotAWidget` (UBlueprint, not UWidgetBlueprint) | "Asset at ... is not a Widget Blueprint (got Blueprint)" | `Asset at /Game/Tests/Monolith/J1/BP_J1_NotAWidget is not a Widget Blueprint (got Blueprint)` — byte-exact match vs FM row 9. **Branch split now functional** (was collapsed in v0.14.6 J1 run) | **PASS** |
+| E1 | `wbp_path=/Game/Tests/Megalith/J1/DoesNotExist` | "Widget Blueprint asset not found: ..." | `Widget Blueprint asset not found: /Game/Tests/Megalith/J1/DoesNotExist` — byte-exact match vs FM row 8 | **PASS** |
+| E2 | `wbp_path=/Game/Tests/Megalith/J1/BP_J1_NotAWidget` (UBlueprint, not UWidgetBlueprint) | "Asset at ... is not a Widget Blueprint (got Blueprint)" | `Asset at /Game/Tests/Megalith/J1/BP_J1_NotAWidget is not a Widget Blueprint (got Blueprint)` — byte-exact match vs FM row 9. **Branch split now functional** (was collapsed in v0.14.6 J1 run) | **PASS** |
 
 ---
 
 ## Cleanup
 
-`editor::delete_assets` removed 2/2 (`requested:2, found:2, deleted:2`). `/Game/Tests/Monolith/J1/` folder cleared.
+`editor::delete_assets` removed 2/2 (`requested:2, found:2, deleted:2`). `/Game/Tests/Megalith/J1/` folder cleared.
 
 ---
 
@@ -75,10 +75,10 @@ The Phase J F5 fix split the failure-mode row 9 (path-exists-but-wrong-class) ou
 
 | Checkpoint | Result |
 |------------|--------|
-| Pre-flight (T0) | `monolith_status` ok, server_running=true, 1462 actions, port 9316 |
-| Mid-run (after fixture creation) | `monolith_status` stable |
-| Mid-run (after E1/E2 negative tests) | `monolith_status` stable |
-| Post-cleanup (final) | `monolith_status` stable, same version + action count |
+| Pre-flight (T0) | `megalith_status` ok, server_running=true, 1462 actions, port 9316 |
+| Mid-run (after fixture creation) | `megalith_status` stable |
+| Mid-run (after E1/E2 negative tests) | `megalith_status` stable |
+| Post-cleanup (final) | `megalith_status` stable, same version + action count |
 
 **Crash flags:** none.
 

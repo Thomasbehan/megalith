@@ -1,11 +1,11 @@
 ---
 name: unreal-logicdriver
-description: Use when working with Logic Driver Pro plugin via Monolith MCP -- creating and editing state machines, states, transitions, runtime PIE control, JSON spec builds, scaffolding templates, and text visualization. Triggers on state machine, logic driver, SM blueprint, state graph, FSM, state transition, dialogue tree, quest system, game flow.
+description: Use when working with Logic Driver Pro plugin via Megalith MCP -- creating and editing state machines, states, transitions, runtime PIE control, JSON spec builds, scaffolding templates, and text visualization. Triggers on state machine, logic driver, SM blueprint, state graph, FSM, state transition, dialogue tree, quest system, game flow.
 ---
 
 # Unreal Logic Driver Pro Workflows
 
-**66 LogicDriver actions** across 10 categories via `logicdriver_query()`. Discover first: `monolith_discover({ namespace: "logicdriver" })`
+**66 LogicDriver actions** across 10 categories via `logicdriver_query()`. Discover first: `megalith_discover({ namespace: "logicdriver" })`
 
 ## Key Parameters
 
@@ -126,9 +126,9 @@ description: Use when working with Logic Driver Pro plugin via Monolith MCP -- c
 
 ## Technical Notes
 
-1. **Reflection only** -- Marketplace plugin. MonolithLogicDriver uses UObject reflection, not direct C++ linkage. Works across LD versions.
+1. **Reflection only** -- Marketplace plugin. MegalithLogicDriver uses UObject reflection, not direct C++ linkage. Works across LD versions.
 2. **`#if WITH_LOGICDRIVER`** -- Probes `Plugins/` and `Plugins/Marketplace/`. Empty stub when absent.
-3. **Settings toggle** -- `bEnableLogicDriver` in `UMonolithSettings` (default: true).
+3. **Settings toggle** -- `bEnableLogicDriver` in `UMegalithSettings` (default: true).
 4. **SM Architecture** -- `USMBlueprint` assets with compiled `USMInstance`. Edits update both EdGraph and runtime layers.
 5. **State hierarchy** -- Root: `USMStateInstance_Base`. Key: `USMStateInstance` (standard), `USMStateMachineInstance` (nested), `USMConduitInstance` (branch). Transitions: `USMTransitionInstance`.
 6. **`build_sm_from_spec` format** -- `{ states: [{name, class, properties, event_graphs}], transitions: [{source, target, condition}], entry_state?, metadata? }`.

@@ -1,16 +1,16 @@
 ---
 name: unreal-niagara
-description: Use when creating, editing, or inspecting Niagara particle systems via Monolith MCP. Covers systems, emitters, modules, parameters, renderers, DI, and HLSL. Triggers on Niagara, particle, VFX, emitter, particle system.
+description: Use when creating, editing, or inspecting Niagara particle systems via Megalith MCP. Covers systems, emitters, modules, parameters, renderers, DI, and HLSL. Triggers on Niagara, particle, VFX, emitter, particle system.
 ---
 
 # Unreal Niagara VFX Workflows
 
-You have access to **Monolith** with 129 Niagara actions via `niagara_query()`.
+You have access to **Megalith** with 129 Niagara actions via `niagara_query()`.
 
 ## Discovery
 
 ```
-monolith_discover({ namespace: "niagara" })
+megalith_discover({ namespace: "niagara" })
 ```
 
 ## Asset Path Conventions
@@ -31,7 +31,7 @@ All asset paths follow UE content browser format (no .uasset extension):
 
 ## Cross-Namespace Capabilities
 
-These already-working features span multiple Monolith namespaces and are useful during Niagara workflows:
+These already-working features span multiple Megalith namespaces and are useful during Niagara workflows:
 
 ### Texture/Material Preview
 Agents can call `material_query("render_preview", { "asset_path": "/Game/SomeTexture" })` to preview textures or materials before assigning them to renderers. Works with any texture or material asset path.
@@ -264,7 +264,7 @@ Composite, intent-named writers that replace scattered timing edits (`set_system
 **Input/output format:** `[{"name": "InValue", "type": "float"}, {"name": "Velocity", "type": "vec3"}]`
 **Supported types:** `float`, `int`, `bool`, `vec2`, `vec3`, `vec4`, `color`, `position`, `quat`, `matrix`
 
-**CRITICAL: Before writing custom HLSL, read [`Plugins/Monolith/Docs/NIAGARA_HLSL_GUIDE.md`](../../Docs/NIAGARA_HLSL_GUIDE.md) for the complete body rules.**
+**CRITICAL: Before writing custom HLSL, read [`Plugins/Megalith/Docs/NIAGARA_HLSL_GUIDE.md`](../../Docs/NIAGARA_HLSL_GUIDE.md) for the complete body rules.**
 
 **HLSL body rules (summary):**
 1. Use bare input/output names (e.g. `InValue` / `OutValue`, NOT `Module.InValue`) — the compiler generates `In_X` / `Out_X` internally.
@@ -459,14 +459,14 @@ When creating fire+light effects, do NOT put the Light Renderer on a GPU emitter
 
 ## Rules
 
-- Use `monolith_discover("niagara")` to list action names + one-line descriptions (terse by default) — there are 129 actions. For an action's full param schema call `describe_query action_schema` (or pass `detail=true`)
+- Use `megalith_discover("niagara")` to list action names + one-line descriptions (terse by default) — there are 129 actions. For an action's full param schema call `describe_query action_schema` (or pass `detail=true`)
 - The primary asset param is `asset_path`, NOT `system` or `asset`
 - Module actions require `module_node` (a GUID) — get it from `get_ordered_modules`
 - Module stages: `Emitter Spawn`, `Emitter Update`, `Particle Spawn`, `Particle Update`, `Render`
 - User parameters are the main interface for Blueprint/C++ control of effects
 - Parameter actions now accept the `User.` prefix (e.g. `User.MyParam`) in addition to bare names
 - `di_class` for `set_module_input_di` accepts both `UNiagaraDataInterfaceCurve` and `NiagaraDataInterfaceCurve` — U prefix is optional (auto-resolved)
-- **HLSL modules:** before writing custom HLSL, ALWAYS read [`Plugins/Monolith/Docs/NIAGARA_HLSL_GUIDE.md`](../../Docs/NIAGARA_HLSL_GUIDE.md) for the complete rules. **Key CPU/GPU difference:** GPU simulation CAN directly write `Particles.Velocity` / `Particles.Position` etc. (must wrap in `#if GPU_SIMULATION`); CPU simulation does NOT support `Particles.*` — use output parameters instead. Use bare input/output names (`InColor`, not `Module.InColor`); inputs stay overridable via `set_module_input_value`. Read/overwrite existing `CustomHlsl` nodes with `get_custom_hlsl_text` / `set_custom_hlsl_text`.
+- **HLSL modules:** before writing custom HLSL, ALWAYS read [`Plugins/Megalith/Docs/NIAGARA_HLSL_GUIDE.md`](../../Docs/NIAGARA_HLSL_GUIDE.md) for the complete rules. **Key CPU/GPU difference:** GPU simulation CAN directly write `Particles.Velocity` / `Particles.Position` etc. (must wrap in `#if GPU_SIMULATION`); CPU simulation does NOT support `Particles.*` — use output parameters instead. Use bare input/output names (`InColor`, not `Module.InColor`); inputs stay overridable via `set_module_input_value`. Read/overwrite existing `CustomHlsl` nodes with `get_custom_hlsl_text` / `set_custom_hlsl_text`.
 - When creating VFX, always dispatch material agent FIRST, then assign materials after they're created
 - Verify materials exist before assigning them to renderers
 

@@ -2,8 +2,8 @@
 
 **Date:** 2026-04-26
 **Build:** v0.14.7 / dv.commit.428 — F1+F8+F14+F15+F16 phase J fixes shipped, MCP nominal (1462 actions registered, 20 namespaces).
-**Spec:** `Plugins/Monolith/Docs/testing/2026-04-26-j2-bt-gas-ability-task-test.md`
-**Prior pass:** `Plugins/Monolith/Docs/testing/2026-04-26-j2-results.md` (24 PASS / 0 FAIL / 19 DEFERRED / 3 BLOCKED)
+**Spec:** `Plugins/Megalith/Docs/testing/2026-04-26-j2-bt-gas-ability-task-test.md`
+**Prior pass:** `Plugins/Megalith/Docs/testing/2026-04-26-j2-results.md` (24 PASS / 0 FAIL / 19 DEFERRED / 3 BLOCKED)
 **Executed by:** unreal-ai-expert agent
 
 ---
@@ -49,7 +49,7 @@ Prior 24/0/19/3 → new **48 / 0 / 19 / 3** (PASS / FAIL / DEFERRED / BLOCKED).
 | J2-AB-Crash-04 | PASS | Task GUID as `parent_id` rejected: `add_bt_use_ability_task: parent node '9C666A364272DC90BA449885C22DFB77' is a BTTask_TryActivateAbility; tasks may only be attached to composites (Selector/Sequence/Parallel/SimpleParallel).` Exact protected message. |
 | J2-Sibling-Crash-05 | PASS | `add_bt_node(node_class=BTTask_Wait, parent_id="")` on `BT_J2_Crash05` rejected with `add_bt_node: Cannot add task as direct child of root...` |
 | J2-Sibling-Crash-06 | PASS | `add_bt_run_eqs_task(eqs_path=EQS_J2_Stub, bb_result_key=TargetLoc, parent_id="")` rejected with `add_bt_run_eqs_task: Cannot add task as direct child of root...` (EQS + BB linkage authored as prereq). |
-| J2-Sibling-Crash-07 | DEFERRED | `add_bt_smart_object_task` returns `Smart Object BT task requires the 'GameplayBehaviorSmartObjects' plugin (Edit > Plugins > AI > GameplayBehaviorSmartObjects). This is separate from the core 'SmartObjects' plugin. Enable it and restart the editor.` Plugin-presence check fires BEFORE F1 hardening can be exercised. F1 hardening confirmed in source at `MonolithAIBehaviorTreeActions.cpp:3157`. Same env-blocker as prior pass — no regression. |
+| J2-Sibling-Crash-07 | DEFERRED | `add_bt_smart_object_task` returns `Smart Object BT task requires the 'GameplayBehaviorSmartObjects' plugin (Edit > Plugins > AI > GameplayBehaviorSmartObjects). This is separate from the core 'SmartObjects' plugin. Enable it and restart the editor.` Plugin-presence check fires BEFORE F1 hardening can be exercised. F1 hardening confirmed in source at `MegalithAIBehaviorTreeActions.cpp:3157`. Same env-blocker as prior pass — no regression. |
 | J2-Sibling-Crash-08 | PASS | `build_behavior_tree_from_spec(spec.root.type="BTTask_Wait")` rejected with `build_behavior_tree_from_spec: BT root must be a Composite node (Selector/Sequence/Parallel/SimpleParallel), got Task 'BTTask_Wait'. Wrap your task in a composite.` Exact protected message. |
 | J2-AB-OK-09 | PASS | Documented recovery recipe (add Selector → add ability task under Selector) successful — same path as Crash-02. |
 
@@ -83,16 +83,16 @@ For each site: tested `parent_id`/`node_id`/`new_parent_id`/`dest_parent_id` wit
 | 16 | `clone_bt_subtree` | `dest_parent_id` | `dest_parent_id 'not-a-guid' is not a valid GUID` | `No node with GUID '...' in BT 'BT_J2_CloneDest'` | PASS / PASS |
 
 **F15 GUID-distinction coverage: 28/32 PASS, 4 DEFERRED (rows 13a/13b only — `add_bt_smart_object_task` blocked by GameplayBehaviorSmartObjects plugin not enabled).**
-Source review: `RequireBtNodeByGuid` at `MonolithAIBehaviorTreeActions.cpp:265-294`; deferred site is line 3007 — same `RequireBtNodeByGuid(...)` call signature as exercised sites; verified via grep across 16 call sites at lines 2248, 2339, 2404, 2413, 2486, 2562, 2619, 2695, 2752, 2814, 2858, 3007, 3150, 3388, 4092, 4121.
+Source review: `RequireBtNodeByGuid` at `MegalithAIBehaviorTreeActions.cpp:265-294`; deferred site is line 3007 — same `RequireBtNodeByGuid(...)` call signature as exercised sites; verified via grep across 16 call sites at lines 2248, 2339, 2404, 2413, 2486, 2562, 2619, 2695, 2752, 2814, 2858, 3007, 3150, 3388, 4092, 4121.
 
 ### B'. Empty-Root Spot Check (4 "empty-or-resolve" sites)
 
 | Site | Source line | Status |
 |---|---|---|
-| `add_bt_node` | `MonolithAIBehaviorTreeActions.cpp:2242` | DEFERRED |
-| `add_bt_run_eqs_task` | `MonolithAIBehaviorTreeActions.cpp:3001` | DEFERRED |
-| `add_bt_smart_object_task` | `MonolithAIBehaviorTreeActions.cpp:3144` | DEFERRED |
-| `add_bt_use_ability_task` | `MonolithAIBehaviorTreeActions.cpp:3382` | DEFERRED |
+| `add_bt_node` | `MegalithAIBehaviorTreeActions.cpp:2242` | DEFERRED |
+| `add_bt_run_eqs_task` | `MegalithAIBehaviorTreeActions.cpp:3001` | DEFERRED |
+| `add_bt_smart_object_task` | `MegalithAIBehaviorTreeActions.cpp:3144` | DEFERRED |
+| `add_bt_use_ability_task` | `MegalithAIBehaviorTreeActions.cpp:3382` | DEFERRED |
 
 **All 4 DEFERRED — precondition unreachable via MCP.**
 The "Root node not found in BT graph" error path fires only when `FindRootNode(BTGraph)` returns null. `create_behavior_tree` always wires a `BehaviorTreeGraphNode_Root` edge node at construction, so a fresh BT has a valid Root. The branch is engineering-defensive (guards against package corruption), not reachable through any sequence of MCP calls. Source review confirmed the four sites all emit the literal `"Root node not found in BT graph"` message (and the ability-task variant prefixes with `add_bt_use_ability_task: `). Cannot exercise without direct package corruption (out of test scope).
@@ -114,7 +114,7 @@ When `parent_id=""` is passed and the root EXISTS but has no composite child (th
 
 Notes:
 - `node_name` is set on the underlying BT node (verified via `get_bt_graph` returning `"node_name":"MyCustomName"` for the C3-authored node) but NOT echoed in the action response — this matches F14 omit-when-empty contract per spec line 245.
-- An initial test with `event_tag="Event.Test.Ping"` (NOT registered in `DefaultGameplayTags.ini`) correctly omitted the field because `RequestGameplayTag(bErrorIfNotFound=false)` returned invalid; spec-conformant warn-and-proceed semantic. Confirms the implementation predicate is `EventTag.IsValid()` at `MonolithAIBehaviorTreeActions.cpp:3477-3480`, not raw input presence.
+- An initial test with `event_tag="Event.Test.Ping"` (NOT registered in `DefaultGameplayTags.ini`) correctly omitted the field because `RequestGameplayTag(bErrorIfNotFound=false)` returned invalid; spec-conformant warn-and-proceed semantic. Confirms the implementation predicate is `EventTag.IsValid()` at `MegalithAIBehaviorTreeActions.cpp:3477-3480`, not raw input presence.
 
 ---
 
@@ -160,15 +160,15 @@ Bonus: `get_bt_graph` exposes `node_name` per-row, providing the inspection path
 ## Cleanup
 
 `editor_query("delete_assets")` confirmed `{success:true, deleted:9, requested:9, found:9}`:
-- `/Game/Tests/Monolith/J2/BT_J2_Empty`
-- `/Game/Tests/Monolith/J2/BT_J2_Phase_C`
-- `/Game/Tests/Monolith/J2/BT_J2_Crash05`
-- `/Game/Tests/Monolith/J2/BT_J2_Crash06`
-- `/Game/Tests/Monolith/J2/BT_J2_Crash07`
-- `/Game/Tests/Monolith/J2/BT_J2_CloneDest`
-- `/Game/Tests/Monolith/J2/BT_J2_Regression_Spec`
-- `/Game/Tests/Monolith/J2/EQS_J2_Stub`
-- `/Game/Tests/Monolith/J2/BB_J2_Stub`
+- `/Game/Tests/Megalith/J2/BT_J2_Empty`
+- `/Game/Tests/Megalith/J2/BT_J2_Phase_C`
+- `/Game/Tests/Megalith/J2/BT_J2_Crash05`
+- `/Game/Tests/Megalith/J2/BT_J2_Crash06`
+- `/Game/Tests/Megalith/J2/BT_J2_Crash07`
+- `/Game/Tests/Megalith/J2/BT_J2_CloneDest`
+- `/Game/Tests/Megalith/J2/BT_J2_Regression_Spec`
+- `/Game/Tests/Megalith/J2/EQS_J2_Stub`
+- `/Game/Tests/Megalith/J2/BB_J2_Stub`
 
 ---
 
@@ -197,7 +197,7 @@ Bonus: `get_bt_graph` exposes `node_name` per-row, providing the inspection path
 
 | Action | Spec / convention | Actual required param | Resolution |
 |---|---|---|---|
-| `create_behavior_tree` | many docs say `asset_path` | `save_path` | Already in memory `monolithai_st_eqs_so_quirks.md` |
+| `create_behavior_tree` | many docs say `asset_path` | `save_path` | Already in memory `megalithai_st_eqs_so_quirks.md` |
 | `add_bt_smart_object_task` | spec mentions `activity_tags` array | `activity_tags` STRING (single tag query) | Used single-string form, plugin-blocker hit anyway |
 | `reorder_bt_children` | spec implied `node_id` and `child_order` | `parent_id` and `new_order` | Source-confirmed at `:2848-2872` |
 | `clone_bt_subtree` | spec implied `source_asset_path` / `dest_asset_path` | `source_path` and `dest_path` | Source-confirmed at `:4080-4128` |

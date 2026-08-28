@@ -1,11 +1,11 @@
 ---
 name: unreal-debugging
-description: Use when debugging Unreal Engine issues via Monolith MCP — build errors, editor log searching, crash context, Live Coding builds, and common UE error patterns. Triggers on build error, compile error, crash, log, debug, stack trace, assertion.
+description: Use when debugging Unreal Engine issues via Megalith MCP — build errors, editor log searching, crash context, Live Coding builds, and common UE error patterns. Triggers on build error, compile error, crash, log, debug, stack trace, assertion.
 ---
 
 # Unreal Debugging Workflows
 
-**13 editor diagnostic actions** via `editor_query()`. Discover with `monolith_discover({ namespace: "editor" })`.
+**13 editor diagnostic actions** via `editor_query()`. Discover with `megalith_discover({ namespace: "editor" })`.
 
 ## Action Reference
 

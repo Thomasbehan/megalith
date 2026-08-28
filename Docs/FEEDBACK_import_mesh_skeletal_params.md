@@ -1,20 +1,20 @@
 # Feedback: `mesh::import_mesh` — explicit skeletal / animation import parameters
 
-**Audience:** Monolith maintainers (upstream)  
+**Audience:** Megalith maintainers (upstream)  
 **Origin:** Downstream fork / integration testing (Unreal 5.7, MCP + `mesh_query` → `import_mesh`)  
-**File touched:** `Source/MonolithMesh/Private/MonolithMeshTechArtActions.cpp` (`FMonolithMeshTechArtActions::RegisterActions`, `ImportMesh`)
+**File touched:** `Source/MegalithMesh/Private/MegalithMeshTechArtActions.cpp` (`FMegalithMeshTechArtActions::RegisterActions`, `ImportMesh`)
 
 ---
 
 ## 中文说明（给原作者 / 社区的中文摘要）
 
-**读者：** Monolith 维护者与上游仓库贡献者。  
+**读者：** Megalith 维护者与上游仓库贡献者。  
 **来源：** 下游工程在 UE 5.7 上通过 MCP（`mesh_query` → `import_mesh`）做自动化导入时的实践反馈。  
-**改动文件：** `Source/MonolithMesh/Private/MonolithMeshTechArtActions.cpp`（`RegisterActions` 与 `ImportMesh`）。
+**改动文件：** `Source/MegalithMesh/Private/MegalithMeshTechArtActions.cpp`（`RegisterActions` 与 `ImportMesh`）。
 
 ### 一、动机
 
-通过 Monolith MCP 驱动 FBX 导入时，我们希望对**带骨架的角色 FBX**（骨骼网格 + Skeleton）有**可预期、可在参数里声明的一等支持**，而不是完全依赖引擎启发式行为。
+通过 Megalith MCP 驱动 FBX 导入时，我们希望对**带骨架的角色 FBX**（骨骼网格 + Skeleton）有**可预期、可在参数里声明的一等支持**，而不是完全依赖引擎启发式行为。
 
 **改动前的逻辑：**
 
@@ -27,7 +27,7 @@
 **具体问题：**
 
 1. 智能体与使用者无法通过 JSON **明确表达**「这是角色骨架 FBX」。
-2. Monolith 对未知参数会校验失败：客户端若自行加字段，在未更新服务端 schema 时会出现 `Unknown param ...` 警告，且**无法保证**与 `UFbxImportUI` 绑定。
+2. Megalith 对未知参数会校验失败：客户端若自行加字段，在未更新服务端 schema 时会出现 `Unknown param ...` 警告，且**无法保证**与 `UFbxImportUI` 绑定。
 3. **文档与实现不一致：** 仓库内 `Skills/unreal-mesh/unreal-mesh.md` 仍写 `file_path` / `save_path`，而实现要求的是 `files`（数组）与 `destination`（字符串）。（建议上游单独整理文档。）
 
 ### 二、API 变更（向后兼容）
@@ -90,17 +90,17 @@
 
 ### 六、许可与贡献方式
 
-本改动在下游工程中为生产向 MCP 工作流而加。若上游愿意合并，可直接采用；若更希望用单个 `fbx_options` 对象承载更多导入选项，也可用同等语义替换这两个扁平布尔字段。需要时我们可以向 `tumourlove/monolith` 单独开 PR 提交该补丁。
+本改动在下游工程中为生产向 MCP 工作流而加。若上游愿意合并，可直接采用；若更希望用单个 `fbx_options` 对象承载更多导入选项，也可用同等语义替换这两个扁平布尔字段。需要时我们可以向 `tumourlove/megalith` 单独开 PR 提交该补丁。
 
-### 七、附：`Monolith.uplugin` 编码（与 `import_mesh` 无关，但影响本地 UBT）
+### 七、附：`Megalith.uplugin` 编码（与 `import_mesh` 无关，但影响本地 UBT）
 
-磁盘上的 `Monolith.uplugin` 曾为 **UTF-16 LE**（`FF FE` BOM），导致 **UnrealBuildTool**（UE 5.7，`System.Text.Json`）解析插件清单失败。转为 **UTF-8** 后命令行编译恢复正常。建议上游约定 `.uplugin` 使用 UTF-8，避免各区域工具链差异。
+磁盘上的 `Megalith.uplugin` 曾为 **UTF-16 LE**（`FF FE` BOM），导致 **UnrealBuildTool**（UE 5.7，`System.Text.Json`）解析插件清单失败。转为 **UTF-8** 后命令行编译恢复正常。建议上游约定 `.uplugin` 使用 UTF-8，避免各区域工具链差异。
 
 ---
 
 ## 1. Motivation
 
-When driving FBX import through Monolith MCP (`mesh_query` / `import_mesh`), we needed **predictable, first-class support for rigged character FBX** (SkeletalMesh + skeleton), not only reliance on engine heuristics.
+When driving FBX import through Megalith MCP (`mesh_query` / `import_mesh`), we needed **predictable, first-class support for rigged character FBX** (SkeletalMesh + skeleton), not only reliance on engine heuristics.
 
 **Prior behavior (before this change):**
 
@@ -115,7 +115,7 @@ When driving FBX import through Monolith MCP (`mesh_query` / `import_mesh`), we 
 **Pain points:**
 
 1. Agents and humans cannot **declare intent** (“this FBX is a character rig”) via JSON params.
-2. Monolith’s **parameter validation** rejects unknown keys — so adding skeletal flags in the client without updating the server schema produces `Unknown param ...` warnings and no guaranteed linkage to `UFbxImportUI`.
+2. Megalith’s **parameter validation** rejects unknown keys — so adding skeletal flags in the client without updating the server schema produces `Unknown param ...` warnings and no guaranteed linkage to `UFbxImportUI`.
 3. **Documentation drift:** in-repo skill text (`Skills/unreal-mesh/unreal-mesh.md`) still mentions `file_path` / `save_path`, while the implementation requires `files` (array) + `destination` (string). (Separate cleanup suggestion.)
 
 ---
@@ -191,10 +191,10 @@ Set `import_animations` to `true` when FBX contains clips that should be importe
 
 This change was made in a downstream project for production MCP workflows. We are happy for upstream to adopt, adapt, or replace with a more general FBX import options struct if you prefer a single `fbx_options` object instead of flat booleans.
 
-If useful, we can open a proper GitHub PR against `tumourlove/monolith` with this patch isolated on a branch.
+If useful, we can open a proper GitHub PR against `tumourlove/megalith` with this patch isolated on a branch.
 
 ---
 
 ## 7. Related note (unrelated to `import_mesh`, but blocked local UBT)
 
-`Monolith.uplugin` on disk was **UTF-16 LE** (`FF FE` BOM), which caused **UnrealBuildTool** (UE 5.7, `System.Text.Json`) to fail parsing the plugin manifest. Converting the file to **UTF-8** fixed local command-line builds. Worth verifying encoding policy for `.uplugin` in the upstream repo.
+`Megalith.uplugin` on disk was **UTF-16 LE** (`FF FE` BOM), which caused **UnrealBuildTool** (UE 5.7, `System.Text.Json`) to fail parsing the plugin manifest. Converting the file to **UTF-8** fixed local command-line builds. Worth verifying encoding policy for `.uplugin` in the upstream repo.

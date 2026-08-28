@@ -1,9 +1,9 @@
 # J3 Results — Phase B Retest (post-F11 + F18)
 
 **Run date:** 2026-04-26
-**Engine:** UE 5.7 / CL 51494982 / Monolith **v0.14.7** / dv.commit.428
-**Spec:** `Plugins/Monolith/Docs/testing/2026-04-26-j3-audio-ai-stimulus-test.md`
-**Prior pass:** `Plugins/Monolith/Docs/testing/2026-04-26-j3-results.md` (10 PASS / 5 FAIL / 21 DEFERRED)
+**Engine:** UE 5.7 / CL 51494982 / Megalith **v0.14.7** / dv.commit.428
+**Spec:** `Plugins/Megalith/Docs/testing/2026-04-26-j3-audio-ai-stimulus-test.md`
+**Prior pass:** `Plugins/Megalith/Docs/testing/2026-04-26-j3-results.md` (10 PASS / 5 FAIL / 21 DEFERRED)
 **Tester:** unreal-audio-expert subagent (Phase B retest, sole automated pass)
 
 ---
@@ -29,16 +29,16 @@ The 19 runtime PIE-driven test cases from the original J3 spec (TC3.1–TC3.17, 
 
 | Check | Result | Detail |
 |-------|--------|--------|
-| `monolith_status` first call | PASS | `server_running=true, version=0.14.7, port=9316, actions=1462, namespaces=20` |
+| `megalith_status` first call | PASS | `server_running=true, version=0.14.7, port=9316, actions=1462, namespaces=20` |
 | 4 perception actions present in `audio` namespace | PASS | bind/unbind/get/list — all four registered |
 | `audio::create_test_wave` (F18) present | PASS | Listed in audio actions; param schema requires `path` not `asset_path` (worth noting for future agents) |
-| Disposable test path `/Game/Tests/Monolith/J3/` available | PASS | All test assets created and purged cleanly under that prefix |
+| Disposable test path `/Game/Tests/Megalith/J3/` available | PASS | All test assets created and purged cleanly under that prefix |
 
 ---
 
 ## A. Prior-FAIL re-runs (the headline)
 
-All five rows previously documented as silent-accept FAILs in `2026-04-26-j3-results.md:103-107` now reject correctly with the spec-mandated error text. The validator (`MonolithAudioPerceptionActions.cpp:160-191`) runs at action entry **before** asset load (line 274 vs line 280) — rejections fire pre-listener-resolution, confirming the F11 design hypothesis.
+All five rows previously documented as silent-accept FAILs in `2026-04-26-j3-results.md:103-107` now reject correctly with the spec-mandated error text. The validator (`MegalithAudioPerceptionActions.cpp:160-191`) runs at action entry **before** asset load (line 274 vs line 280) — rejections fire pre-listener-resolution, confirming the F11 design hypothesis.
 
 | TC ID | Prior | New | Input | Returned error (verbatim) | Spec match |
 |-------|-------|-----|-------|---------------------------|-----------|
@@ -67,7 +67,7 @@ Empty strings remain valid input; the validator gates only on length-positive ov
 
 ## C. Case-insensitive sense_class (F2 idiom parity)
 
-`ParseSenseClass` (`MonolithAudioPerceptionActions.cpp:118-147`) uses `ESearchCase::IgnoreCase` for both the short ("Hearing") and full ("AISense_Hearing") class names.
+`ParseSenseClass` (`MegalithAudioPerceptionActions.cpp:118-147`) uses `ESearchCase::IgnoreCase` for both the short ("Hearing") and full ("AISense_Hearing") class names.
 
 | TC ID | Input | Stored sense_class | PASS/FAIL |
 |-------|-------|--------------------|-----------|
@@ -98,15 +98,15 @@ Re-ran the 10 prior-PASS rows from `2026-04-26-j3-results.md` (action-surface su
 
 ## E. F18 — TC3.19 USoundWave direct binding (was DEFERRED)
 
-The prior pass deferred TC3.19 because no MCP route existed to author a disposable USoundWave under `/Game/Tests/Monolith/`. F18 shipped `audio::create_test_wave` to close that gap.
+The prior pass deferred TC3.19 because no MCP route existed to author a disposable USoundWave under `/Game/Tests/Megalith/`. F18 shipped `audio::create_test_wave` to close that gap.
 
 **Steps:**
-1. `audio::create_test_wave({path:"/Game/Tests/Monolith/J3/SW_J3_F18_TC319"})` → 22050 samples, 0.5s, 440Hz sine. PASS.
-2. `audio::bind_sound_to_perception({asset_path:"/Game/Tests/Monolith/J3/SW_J3_F18_TC319", loudness:0.7, max_range:1500, tag:"F18Direct", sense_class:"Hearing"})` → `asset_class:"SoundWave", created:true`. PASS.
+1. `audio::create_test_wave({path:"/Game/Tests/Megalith/J3/SW_J3_F18_TC319"})` → 22050 samples, 0.5s, 440Hz sine. PASS.
+2. `audio::bind_sound_to_perception({asset_path:"/Game/Tests/Megalith/J3/SW_J3_F18_TC319", loudness:0.7, max_range:1500, tag:"F18Direct", sense_class:"Hearing"})` → `asset_class:"SoundWave", created:true`. PASS.
 3. `audio::get_sound_perception_binding(...)` → `has_binding:true`, `binding.tag:"F18Direct"`, `binding.loudness:0.69999998807907104` (float32 round-trip), `binding.sense_class:"AISense_Hearing"`. PASS.
 4. Final list confirmed the wave appears with `asset_class:"SoundWave"`. PASS.
 
-**Result: TC3.19 PASS.** F18 cleanly unblocks the previously-deferred row. The wave was disposable under `/Game/Tests/Monolith/J3/` per Rule 1; no project-content pollution this run (the prior pass had a remediated pollution incident — none here).
+**Result: TC3.19 PASS.** F18 cleanly unblocks the previously-deferred row. The wave was disposable under `/Game/Tests/Megalith/J3/` per Rule 1; no project-content pollution this run (the prior pass had a remediated pollution incident — none here).
 
 The "runtime fires perception event when AC plays the wave" half of TC3.19 remains DEFERRED on PIE-listener dependency (no change vs prior).
 
@@ -116,10 +116,10 @@ The "runtime fires perception event when AC plays the wave" half of TC3.19 remai
 
 | Asset | Status |
 |-------|--------|
-| `/Game/Tests/Monolith/J3/SC_J3_PhaseB_TestCue` (SoundCue) | DELETED |
-| `/Game/Tests/Monolith/J3/SC_J3_PhaseB_TestCue_Source` (SoundWave) | DELETED |
-| `/Game/Tests/Monolith/J3/SW_J3_F18_TC319` (SoundWave) | DELETED |
-| `/Game/Tests/Monolith/J3/MS_J3_PhaseB_TestSource` (MetaSoundSource) | DELETED |
+| `/Game/Tests/Megalith/J3/SC_J3_PhaseB_TestCue` (SoundCue) | DELETED |
+| `/Game/Tests/Megalith/J3/SC_J3_PhaseB_TestCue_Source` (SoundWave) | DELETED |
+| `/Game/Tests/Megalith/J3/SW_J3_F18_TC319` (SoundWave) | DELETED |
+| `/Game/Tests/Megalith/J3/MS_J3_PhaseB_TestSource` (MetaSoundSource) | DELETED |
 
 `editor::delete_assets` returned `{success:true, deleted:4, requested:4, found:4}`. Final `list_perception_bound_sounds` post-cleanup: `{scanned:3453, bound:0, bindings:[]}` — project state fully restored.
 
@@ -141,9 +141,9 @@ The "runtime fires perception event when AC plays the wave" half of TC3.19 remai
 
 ## Code paths verified by inspection (during prep)
 
-- `MonolithAudioPerceptionActions.cpp:118-147` — `ParseSenseClass` strict allowlist with case-insensitive Hearing match, distinct error path for the 5 deferred future classes (Sight/Damage/Touch/Team/Prediction), generic "Unsupported" for all other inputs.
-- `MonolithAudioPerceptionActions.cpp:160-191` — `ValidateBindingParams` runs the four numeric/length/membership checks and returns the exact error strings observed in this run.
-- `MonolithAudioPerceptionActions.cpp:270-277` — Validator invocation occurs **before** `LoadSoundBase` (line 280), confirming pre-asset-load rejection. Rejections fire even with bogus asset paths (untested here — would've masked F11 attribution).
+- `MegalithAudioPerceptionActions.cpp:118-147` — `ParseSenseClass` strict allowlist with case-insensitive Hearing match, distinct error path for the 5 deferred future classes (Sight/Damage/Touch/Team/Prediction), generic "Unsupported" for all other inputs.
+- `MegalithAudioPerceptionActions.cpp:160-191` — `ValidateBindingParams` runs the four numeric/length/membership checks and returns the exact error strings observed in this run.
+- `MegalithAudioPerceptionActions.cpp:270-277` — Validator invocation occurs **before** `LoadSoundBase` (line 280), confirming pre-asset-load rejection. Rejections fire even with bogus asset paths (untested here — would've masked F11 attribution).
 
 ---
 

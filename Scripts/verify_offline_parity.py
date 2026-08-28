@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-verify_offline_parity.py -- HARD-GATE parity guard for the two offline Monolith RI tools.
+verify_offline_parity.py -- HARD-GATE parity guard for the two offline Megalith RI tools.
 
-Byte/deep-diffs the C++ exe (Binaries/monolith_query.exe) against the Python
-reference (Scripts/monolith_offline.py) across 27 actions: 20 Reflection-
+Byte/deep-diffs the C++ exe (Binaries/megalith_query.exe) against the Python
+reference (Scripts/megalith_offline.py) across 27 actions: 20 Reflection-
 Intelligence (RI) actions spanning 4 namespaces (cppreflect, network, decision,
 risk; JSON deep-diff) PLUS 7 source-ergonomics actions (get_include_path,
 get_signature, check_deprecations, verify_symbols, find_example_usage,
@@ -14,7 +14,7 @@ requires every JSON action to deep-equal (INCLUDING the opaque base64
 `next_cursor` bytes -- so the two tools must compute identical filter-hashes qh)
 and every text action's raw stdout to byte-match (trailing newline normalised).
 
-Usage (run from the Monolith plugin root):
+Usage (run from the Megalith plugin root):
     python Scripts/verify_offline_parity.py
     python Scripts/verify_offline_parity.py --ignore-cursor-bytes
     python Scripts/verify_offline_parity.py --live          # FUTURE stub, see below
@@ -27,7 +27,7 @@ stdlib-only. Do not add third-party deps.
 --------------------------------------------------------------------------------
 FUTURE: --live three-way diff (orchestrator-driven, NOT implemented here)
 --------------------------------------------------------------------------------
-The live Monolith MCP server runs in-process inside the Unreal Editor and is
+The live Megalith MCP server runs in-process inside the Unreal Editor and is
 NOT reachable from a standalone CLI script (no stable loopback contract, and
 the editor may be down). A real three-way guard (exe vs py vs live) is therefore
 performed MANUALLY by the orchestrator:
@@ -47,11 +47,11 @@ import sys
 from pathlib import Path
 
 # ------------------------------------------------------------------ paths
-# Script lives in <MonolithRoot>/Scripts/, so the plugin root is parent.parent
+# Script lives in <MegalithRoot>/Scripts/, so the plugin root is parent.parent
 SCRIPT_DIR = Path(__file__).resolve().parent
 MONO_ROOT = SCRIPT_DIR.parent
-EXE_PATH = MONO_ROOT / "Binaries" / "monolith_query.exe"
-PY_PATH = MONO_ROOT / "Scripts" / "monolith_offline.py"
+EXE_PATH = MONO_ROOT / "Binaries" / "megalith_query.exe"
+PY_PATH = MONO_ROOT / "Scripts" / "megalith_offline.py"
 
 # ------------------------------------------------------------------ invocation
 
@@ -348,9 +348,9 @@ def build_actions(chain):
         #                          so both tools emit "MyParityActor.generated.h" / .h
         #                          and the "// === MyParityActor.h ===" banner -- byte-equal.
         ("source.lint_header", "source", "lint_header",
-         ["Source/MonolithSource/Private/Tests/Fixtures/CppErgoCorpus/Source/CppErgoTestMod/LintOrphanUproperty.h.fixture"], "text"),
+         ["Source/MegalithSource/Private/Tests/Fixtures/CppErgoCorpus/Source/CppErgoTestMod/LintOrphanUproperty.h.fixture"], "text"),
         ("source.generate_class_stub", "source", "generate_class_stub",
-         ["AActor", "AMyParityActor", "MonolithSource"], "text"),
+         ["AActor", "AMyParityActor", "MegalithSource"], "text"),
     ]
     return actions
 

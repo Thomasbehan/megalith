@@ -1,6 +1,6 @@
 ---
 name: unreal-cpp
-description: Use when writing or debugging Unreal Engine C++ code via Monolith MCP — engine API lookup, signature verification, include paths, source reading, class hierarchies, config resolution. Triggers on C++, header, include, UCLASS, UFUNCTION, UPROPERTY, Build.cs, linker error.
+description: Use when writing or debugging Unreal Engine C++ code via Megalith MCP — engine API lookup, signature verification, include paths, source reading, class hierarchies, config resolution. Triggers on C++, header, include, UCLASS, UFUNCTION, UPROPERTY, Build.cs, linker error.
 ---
 
 # Unreal C++ Development Workflows
@@ -8,8 +8,8 @@ description: Use when writing or debugging Unreal Engine C++ code via Monolith M
 **~18+ source actions** via `source_query()`, **6 config actions** via `config_query()`.
 
 ```
-monolith_discover({ namespace: "source" })
-monolith_discover({ namespace: "config" })
+megalith_discover({ namespace: "source" })
+megalith_discover({ namespace: "config" })
 ```
 
 ## Source Actions

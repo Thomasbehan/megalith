@@ -3,52 +3,52 @@
 **Status:** Spec only — implementation tests pending I1 landing + editor restart.
 
 **Source plan:** `Docs/plans/2026-04-26-ui-gas-attribute-binding.md` (H1 design, I1 implementation)
-**Phase J brief:** `Plugins/Monolith/Docs/plans/2026-04-25-comprehensive-fix-plan.md:331-335`
+**Phase J brief:** `Plugins/Megalith/Docs/plans/2026-04-25-comprehensive-fix-plan.md:331-335`
 **Action surface under test:** `gas::bind_widget_to_attribute`, `gas::list_attribute_bindings`, `gas::unbind_widget_attribute`, `gas::clear_widget_attribute_bindings`, plus `ui::bind_widget_to_attribute` alias.
-**Runtime classes under test:** `UMonolithGASAttributeBindingClassExtension`, `FMonolithGASAttributeBindingSpec`.
+**Runtime classes under test:** `UMegalithGASAttributeBindingClassExtension`, `FMegalithGASAttributeBindingSpec`.
 
 ---
 
 ## Setup
 
 ### Prerequisites
-1. **I1 has landed** — UBT clean, MonolithGAS module loads, `monolith_discover("gas")` reports the four new actions.
+1. **I1 has landed** — UBT clean, MegalithGAS module loads, `megalith_discover("gas")` reports the four new actions.
 2. **Editor up**, MCP connected, project loaded.
 3. **GAS plugin enabled** in `.uproject` (Leviathan ships with it; verify `WITH_GAMEPLAYABILITIES==1`).
 4. **A C++ AttributeSet exists** for binding targets — Leviathan ships `ULeviathanVitalsSet` at `Source/Leviathan/Public/GAS/LeviathanVitalsSet.h` (production code, F4 / 2026-04-26). Six attributes: `Health`/`MaxHealth`, `Sanity`/`MaxSanity`, `Stamina`/`MaxStamina` (all default 100, replicated `REPNOTIFY_Always`, clamped via `PreAttributeChange` + `PostGameplayEffectExecute`). Bind strings use `ULeviathanVitalsSet.<Attr>`. Spec: `Docs/specs/SPEC_Vitals.md`. **No BP fallback needed** — the prior `UAS_TestVitals` disposable-fallback note is obsolete.
-5. **A test pawn class** with a `UAbilitySystemComponent` and the AttributeSet granted. Author `BP_TestGASPawn` at `/Game/Tests/Monolith/BP_TestGASPawn` as a disposable per `feedback_test_assets_throwaway` — see steps below. **Does NOT pre-exist** (verified 2026-04-26: project ships no ASC-bearing pawn; `SandboxCharacter_CMC` is movement-only and is intentionally not reparented per `feedback_no_reparent_sandboxcharacter`).
+5. **A test pawn class** with a `UAbilitySystemComponent` and the AttributeSet granted. Author `BP_TestGASPawn` at `/Game/Tests/Megalith/BP_TestGASPawn` as a disposable per `feedback_test_assets_throwaway` — see steps below. **Does NOT pre-exist** (verified 2026-04-26: project ships no ASC-bearing pawn; `SandboxCharacter_CMC` is movement-only and is intentionally not reparented per `feedback_no_reparent_sandboxcharacter`).
 
 ### Disposable assets to create (per `feedback_test_assets_throwaway`)
 
 #### Pawn fixture (Setup #5)
 Author the test pawn explicitly via MCP — runtime ASC + AttributeSet grant happen on `BeginPlay`:
-1. `blueprint_query("create_blueprint", {parent_class: "/Script/Engine.Pawn", path: "/Game/Tests/Monolith/BP_TestGASPawn"})`
-2. `blueprint_query("add_component", {bp_path: "/Game/Tests/Monolith/BP_TestGASPawn", component_class: "/Script/GameplayAbilities.AbilitySystemComponent", component_name: "AbilitySystem"})`
+1. `blueprint_query("create_blueprint", {parent_class: "/Script/Engine.Pawn", path: "/Game/Tests/Megalith/BP_TestGASPawn"})`
+2. `blueprint_query("add_component", {bp_path: "/Game/Tests/Megalith/BP_TestGASPawn", component_class: "/Script/GameplayAbilities.AbilitySystemComponent", component_name: "AbilitySystem"})`
 3. Author a `BeginPlay` event that calls `ASC->InitAbilityActorInfo(this, this)` and grants `ULeviathanVitalsSet` (use `gas::give_ability` analogue; AttributeSet is added via `ASC->AddSet<ULeviathanVitalsSet>()` — wire via a small Blueprint event graph or a one-shot `gas::ensure_attribute_set_added` author-time helper if available).
-4. `blueprint_query("compile_blueprint", {bp_path: "/Game/Tests/Monolith/BP_TestGASPawn"})` — assert `ok=true`.
+4. `blueprint_query("compile_blueprint", {bp_path: "/Game/Tests/Megalith/BP_TestGASPawn"})` — assert `ok=true`.
 
 If the editor's BP graph authoring is too costly via MCP for a given test agent, fall back to Lucas-driven manual authoring of the `BeginPlay` event — but the asset path and components above must be reachable via MCP first.
 
 #### Widget Blueprints (Setup §Disposable assets)
 Author via `ui::create_widget_blueprint` + `ui::add_widget` so the named children actually exist (J1 first run had to substitute existing widgets that did not match the spec's named children):
-1. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Monolith/UIBinding/WBP_BindTest_HealthBar"})` then `ui::add_widget({wbp_path: "/Game/Tests/Monolith/UIBinding/WBP_BindTest_HealthBar", widget_class: "ProgressBar", widget_name: "HealthBar", parent: "<root canvas>"})`.
-2. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Monolith/UIBinding/WBP_BindTest_TextCounter"})` then `ui::add_widget({widget_class: "TextBlock", widget_name: "ManaCounter"})`.
-3. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Monolith/UIBinding/WBP_BindTest_ColorImage"})` then `ui::add_widget({widget_class: "Image", widget_name: "StaminaVignette"})`.
-4. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Monolith/UIBinding/WBP_BindTest_Multi"})` + three `ui::add_widget` calls for HealthBar (ProgressBar) / ManaCounter (TextBlock) / StaminaVignette (Image) under one root canvas.
-5. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Monolith/UIBinding/WBP_BindTest_NonBindable"})` then `ui::add_widget({widget_class: "CanvasPanel", widget_name: "Container"})` (failure-mode fixture).
+1. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Megalith/UIBinding/WBP_BindTest_HealthBar"})` then `ui::add_widget({wbp_path: "/Game/Tests/Megalith/UIBinding/WBP_BindTest_HealthBar", widget_class: "ProgressBar", widget_name: "HealthBar", parent: "<root canvas>"})`.
+2. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Megalith/UIBinding/WBP_BindTest_TextCounter"})` then `ui::add_widget({widget_class: "TextBlock", widget_name: "ManaCounter"})`.
+3. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Megalith/UIBinding/WBP_BindTest_ColorImage"})` then `ui::add_widget({widget_class: "Image", widget_name: "StaminaVignette"})`.
+4. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Megalith/UIBinding/WBP_BindTest_Multi"})` + three `ui::add_widget` calls for HealthBar (ProgressBar) / ManaCounter (TextBlock) / StaminaVignette (Image) under one root canvas.
+5. `ui::create_widget_blueprint({asset_path: "/Game/Tests/Megalith/UIBinding/WBP_BindTest_NonBindable"})` then `ui::add_widget({widget_class: "CanvasPanel", widget_name: "Container"})` (failure-mode fixture).
 6. Compile each: `blueprint_query("compile_blueprint", {bp_path: "<path>"})` → assert `ok=true` for all.
 
-If `ui_query` is not surfaced by `ToolSearch` in the agent harness, run `ToolSearch` with `query: "select:mcp__monolith__ui_query"` first (per the dispatcher-loading rule documented in `Docs/research/2026-04-26-j-spec-environment-findings.md` §A).
+If `ui_query` is not surfaced by `ToolSearch` in the agent harness, run `ToolSearch` with `query: "select:mcp__megalith__ui_query"` first (per the dispatcher-loading rule documented in `Docs/research/2026-04-26-j-spec-environment-findings.md` §A).
 
 #### GameplayEffect fixtures
 Author via `gas::create_gameplay_effect` (or `gas::create_effect_from_template`):
-1. `gas::create_gameplay_effect({asset_path: "/Game/Tests/Monolith/UIBinding/GE_TestDamage", duration_policy: "Instant", modifiers: [{attribute: "ULeviathanVitalsSet.Health", op: "Add", magnitude: -25}]})`
-2. `gas::create_gameplay_effect({asset_path: "/Game/Tests/Monolith/UIBinding/GE_TestHeal", duration_policy: "Instant", modifiers: [{attribute: "ULeviathanVitalsSet.Health", op: "Add", magnitude: 10}]})`
-3. `gas::create_gameplay_effect({asset_path: "/Game/Tests/Monolith/UIBinding/GE_TestMaxBoost", duration_policy: "Instant", modifiers: [{attribute: "ULeviathanVitalsSet.MaxHealth", op: "Add", magnitude: 50}]})`
+1. `gas::create_gameplay_effect({asset_path: "/Game/Tests/Megalith/UIBinding/GE_TestDamage", duration_policy: "Instant", modifiers: [{attribute: "ULeviathanVitalsSet.Health", op: "Add", magnitude: -25}]})`
+2. `gas::create_gameplay_effect({asset_path: "/Game/Tests/Megalith/UIBinding/GE_TestHeal", duration_policy: "Instant", modifiers: [{attribute: "ULeviathanVitalsSet.Health", op: "Add", magnitude: 10}]})`
+3. `gas::create_gameplay_effect({asset_path: "/Game/Tests/Megalith/UIBinding/GE_TestMaxBoost", duration_policy: "Instant", modifiers: [{attribute: "ULeviathanVitalsSet.MaxHealth", op: "Add", magnitude: 50}]})`
 
 ### Initial-state assertions before any test runs
-- `monolith_discover("gas")` includes `bind_widget_to_attribute`, `list_attribute_bindings`, `unbind_widget_attribute`, `clear_widget_attribute_bindings`.
-- `monolith_discover("ui")` includes `bind_widget_to_attribute` (alias) IF GAS module is present; absent if `MONOLITH_RELEASE_BUILD=1` strip simulated.
+- `megalith_discover("gas")` includes `bind_widget_to_attribute`, `list_attribute_bindings`, `unbind_widget_attribute`, `clear_widget_attribute_bindings`.
+- `megalith_discover("ui")` includes `bind_widget_to_attribute` (alias) IF GAS module is present; absent if `MEGALITH_RELEASE_BUILD=1` strip simulated.
 - All `WBP_BindTest_*` assets compile clean (`blueprint_query("compile_blueprint", ...)` returns `ok=true`).
 - All `WBP_BindTest_*` `list_attribute_bindings` returns `bindings: []` initially.
 
@@ -62,7 +62,7 @@ Author via `gas::create_gameplay_effect` (or `gas::create_effect_from_template`)
 - `WBP_BindTest_HealthBar` with `HealthBar` UProgressBar.
 - `BP_TestGASPawn` spawned, ASC granted `ULeviathanVitalsSet` with `Health=100, MaxHealth=100`.
 - Bind authored via `gas::bind_widget_to_attribute` with:
-  - `wbp_path=/Game/Tests/Monolith/UIBinding/WBP_BindTest_HealthBar`
+  - `wbp_path=/Game/Tests/Megalith/UIBinding/WBP_BindTest_HealthBar`
   - `widget_name=HealthBar`, `target_property=Percent`
   - `attribute=ULeviathanVitalsSet.Health`, `max_attribute=ULeviathanVitalsSet.MaxHealth`
   - `owner_resolver=owning_player_pawn`
@@ -75,7 +75,7 @@ Author via `gas::create_gameplay_effect` (or `gas::create_effect_from_template`)
 6. Apply `GE_TestDamage` twice more (Health 75 -> 50 -> 25).
 7. Read `HealthBar.Percent`.
 **Expected:** Percent = 1.0 -> 0.75 -> 0.25 within 2 frames per change.
-**Pass criteria:** `abs(measured - expected) < 0.005` for each step. No log warnings about missing ASC. Binding fires on each GE apply (verified via `LogMonolithGAS` Trace lines counted = 3).
+**Pass criteria:** `abs(measured - expected) < 0.005` for each step. No log warnings about missing ASC. Binding fires on each GE apply (verified via `LogMegalithGAS` Trace lines counted = 3).
 
 ### TC1.2 — MaxAttribute change recomputes ratio
 **Goal:** When MaxHealth changes, the ratio recomputes without manual re-bind.
@@ -191,7 +191,7 @@ Author via `gas::create_gameplay_effect` (or `gas::create_effect_from_template`)
 ```jsonc
 {
   "ok": true,
-  "wbp_path": "/Game/Tests/Monolith/UIBinding/WBP_BindTest_HealthBar",
+  "wbp_path": "/Game/Tests/Megalith/UIBinding/WBP_BindTest_HealthBar",
   "widget_name": "HealthBar",
   "widget_class": "ProgressBar",
   "target_property": "Percent",
@@ -200,7 +200,7 @@ Author via `gas::create_gameplay_effect` (or `gas::create_effect_from_template`)
   "format": "percent_0_1",       // resolved from auto
   "owner_resolver": "owning_player_pawn",
   "update_policy": "on_change",
-  "extension_class": "UMonolithGASAttributeBindingClassExtension",
+  "extension_class": "UMegalithGASAttributeBindingClassExtension",
   "binding_index": 0,
   "replaced": false,             // Phase J F6: present whenever the bind succeeds.
                                  // true when an existing binding for the same (widget_name, target_property)
@@ -241,7 +241,7 @@ Author via `gas::create_gameplay_effect` (or `gas::create_effect_from_template`)
     { /* second binding */ }
   ],
   "count": 2,
-  "note": "These are GAS attribute bindings (Monolith). Distinct from ui::get_widget_bindings which reads UMG FDelegateRuntimeBinding."
+  "note": "These are GAS attribute bindings (Megalith). Distinct from ui::get_widget_bindings which reads UMG FDelegateRuntimeBinding."
 }
 ```
 **Pass criteria:** Array length matches author count. `count` field equals array length. Order matches insertion order. Every field round-trips byte-identical to the author input (after auto-format resolution). Composite `attribute` / `max_attribute` strings are equal to `<short class name>.<property name>` (where short class name is `FPackageName::ObjectPathToObjectName(class_path)`).
@@ -315,7 +315,7 @@ Author via `gas::create_gameplay_effect` (or `gas::create_effect_from_template`)
 | Missing `max_attribute` for ProgressBar.Percent on a non-normalized attribute | author HealthBar.Percent with attribute that has default value > 1 and no max_attribute | `ok=true` BUT `warnings:["max_attribute not provided; values will be clamped to [0,1] which may cause permanent fill if Health > 1"]` (warn-and-proceed, not error) |
 | `unbind_widget_attribute` with non-existent binding | widget_name+target_property pair never bound | `ok=false, error="No binding found for (NonExistent, Percent)"` |
 | `list_attribute_bindings` on WBP with no extension installed | virgin WBP | `ok=true, bindings=[]` (NOT an error — empty is valid) |
-| Action called when GAS module absent | simulate `MONOLITH_RELEASE_BUILD=1` strip | `ui::bind_widget_to_attribute` alias not registered. Direct `gas::bind_widget_to_attribute` returns `ok=false, error="Namespace 'gas' not registered (GameplayAbilities plugin disabled or stripped)"` |
+| Action called when GAS module absent | simulate `MEGALITH_RELEASE_BUILD=1` strip | `ui::bind_widget_to_attribute` alias not registered. Direct `gas::bind_widget_to_attribute` returns `ok=false, error="Namespace 'gas' not registered (GameplayAbilities plugin disabled or stripped)"` |
 | Owner resolver invalid string | `owner_resolver=banana` | `ok=false, error="Unknown owner_resolver 'banana'. Valid: [owning_player_pawn, owning_player_state, owning_player_controller, self_actor, named_socket:<tag>]"` |
 | `format_args.template` missing required slots | `format=format_string` but template lacks `{0}` | `ok=false, error="format=format_string requires '{0}' (and '{1}' if max_attribute set) in template"` |
 
@@ -324,10 +324,10 @@ Author via `gas::create_gameplay_effect` (or `gas::create_effect_from_template`)
 ## Notes
 
 ### Open questions for I1 implementation team
-1. **TC1.4 delegate-count introspection** — UE 5.7's multicast delegate doesn't expose count directly. Implementation may need a test-only friend accessor or a `monolith_diagnostic_delegate_count(attribute)` debug action. Flag at PR review.
+1. **TC1.4 delegate-count introspection** — UE 5.7's multicast delegate doesn't expose count directly. Implementation may need a test-only friend accessor or a `megalith_diagnostic_delegate_count(attribute)` debug action. Flag at PR review.
 2. **TC1.5 duration-GE expiry timing** — `OnGameplayAttributeValueChange` fires on duration GE expiry; verify in PIE before relying on it for the test. If flaky, add a 1-frame wait + manual `IGameplayAbilityComponentInterface::GetAttributeValue` recheck.
-3. **TC1.7 grace-period log filter** — implementation must distinguish first-second silence from later-time loud Warning. Test verifies via log capture; ensure log category is `LogMonolithGAS` and verbosity escalates correctly.
-4. **GBA Blueprint AttributeSet support (open question 1 in H1 plan)** — TC1.1 uses C++ `ULeviathanVitalsSet`. If GBA-authored AttributeSets are supported, add TC1.16 binding to a `/Game/Tests/Monolith/AS_TestVitals_C` BP set. If not supported in v1, document in failure-mode table.
+3. **TC1.7 grace-period log filter** — implementation must distinguish first-second silence from later-time loud Warning. Test verifies via log capture; ensure log category is `LogMegalithGAS` and verbosity escalates correctly.
+4. **GBA Blueprint AttributeSet support (open question 1 in H1 plan)** — TC1.1 uses C++ `ULeviathanVitalsSet`. If GBA-authored AttributeSets are supported, add TC1.16 binding to a `/Game/Tests/Megalith/AS_TestVitals_C` BP set. If not supported in v1, document in failure-mode table.
 5. **2-player PIE replication smoke test (open question 4 in H1 plan)** — out of scope for J1's main flow. Add as TC1.17 if time permits before release: 2-player PIE, server applies GE to host pawn, client widget on host pawn updates correctly.
 
 ### Dependencies on I-phase landing

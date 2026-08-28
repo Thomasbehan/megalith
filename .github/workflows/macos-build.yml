@@ -1,12 +1,12 @@
 # ==============================================================================
-# Monolith — macOS Prebuilt Binaries CI (Issue #25)
+# Megalith — macOS Prebuilt Binaries CI (Issue #25)
 # Authored: 2026-05-02
 # ==============================================================================
 #
 # PURPOSE
-#   Produce prebuilt macOS dylibs for the Monolith plugin and attach them to
+#   Produce prebuilt macOS dylibs for the Megalith plugin and attach them to
 #   the GitHub release matching the pushed tag. Mirrors the Windows release
-#   path encoded in Plugins/Monolith/Scripts/make_release.ps1.
+#   path encoded in Plugins/Megalith/Scripts/make_release.ps1.
 #
 # CANONICAL RELEASE PATH
 #   Windows builds (via make_release.ps1, Lucas's local box) remain the
@@ -16,7 +16,7 @@
 # PROVISIONING GAP — SELF-HOSTED RUNNER REQUIRED
 #   GitHub-hosted macOS runners do not have Unreal Engine 5.7 preinstalled,
 #   and licensing prevents shipping the engine in CI cache. A self-hosted Mac
-#   runner with the labels [self-hosted, macOS, monolith] is REQUIRED.
+#   runner with the labels [self-hosted, macOS, megalith] is REQUIRED.
 #
 #   Runner prerequisites:
 #     - Apple Silicon (arm64) recommended; Intel Macs untested for UE 5.7.
@@ -28,26 +28,26 @@
 #       ~/.zshenv): `export UE_57="/Users/Shared/Epic Games/UE_5.7"`.
 #     - ~150 GB free disk for engine + Intermediate/ + DerivedDataCache/.
 #     - GitHub Actions runner application registered with this repo and the
-#       labels: self-hosted, macOS, monolith.
+#       labels: self-hosted, macOS, megalith.
 #
 #   Alternative paid runners (commented out below) exist but are not
 #   currently configured.
 #
 # LEVIATHAN-PROJECT-SHELL GAP — UBT NEEDS A TARGET
-#   UBT compiles plugins through a host *project*. The Monolith plugin repo
+#   UBT compiles plugins through a host *project*. The Megalith plugin repo
 #   does NOT carry a .uproject or any *.Target.cs — confirmed by inspection
 #   of Source/ on 2026-05-02 (only Build.cs files for runtime modules, no
 #   editor Target). Two ways to resolve before this workflow can produce a
 #   valid artefact end-to-end:
 #
-#     OPTION A: Author a minimal MonolithEditor.Target.cs + thin .uproject
+#     OPTION A: Author a minimal MegalithEditor.Target.cs + thin .uproject
 #               shell inside the plugin repo (or a CI-only sibling repo)
-#               that references only the Monolith plugin. Simplest for CI;
+#               that references only the Megalith plugin. Simplest for CI;
 #               keeps the plugin repo self-contained.
 #
 #     OPTION B: Have the runner check out the parent Leviathan project
-#               separately (private repo) and overlay this Monolith working
-#               copy into Plugins/Monolith. More faithful to the local dev
+#               separately (private repo) and overlay this Megalith working
+#               copy into Plugins/Megalith. More faithful to the local dev
 #               build path but requires runner access to the private
 #               Leviathan repo.
 #
@@ -60,7 +60,7 @@ name: macOS Build
 # TRIGGER DISABLED (2026-07-26).
 #
 # This workflow is dormant: it requires a self-hosted runner labelled
-# [self-hosted, macOS, monolith] that is not currently registered, so every
+# [self-hosted, macOS, megalith] that is not currently registered, so every
 # tag push has been failing at the "Verify project shell exists" step.
 #
 # The tag-push trigger is also unsafe now that releases are published as a
@@ -82,7 +82,7 @@ on:
 jobs:
   build-macos:
     name: Build macOS dylibs
-    runs-on: [self-hosted, macOS, monolith]
+    runs-on: [self-hosted, macOS, megalith]
 
     # Alternative runner options (NOT currently configured — for reference):
     #
@@ -103,7 +103,7 @@ jobs:
     timeout-minutes: 90
 
     steps:
-      - name: Checkout Monolith plugin
+      - name: Checkout Megalith plugin
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -146,14 +146,14 @@ jobs:
         run: |
           # See "LEVIATHAN-PROJECT-SHELL GAP" in header. UBT cannot compile a
           # plugin in isolation — it needs a host .uproject + Editor target.
-          # As of 2026-05-02 the Monolith plugin repo carries neither.
+          # As of 2026-05-02 the Megalith plugin repo carries neither.
           #
           # Option A (preferred for self-contained CI): a CI-only project
           # shell at $GITHUB_WORKSPACE/CI/Leviathan.uproject pointing at the
-          # Monolith plugin, plus CI/Source/LeviathanEditor.Target.cs.
+          # Megalith plugin, plus CI/Source/LeviathanEditor.Target.cs.
           #
           # Option B: clone the parent Leviathan project into a sibling
-          # workspace dir and overlay Plugins/Monolith from this checkout.
+          # workspace dir and overlay Plugins/Megalith from this checkout.
           PROJECT_FILE=""
           if [ -f "$GITHUB_WORKSPACE/CI/Leviathan.uproject" ]; then
             PROJECT_FILE="$GITHUB_WORKSPACE/CI/Leviathan.uproject"
@@ -174,10 +174,10 @@ jobs:
       - name: Build editor target (Mac)
         shell: sh
         env:
-          MONOLITH_RELEASE_BUILD: '1'
+          MEGALITH_RELEASE_BUILD: '1'
         run: |
           # Mirrors make_release.ps1's UBT invocation (Win64 -> Mac).
-          # MONOLITH_RELEASE_BUILD=1 forces optional deps OFF (BA, GBA,
+          # MEGALITH_RELEASE_BUILD=1 forces optional deps OFF (BA, GBA,
           # ComboGraph, GeometryScripting, CommonUI, etc.) and is read by
           # the per-module Build.cs probes.
           # -DisableUnity catches missing includes + symbol collisions, same
@@ -191,11 +191,11 @@ jobs:
       - name: Stage release tree
         shell: sh
         run: |
-          STAGE="$GITHUB_WORKSPACE/_stage/Monolith"
+          STAGE="$GITHUB_WORKSPACE/_stage/Megalith"
           mkdir -p "$STAGE"
-          # Copy all git-tracked files in the Monolith plugin repo.
+          # Copy all git-tracked files in the Megalith plugin repo.
           # Mirrors make_release.ps1 line: $files = git ls-files
-          # Sibling plugins (Plugins/Monolith*/ besides Monolith itself) live
+          # Sibling plugins (Plugins/Megalith*/ besides Megalith itself) live
           # outside this repo so they cannot be picked up by ls-files —
           # nothing to strip at this layer.
           cd "$GITHUB_WORKSPACE"
@@ -215,7 +215,7 @@ jobs:
       - name: Strip non-redistributable artefacts
         shell: sh
         run: |
-          STAGE="$GITHUB_WORKSPACE/_stage/Monolith"
+          STAGE="$GITHUB_WORKSPACE/_stage/Megalith"
           # Strip .dSYM directories (macOS debug symbol bundles — analogue
           # of Windows .pdb files which make_release.ps1 strips).
           find "$STAGE/Binaries/Mac" -type d -name "*.dSYM" -prune -exec rm -rf {} +
@@ -223,13 +223,13 @@ jobs:
           # .patch_* and $StrippedModules cleanup in make_release.ps1).
           find "$STAGE/Binaries/Mac" -type f -name "*.patch_*" -delete || true
 
-      - name: Patch Monolith.uplugin (Installed=true, strip sibling modules)
+      - name: Patch Megalith.uplugin (Installed=true, strip sibling modules)
         shell: sh
         run: |
-          STAGE="$GITHUB_WORKSPACE/_stage/Monolith"
-          UPLUGIN="$STAGE/Monolith.uplugin"
+          STAGE="$GITHUB_WORKSPACE/_stage/Megalith"
+          UPLUGIN="$STAGE/Megalith.uplugin"
           if [ ! -f "$UPLUGIN" ]; then
-            echo "::error::Monolith.uplugin missing from staging tree."
+            echo "::error::Megalith.uplugin missing from staging tree."
             exit 1
           fi
           # Use python (always present on macOS runners) to do precise JSON
@@ -244,10 +244,10 @@ jobs:
           # Strip sibling-plugin module entries that should not ship.
           # Mirrors make_release.ps1 $StrippedModules behaviour.
           stripped = {
-              "MonolithSteamBridge",
-              "MonolithISX",
-              "MonolithSubstance",
-              "MonolithClaudeDesignBridge",
+              "MegalithSteamBridge",
+              "MegalithISX",
+              "MegalithSubstance",
+              "MegalithClaudeDesignBridge",
           }
           if "Modules" in data and isinstance(data["Modules"], list):
               data["Modules"] = [m for m in data["Modules"]
@@ -262,25 +262,25 @@ jobs:
         shell: sh
         run: |
           STAGE_ROOT="$GITHUB_WORKSPACE/_stage"
-          ZIP_NAME="Monolith-${GITHUB_REF_NAME}-macOS.zip"
+          ZIP_NAME="Megalith-${GITHUB_REF_NAME}-macOS.zip"
           ZIP_PATH="$GITHUB_WORKSPACE/$ZIP_NAME"
           cd "$STAGE_ROOT"
           # ditto preserves resource forks + symlinks better than zip(1);
           # standard for distributing compiled macOS artefacts.
-          ditto -c -k --sequesterRsrc --keepParent Monolith "$ZIP_PATH"
+          ditto -c -k --sequesterRsrc --keepParent Megalith "$ZIP_PATH"
           SHA=$(shasum -a 256 "$ZIP_PATH" | awk '{print $1}')
           echo "zip_path=$ZIP_PATH" >> "$GITHUB_OUTPUT"
           echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
           echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
           {
-            echo "## Monolith macOS Build"
+            echo "## Megalith macOS Build"
             echo ""
             echo "**File:** $ZIP_NAME"
             echo ""
-            echo "**Monolith-macOS-SHA256:** $SHA"
+            echo "**Megalith-macOS-SHA256:** $SHA"
             echo ""
             echo "_Auto-updater currently anchors on the Windows zip's"
-            echo "Monolith-SHA256 marker. The macOS marker above is emitted"
+            echo "Megalith-SHA256 marker. The macOS marker above is emitted"
             echo "for transparency; Lucas curates the GitHub release body"
             echo "manually if the macOS hash should be added._"
           } >> "$GITHUB_STEP_SUMMARY"

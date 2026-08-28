@@ -1,11 +1,11 @@
 ---
 name: unreal-performance
-description: Use when analyzing or optimizing Unreal Engine performance via Monolith MCP — config auditing, material shader stats, draw call analysis, INI tuning. Triggers on performance, optimization, FPS, frame time, GPU, draw calls, shader complexity.
+description: Use when analyzing or optimizing Unreal Engine performance via Megalith MCP — config auditing, material shader stats, draw call analysis, INI tuning. Triggers on performance, optimization, FPS, frame time, GPU, draw calls, shader complexity.
 ---
 
 # Unreal Performance Analysis Workflows
 
-You have access to **Monolith** with cross-domain performance tools.
+You have access to **Megalith** with cross-domain performance tools.
 
 ## Asset Path Conventions
 
@@ -23,7 +23,7 @@ All asset paths follow UE content browser format (no .uasset extension):
 
 ### Config Auditing (`config_query`)
 ```
-monolith_discover({ namespace: "config" })
+megalith_discover({ namespace: "config" })
 ```
 
 | Action | Purpose |
@@ -42,7 +42,7 @@ monolith_discover({ namespace: "config" })
 
 ### Niagara Inspection (`niagara_query`)
 
-Use `monolith_discover({ namespace: "niagara" })` to see all 41 available actions. Key ones for performance:
+Use `megalith_discover({ namespace: "niagara" })` to see all 41 available actions. Key ones for performance:
 
 | Action | Purpose |
 |--------|---------|

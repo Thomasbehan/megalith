@@ -1,16 +1,16 @@
-# Monolith API Reference
+# Megalith API Reference
 
 **Version:** v0.22.0 · **Last updated:** 2026-08-01
 
-**In-tree action total is approximate: ~1,400+ actions across 25+ in-tree namespaces** (public, in-tree only; all active by default, plus 45 experimental town-gen actions that register only when `bEnableProceduralTownGen=true`). The surface is too large to track to the unit — **query `monolith_discover()` (its `total_actions` field) for the exact live figure.** The `ui` namespace re-exports 4 GAS UI binding actions as aliases. v0.19.0 adds an LLM C++ authoring ergonomics pack (`source`, 8 actions + `editor.get_build_errors` fix hints), live-PIE introspection + driving and stat-group readout (`editor`), anim-node binding read/write and time-series PIE sampling (`animation`), a Blueprint variable census + contract reconciliation (`blueprint`), and T3D asset-text export (`project`); plus two first-launch fixes (issue #70) and a ~40% smaller `tools/list` manifest. The `monolith_*` meta-tools (`discover`, `status`, `update`, `reindex`, `guide`) plus the `bulk_fill_query` and `describe_query` framework dispatchers round out the MCP tool count. This total EXCLUDES sibling-plugin actions — they ship in their own repos and are never in the public release zip.
+**In-tree action total is approximate: ~1,400+ actions across 25+ in-tree namespaces** (public, in-tree only; all active by default, plus 45 experimental town-gen actions that register only when `bEnableProceduralTownGen=true`). The surface is too large to track to the unit — **query `megalith_discover()` (its `total_actions` field) for the exact live figure.** The `ui` namespace re-exports 4 GAS UI binding actions as aliases. v0.19.0 adds an LLM C++ authoring ergonomics pack (`source`, 8 actions + `editor.get_build_errors` fix hints), live-PIE introspection + driving and stat-group readout (`editor`), anim-node binding read/write and time-series PIE sampling (`animation`), a Blueprint variable census + contract reconciliation (`blueprint`), and T3D asset-text export (`project`); plus two first-launch fixes (issue #70) and a ~40% smaller `tools/list` manifest. The `megalith_*` meta-tools (`discover`, `status`, `update`, `reindex`, `guide`) plus the `bulk_fill_query` and `describe_query` framework dispatchers round out the MCP tool count. This total EXCLUDES sibling-plugin actions — they ship in their own repos and are never in the public release zip.
 
-The per-namespace numbers in the Table of Contents and body sections below are kept for structure, not precision — they drift with every action added and are no longer maintained to the unit. Treat them as ballpark; the live figure always comes from `monolith_discover()`.
+The per-namespace numbers in the Table of Contents and body sections below are kept for structure, not precision — they drift with every action added and are no longer maintained to the unit. Treat them as ballpark; the live figure always comes from `megalith_discover()`.
 
 > Auto-generated and hand-curated. Each action is dispatched via HTTP POST to `http://localhost:<port>` with JSON body `{ "namespace": "<ns>", "action": "<action>", "params": { ... } }`, or via the MCP `tools/list` surface that AI clients see at session start.
 >
-> `monolith_discover("<namespace>")` is terse by default — it lists each action's name plus a one-line description, NOT the full param schemas. For a single action's exhaustive live param schema, call `describe_query("action_schema", target_namespace="<ns>", target_action="<name>")`, or pass `detail=true` (alias `verbose=true`) to `monolith_discover` to inline all schemas. Discover also accepts `filter` (case-insensitive substring on name or description), `offset`, and `limit` (default 0 = full list). This document is a curated reference, not a source-of-truth substitute.
+> `megalith_discover("<namespace>")` is terse by default — it lists each action's name plus a one-line description, NOT the full param schemas. For a single action's exhaustive live param schema, call `describe_query("action_schema", target_namespace="<ns>", target_action="<name>")`, or pass `detail=true` (alias `verbose=true`) to `megalith_discover` to inline all schemas. Discover also accepts `filter` (case-insensitive substring on name or description), `offset`, and `limit` (default 0 = full list). This document is a curated reference, not a source-of-truth substitute.
 >
-> **0.15.0:** the namespace counts in the Table of Contents and the per-namespace body sections below were regenerated against live `monolith_discover()` on 2026-05-23 — the 0.14.8 → 0.15.0 additions are reflected (the `bulk_fill` / `describe` framework, the blueprint dataset read/edit pack, the UI/Blueprint gap-closure actions, `monolith_guide`, `editor` Python/PIE/console verbs, the `level_sequence` namespace, and the audio MetaSound document-introspection actions). Body sections list every action by category; deep-dive param tables cover the high-traffic ones. For the exhaustive live param schema of any action, call `describe_query("action_schema", ...)` (or pass `detail=true` to `monolith_discover("<namespace>")`).
+> **0.15.0:** the namespace counts in the Table of Contents and the per-namespace body sections below were regenerated against live `megalith_discover()` on 2026-05-23 — the 0.14.8 → 0.15.0 additions are reflected (the `bulk_fill` / `describe` framework, the blueprint dataset read/edit pack, the UI/Blueprint gap-closure actions, `megalith_guide`, `editor` Python/PIE/console verbs, the `level_sequence` namespace, and the audio MetaSound document-introspection actions). Body sections list every action by category; deep-dive param tables cover the high-traffic ones. For the exhaustive live param schema of any action, call `describe_query("action_schema", ...)` (or pass `detail=true` to `megalith_discover("<namespace>")`).
 
 ---
 
@@ -18,7 +18,7 @@ The per-namespace numbers in the Table of Contents and body sections below are k
 
 | Namespace | Actions | Description |
 |-----------|---------|-------------|
-| [monolith](#monolith) | 5 | Core server tools (discover, status, update, reindex, guide) |
+| [megalith](#megalith) | 5 | Core server tools (discover, status, update, reindex, guide) |
 | [blueprint](#blueprint) | 111 | Blueprint read/write, variable/component/graph CRUD, node ops, compile, auto-layout, spawn actors, dataset read/edit pack (DataTable/CurveTable/StringTable + `seed_data_asset`), cross-class property access, parent-function overrides |
 | [material](#material) | 63 | Material graph editing, inspection, CRUD, material functions, PBR pipeline |
 | [animation](#animation) | 145 | Curves, bone tracks, sync markers, root motion, compression, blend spaces (incl. baking + interpolation control), ABPs (incl. an AnimGraph-authoring pack — additive/slot/cached-pose/blend (by int + by enum)/sync/layered-blend/Control Rig/linked-layer/conduit nodes + output wiring — ABP-native animation layer graphs, custom anim-graph nodes + state-machine teardown + compound expression transition rules), montages, skeletons, PoseSearch, IKRig, Control Rig |
@@ -69,13 +69,13 @@ The aliased GAS UI binding actions live in **both** `ui::*` and `gas::*` namespa
 
 ## Recent API Changes (v0.14.8 → v0.15.0)
 
-These releases added the `level_sequence` namespace, the `bulk_fill` / `describe` ergonomics framework, a blueprint dataset read/edit pack, a UI/Blueprint gap-closure sweep, `monolith_guide`, and editor automation verbs. The per-namespace body sections below now document these; full param schemas for everything are live via `describe_query("action_schema", ...)` (or `monolith_discover("<namespace>", detail=true)`).
+These releases added the `level_sequence` namespace, the `bulk_fill` / `describe` ergonomics framework, a blueprint dataset read/edit pack, a UI/Blueprint gap-closure sweep, `megalith_guide`, and editor automation verbs. The per-namespace body sections below now document these; full param schemas for everything are live via `describe_query("action_schema", ...)` (or `megalith_discover("<namespace>", detail=true)`).
 
 | Action | Change | Reason |
 |--------|--------|--------|
 | `bulk_fill_query("apply" / "list_namespaces")` | **NEW namespace** (0.15.0) | Reflection-walker bulk property fill across 12 per-namespace adapters, with `dry_run` previews. |
 | `describe_query("schema" / "list_targets" / "action_schema")` | **NEW namespace** (0.15.0) | Read-only schema introspection for the same adapters; `action_schema` returns any registered action's full param schema. |
-| `monolith.guide` | **NEW** (0.15.0) | Section-keyed onboarding guide for AI agents (onboarding / recipes / decisions / errors / skills_map / gotchas) with a live registry overlay. |
+| `megalith.guide` | **NEW** (0.15.0) | Section-keyed onboarding guide for AI agents (onboarding / recipes / decisions / errors / skills_map / gotchas) with a live registry overlay. |
 | `blueprint` dataset pack (17 actions) | **NEW** (0.15.0) | DataTable (8), CurveTable (5), StringTable (3), `seed_data_asset` (1) — read with row-struct schema inline, bulk upsert with dry-run, row CRUD, JSON/CSV import/export. |
 | `blueprint.add_property_access` / `override_parent_function` / `save_dirty_assets` | **NEW** (0.15.0) | Cross-class UPROPERTY get/set, value-returning parent-function override, batch save of dirty BP/Widget packages. |
 | `ui` scaffolders + gap-closure (Tier 2/3/4 + Phase 3/4) | **NEW** (0.15.0) | `scaffold_main_menu`, `scaffold_settings_panel_with_tabs`, `scaffold_pause_menu`, `build_menu_from_spec`, `rename_widget`, `audit_focus_chain`, `set_widget_navigation_bulk`, `dump_widget_navigation`, `convert_border_to_common`, `reparent_widget_root`, `set_widget_is_variable`, and more. |
@@ -88,11 +88,11 @@ These releases added the `level_sequence` namespace, the `bulk_fill` / `describe
 
 ---
 
-## monolith
+## megalith
 
 Core server management and introspection.
 
-### `monolith.discover`
+### `megalith.discover`
 
 List available tool namespaces and their actions. Pass `namespace` to filter; pass `category` to narrow further (e.g. `"CommonUI"` inside `ui`).
 
@@ -105,17 +105,17 @@ List available tool namespaces and their actions. Pass `namespace` to filter; pa
 
 ---
 
-### `monolith.status`
+### `megalith.status`
 
-Get Monolith server health: version, uptime, port, registered action count, namespace count, engine version, project name, module load status.
+Get Megalith server health: version, uptime, port, registered action count, namespace count, engine version, project name, module load status.
 
 *No parameters.*
 
 ---
 
-### `monolith.update`
+### `megalith.update`
 
-Check for or install Monolith updates from GitHub Releases. Auto-updater hits `https://api.github.com/repos/tumourlove/monolith/releases/latest`.
+Check for or install Megalith updates from GitHub Releases. Auto-updater hits `https://api.github.com/repos/tumourlove/megalith/releases/latest`.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -123,9 +123,9 @@ Check for or install Monolith updates from GitHub Releases. Auto-updater hits `h
 
 ---
 
-### `monolith.reindex`
+### `megalith.reindex`
 
-Re-index the Monolith project database. Incremental by default (delta only). Pass `force=true` for a full wipe + rebuild.
+Re-index the Megalith project database. Incremental by default (delta only). Pass `force=true` for a full wipe + rebuild.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -135,9 +135,9 @@ Re-index the Monolith project database. Incremental by default (delta only). Pas
 
 ---
 
-### `monolith.guide`
+### `megalith.guide`
 
-Section-keyed editorial onboarding guide for your AI agent — an onboarding script, worked cross-namespace recipes, X-vs-Y decision matrices, error-to-recovery maps, a skills map, and Monolith-specific gotchas. Hand-authored markdown plus a **live registry overlay**, so the action counts and version it reports always match your running build. New in 0.15.0. Built for users with no project `CLAUDE.md` or private skills — point your AI at it and it self-onboards. Offline parity via `monolith_query.exe monolith guide`.
+Section-keyed editorial onboarding guide for your AI agent — an onboarding script, worked cross-namespace recipes, X-vs-Y decision matrices, error-to-recovery maps, a skills map, and Megalith-specific gotchas. Hand-authored markdown plus a **live registry overlay**, so the action counts and version it reports always match your running build. New in 0.15.0. Built for users with no project `CLAUDE.md` or private skills — point your AI at it and it self-onboards. Offline parity via `megalith_query.exe megalith guide`.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -149,7 +149,7 @@ Section-keyed editorial onboarding guide for your AI agent — an onboarding scr
 
 ## blueprint
 
-Full read/write access to Blueprint graphs, variables, components, functions, nodes, pins, interfaces, timelines, comments, CDOs, spawn-time actor placement, and dataset read/edit (DataTable / CurveTable / StringTable round-trip + `seed_data_asset`). Count is approximate — query `monolith_discover("blueprint")` for the live figure.
+Full read/write access to Blueprint graphs, variables, components, functions, nodes, pins, interfaces, timelines, comments, CDOs, spawn-time actor placement, and dataset read/edit (DataTable / CurveTable / StringTable round-trip + `seed_data_asset`). Count is approximate — query `megalith_discover("blueprint")` for the live figure.
 
 **New in v0.18.1 (Motion Matching + thread-safe AnimBP authoring + inspection):**
 - `set_anim_class`, `apply_movement_preset`, `add_engine_component_typed`, `scaffold_locomotion_input`, `validate_animbp_variable_contract`, `scaffold_motion_matching_character` — character/actor scaffolding for a motion-matching setup (adds an `EnhancedInput` dep).
@@ -178,7 +178,7 @@ Full read/write access to Blueprint graphs, variables, components, functions, no
   resolving to the first.
 - **`get_inherited_component_override` accepts `asset_path` as an alias for `bp_path`.**
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="blueprint", target_action="<name>")` (or `monolith_discover("blueprint", detail=true)`). Plain `monolith_discover("blueprint")` is terse — action names + one-line descriptions only. The action surface is too broad to enumerate here without bloat — high-traffic actions are documented below; the rest are listed and discoverable.
+> For full param schemas, call `describe_query("action_schema", target_namespace="blueprint", target_action="<name>")` (or `megalith_discover("blueprint", detail=true)`). Plain `megalith_discover("blueprint")` is terse — action names + one-line descriptions only. The action surface is too broad to enumerate here without bloat — high-traffic actions are documented below; the rest are listed and discoverable.
 
 **Action categories:**
 
@@ -239,7 +239,7 @@ The crown jewel — author an entire Blueprint (parent class, variables, compone
 
 ### Dataset read/edit pack (0.15.0)
 
-LLM-friendly read → edit → write loop for DataTables, CurveTables, and StringTables, plus `seed_data_asset` for DataAssets. Engine-generic (reflection + string class/struct resolution), zero sibling-plugin coupling. Reuses the MonolithCore reflection framework — reads inline an `FSchemaDescriptor`-shaped schema; writes return an `FDryRunReport`-shaped per-field result. All write actions take `save` (default `false`) to persist the package; reads never mutate.
+LLM-friendly read → edit → write loop for DataTables, CurveTables, and StringTables, plus `seed_data_asset` for DataAssets. Engine-generic (reflection + string class/struct resolution), zero sibling-plugin coupling. Reuses the MegalithCore reflection framework — reads inline an `FSchemaDescriptor`-shaped schema; writes return an `FDryRunReport`-shaped per-field result. All write actions take `save` (default `false`) to persist the package; reads never mutate.
 
 #### `blueprint.read_data_table`
 
@@ -338,7 +338,7 @@ Save ALL currently-dirty Blueprint and Widget Blueprint packages in one sweep �
 
 Returns `saved[]`, `failed[]`, `count`.
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithBlueprint.md` for the deep dive.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithBlueprint.md` for the deep dive.
 
 ---
 
@@ -346,7 +346,7 @@ See `Plugins/Monolith/Docs/specs/SPEC_MonolithBlueprint.md` for the deep dive.
 
 Material graph editing, inspection, CRUD, material functions, instances, custom HLSL nodes, PBR pipeline. **63 actions.**
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="material", target_action="<name>")` (or `monolith_discover("material", detail=true)`). Plain `monolith_discover("material")` is terse — names + one-line descriptions only.
+> For full param schemas, call `describe_query("action_schema", target_namespace="material", target_action="<name>")` (or `megalith_discover("material", detail=true)`). Plain `megalith_discover("material")` is terse — names + one-line descriptions only.
 
 **Action categories:**
 
@@ -373,13 +373,13 @@ This action **requires** the `{ "graph_spec": { ... } }` wrapper, not a bare spe
 { "graph_spec": { "expressions": [...], "connections": [...] } }
 ```
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithMaterial.md` for full graph_spec schema and the [§Pipelines](#pipelines) section for the canonical material build flow.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithMaterial.md` for full graph_spec schema and the [§Pipelines](#pipelines) section for the canonical material build flow.
 
 ---
 
 ## animation
 
-Animation curves, bone tracks, sync markers, root motion, compression, blend spaces, ABPs, montages, skeletons, PoseSearch, IKRig, retargeting (retarget pose + op-stack tuning + per-bone translation retargeting), locomotion authoring (root-motion speed, distance-curve baking), Control Rig, Motion Matching authoring, state machines, and live PIE anim telemetry. Count is approximate — query `monolith_discover("animation")` for the live figure.
+Animation curves, bone tracks, sync markers, root motion, compression, blend spaces, ABPs, montages, skeletons, PoseSearch, IKRig, retargeting (retarget pose + op-stack tuning + per-bone translation retargeting), locomotion authoring (root-motion speed, distance-curve baking), Control Rig, Motion Matching authoring, state machines, and live PIE anim telemetry. Count is approximate — query `megalith_discover("animation")` for the live figure.
 
 **New in v0.18.1 (Motion Matching pack):**
 - **Pose Search / database:** `create_normalization_set`, `add_database_to_normalization_set`, `set_database_normalization_set`, `add_database_entry`, `set_database_entry_tags`, `configure_schema_channel`, `derive_schema_channels_from_skeleton`, `add_pose_search_notify`, `validate_pose_search_database`.
@@ -406,7 +406,7 @@ Animation curves, bone tracks, sync markers, root motion, compression, blend spa
 - **Inspection (1):** `get_animated_bone_transform` (FK-composed bone transform at a frame/time, component or world space).
 - **Extensions (no new actions):** `get_retargeter_info` now emits an `ops[]` array (per-op type + settings); `apply_anim_modifier` now accepts a `properties` reflective field set + a `persist` flag (register into the `AnimationModifiers` stack); `get_blend_space_info` now reports per-sample authored root-motion speed + `triangulation_baked` / `interpolate_using_grid`; `get_anim_node_pin_bindings` now also emits wire-linked input pins (`type:"Link"` with source node/pin); `derive_foot_sync_markers` gains a `from_bones` mode (foot plants from per-frame foot-bone height + planar-speed minima); `get_curve_keys` now reports `monotonic` + `sign` flags; `set_anim_node_function_binding` now calls `RequestRefreshExtensions` so the recompile regenerates the anim-subsystem set (prevents a null `NodeRelevancy` subsystem at runtime).
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="animation", target_action="<name>")` (or `monolith_discover("animation", detail=true)`). Plain `monolith_discover("animation")` is terse — names + one-line descriptions only.
+> For full param schemas, call `describe_query("action_schema", target_namespace="animation", target_action="<name>")` (or `megalith_discover("animation", detail=true)`). Plain `megalith_discover("animation")` is terse — names + one-line descriptions only.
 
 **Action categories:**
 
@@ -435,7 +435,7 @@ Animation curves, bone tracks, sync markers, root motion, compression, blend spa
 | PoseSearch | 13 | `get_pose_search_schema`, `get_pose_search_database`, `add_database_sequence`, `remove_database_sequence`, `get_database_stats`, `create_pose_search_schema`, `create_pose_search_database`, `set_database_sequence_properties`, `add_schema_channel`, `remove_schema_channel`, `set_channel_weight`, `rebuild_pose_search_index`, `set_database_search_mode` |
 | Layout / batch | 2 | `auto_layout`, `batch_execute` |
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithAnimation.md` for the deep dive.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithAnimation.md` for the deep dive.
 
 ---
 
@@ -443,7 +443,7 @@ See `Plugins/Monolith/Docs/specs/SPEC_MonolithAnimation.md` for the deep dive.
 
 Niagara VFX system editing — emitters, modules, params, renderers, HLSL, dynamic inputs, event handlers, sim stages, NPC, effect types, temporal control, stateless-emitter factory. **129 actions** (108 baseline + 1 layout + 9 temporal-control + 1 stateless-emitter factory + 7 issue #64 Tranche 2 search + 2 PR #65 CustomHlsl-text read/write).
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="niagara", target_action="<name>")` (or `monolith_discover("niagara", detail=true)`). Plain `monolith_discover("niagara")` is terse — names + one-line descriptions only.
+> For full param schemas, call `describe_query("action_schema", target_namespace="niagara", target_action="<name>")` (or `megalith_discover("niagara", detail=true)`). Plain `megalith_discover("niagara")` is terse — names + one-line descriptions only.
 
 **Action categories:**
 
@@ -478,15 +478,15 @@ Niagara VFX system editing — emitters, modules, params, renderers, HLSL, dynam
 | `get_custom_hlsl_text` | `script_path` (required), `node_guid`? | Read the HLSL source from a `CustomHlsl` node via public UPROPERTY reflection. `node_guid` disambiguates multi-`CustomHlsl`-node scripts. Always available regardless of `WITH_NIAGARA_WIZARD_PRIVATE` |
 | `set_custom_hlsl_text` | `script_path` (required), `hlsl` (required), `node_guid`? | Overwrite a `CustomHlsl` node's HLSL source under `Modify()` + transaction with a recompile. Always available regardless of `WITH_NIAGARA_WIZARD_PRIVATE` |
 
-`add_event_handler` now returns `handler_index` + `usage_id` + `usage`; for inter-emitter handlers `source_emitter` must resolve or the handler is rejected. It does not auto-add `Receive<Event>` modules. `add_simulation_stage` materializes the matching `particle_simulation_stage` output node and returns `usage_id` / `stage_id` / `graph_outputs`. `create_module_from_hlsl` generates a ParameterMap bridge graph, preserves DI input types (NeighborGrid3D / Grid3D / ParticleRead), and strictly validates HLSL input/output types (unknown types hard-fail). **Before writing custom HLSL, read `Plugins/Monolith/Docs/NIAGARA_HLSL_GUIDE.md`.**
+`add_event_handler` now returns `handler_index` + `usage_id` + `usage`; for inter-emitter handlers `source_emitter` must resolve or the handler is rejected. It does not auto-add `Receive<Event>` modules. `add_simulation_stage` materializes the matching `particle_simulation_stage` output node and returns `usage_id` / `stage_id` / `graph_outputs`. `create_module_from_hlsl` generates a ParameterMap bridge graph, preserves DI input types (NeighborGrid3D / Grid3D / ParticleRead), and strictly validates HLSL input/output types (unknown types hard-fail). **Before writing custom HLSL, read `Plugins/Megalith/Docs/NIAGARA_HLSL_GUIDE.md`.**
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithNiagara.md`.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithNiagara.md`.
 
 ---
 
 ## editor
 
-Live Coding builds, compile output capture, editor log capture, scene capture, texture import, asset deletion, viewport info, GIF capture, **map creation** and **module status** (Phase J F8), plus the **PIE / console / Python automation** verbs (`run_console_command`, `start_pie`, `stop_pie`, `run_python`, `load_level`). Count is approximate — query `monolith_discover("editor")` for the live figure.
+Live Coding builds, compile output capture, editor log capture, scene capture, texture import, asset deletion, viewport info, GIF capture, **map creation** and **module status** (Phase J F8), plus the **PIE / console / Python automation** verbs (`run_console_command`, `start_pie`, `stop_pie`, `run_python`, `load_level`). Count is approximate — query `megalith_discover("editor")` for the live figure.
 
 **New in v0.18.1 (PIE / profiling harness):**
 - **PIE smoke + capture:** `run_pie_smoke` / `poll_pie_smoke` / `stop_pie_smoke` (async session model), `capture_pie_movement_clip` (with `discard_first_frames` warm-up, label-aware `view_target_actor`, staged hooks, runtime-identity report + `expected_anim_class` assert), `capture_anim_frames` (preview AnimSequence / BlendSpace / AnimBlueprint to PNG), `list_dirty_packages`, `save_packages`, `list_errored_blueprints`.
@@ -599,7 +599,7 @@ Capture a Niagara system as a sequence of PNG frames with optional GIF encoding 
 | `duration_seconds` | number | optional | Default: `2.0` |
 | `fps` | integer | optional | Default: `15` |
 | `resolution` | integer | optional | Default: `256` |
-| `output_path` | string | optional | Default: `Saved/Screenshots/Monolith/GIF_<timestamp>` |
+| `output_path` | string | optional | Default: `Saved/Screenshots/Megalith/GIF_<timestamp>` |
 | `encoder` | string | optional | `frames_only` (default), `ffmpeg`, or `python` |
 
 ### `editor.create_empty_map` · NEW in Phase J F8
@@ -608,16 +608,16 @@ Create a fully blank `UWorld` asset at the given `/Game/...` path. Saves immedia
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `path` | string | **required** | Asset path under `/Game/...` (e.g. `/Game/Tests/Monolith/Audio/Map_Test`) |
+| `path` | string | **required** | Asset path under `/Game/...` (e.g. `/Game/Tests/Megalith/Audio/Map_Test`) |
 | `map_template` | string | optional | `blank` (default). Reserved: `vr_basic`, `thirdperson_basic` — return error in v1; UE 5.7 templates are populated client-side, not via `UWorldFactory`. |
 
 ### `editor.get_module_status` · NEW in Phase J F8
 
-Report plugin-enabled + module-loaded status for Monolith (or arbitrary) modules. Wraps `IPluginManager` + `FModuleManager`.
+Report plugin-enabled + module-loaded status for Megalith (or arbitrary) modules. Wraps `IPluginManager` + `FModuleManager`.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `module_names` | array | optional | Module name strings. Omit to query all Monolith modules. Unknown names return `enabled=false, loaded=false` (no error). |
+| `module_names` | array | optional | Module name strings. Omit to query all Megalith modules. Unknown names return `enabled=false, loaded=false` (no error). |
 
 ### `editor.run_console_command` · NEW in v0.14.10
 
@@ -633,7 +633,7 @@ Execute a console command. Routes to the first PIE `PlayerController` found (so 
 
 ### `editor.run_python` · NEW in v0.14.9
 
-Execute a Python command, statement, or file via `IPythonScriptPlugin::ExecPythonCommandEx`. Returns success, captured Python stdout/stderr (typed info/warning/error), and (for `evaluate_statement` mode) the evaluated result. Requires `PythonScriptPlugin` (engine-shipped Experimental, enabled by `Monolith.uplugin`).
+Execute a Python command, statement, or file via `IPythonScriptPlugin::ExecPythonCommandEx`. Returns success, captured Python stdout/stderr (typed info/warning/error), and (for `evaluate_statement` mode) the evaluated result. Requires `PythonScriptPlugin` (engine-shipped Experimental, enabled by `Megalith.uplugin`).
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -840,7 +840,7 @@ Unreal Engine C++ source code navigation. 1M+ symbols indexed. **12 actions** (1
 
 ### `source.audit_module_dep_reality`
 
-**New v0.17.0 (Reflection Intelligence, Phase 2).** Catches the LNK2019 bug class where a UPROPERTY (or any reflection-touching declaration) references a foreign-module type whose owning module is missing from the declaring module's `Build.cs` `Private/PublicDependencyModuleNames`. UHT generates `Z_Construct_*_NoRegister` calls that link against the foreign module's API macro at link time, so the failure surfaces as a confusing unresolved external. The audit regex-parses every `*.Build.cs` for declared deps, extracts type-bearing reflection declarations from every `*.h` / `*.cpp`, resolves each type against `EngineSource.db`'s symbol → owning-module mapping, and emits a violation when the owning module isn't declared and isn't on the implicit-deps whitelist (`Core`, `CoreUObject`, `Engine`, `Projects`, `RHI`, `RenderCore`). Read-only, idempotent, cursor-paginated. Owned by `MonolithReflectionIntel` but registered onto `source` for caller ergonomics.
+**New v0.17.0 (Reflection Intelligence, Phase 2).** Catches the LNK2019 bug class where a UPROPERTY (or any reflection-touching declaration) references a foreign-module type whose owning module is missing from the declaring module's `Build.cs` `Private/PublicDependencyModuleNames`. UHT generates `Z_Construct_*_NoRegister` calls that link against the foreign module's API macro at link time, so the failure surfaces as a confusing unresolved external. The audit regex-parses every `*.Build.cs` for declared deps, extracts type-bearing reflection declarations from every `*.h` / `*.cpp`, resolves each type against `EngineSource.db`'s symbol → owning-module mapping, and emits a violation when the owning module isn't declared and isn't on the implicit-deps whitelist (`Core`, `CoreUObject`, `Engine`, `Projects`, `RHI`, `RenderCore`). Read-only, idempotent, cursor-paginated. Owned by `MegalithReflectionIntel` but registered onto `source` for caller ergonomics.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -857,7 +857,7 @@ Unreal Engine C++ source code navigation. 1M+ symbols indexed. **12 actions** (1
 
 Mesh inspection, scene manipulation, spatial queries, level blockout, GeometryScript, procedural geometry, lighting, audio, performance, mesh import (incl. skeletal + animation, PR #58), and **experimental** procedural town generation. **194 actions** (always registered, in the public count) + 45 experimental town gen (gated on `bEnableProceduralTownGen=true`, default `false`) = 239 when town-gen is on.
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="mesh", target_action="<name>")` (or `monolith_discover("mesh", detail=true)`). Plain `monolith_discover("mesh")` is terse — names + one-line descriptions only. The action surface is too broad for full enumeration — see categories below.
+> For full param schemas, call `describe_query("action_schema", target_namespace="mesh", target_action="<name>")` (or `megalith_discover("mesh", detail=true)`). Plain `megalith_discover("mesh")` is terse — names + one-line descriptions only. The action surface is too broad for full enumeration — see categories below.
 
 **Action categories (core, always registered):**
 
@@ -896,7 +896,7 @@ Mesh inspection, scene manipulation, spatial queries, level blockout, GeometrySc
 
 > **Experimental — town gen has known geometry issues** (wall misalignment, room separation). Fix Plans v2-v5 applied 27+ fixes but fundamental issues remain. Core mesh actions (sweep walls, auto-collision, proc mesh caching, blueprint prefabs) work fine.
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithMesh.md` for the full action catalog.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithMesh.md` for the full action catalog.
 
 ---
 
@@ -904,7 +904,7 @@ See `Plugins/Monolith/Docs/specs/SPEC_MonolithMesh.md` for the full action catal
 
 UMG widget Blueprint CRUD, templates, styling, animation (v1 + v2), the schema-driven **Spec / EffectSurface** architecture, settings scaffolding, accessibility, **CommonUI**, and GAS UI bindings. **138 actions** — the UMG + Spec/EffectSurface baseline (66 always-on, incl. the v0.15.0 navigation/conversion gap-closure + headline scaffolders) + 51 CommonUI (registered when `WITH_COMMONUI=1`) + 4 GAS UI binding aliases. The four CommonUI-surface gap-closure actions (`convert_border_to_common`, `convert_textblock_to_common`, `set_action_bar_button_class`, `apply_token_binding`) are `#if WITH_COMMONUI`-gated.
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="ui", target_action="<name>")` (or `monolith_discover("ui", detail=true)`). Plain `monolith_discover("ui")` is terse — names + one-line descriptions only. The surface is large — categories below; the v0.15.0-new actions are flagged.
+> For full param schemas, call `describe_query("action_schema", target_namespace="ui", target_action="<name>")` (or `megalith_discover("ui", detail=true)`). Plain `megalith_discover("ui")` is terse — names + one-line descriptions only. The surface is large — categories below; the v0.15.0-new actions are flagged.
 
 **Action categories (UMG + Spec baseline, always registered):**
 
@@ -948,12 +948,12 @@ UMG widget Blueprint CRUD, templates, styling, animation (v1 + v2), the schema-d
 
 **GAS UI binding aliases (4 — same handlers as `gas::*` versions):**
 
-`bind_widget_to_attribute`, `unbind_widget_attribute`, `list_attribute_bindings`, `clear_widget_attribute_bindings`. These four are registered into `ui` from `MonolithGAS/Private/MonolithGASUIBindingActions.cpp`. Pick whichever namespace reads better in your call site — both dispatch to identical code.
+`bind_widget_to_attribute`, `unbind_widget_attribute`, `list_attribute_bindings`, `clear_widget_attribute_bindings`. These four are registered into `ui` from `MegalithGAS/Private/MegalithGASUIBindingActions.cpp`. Pick whichever namespace reads better in your call site — both dispatch to identical code.
 
 > **Phase J F2/F3:** these four actions now reject empty `widget_path`, missing `attribute`, or unresolvable ASC up-front with structured errors instead of writing junk via reflection.
 > **Phase J F5:** the response shape is `{ bindings: [...], count: N }`, not a bare array. Wrap your client parsers.
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithUI.md` for the deep dive including style-creator-as-data Blueprint pattern and conditional CommonUI gating.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithUI.md` for the deep dive including style-creator-as-data Blueprint pattern and conditional CommonUI gating.
 
 ---
 
@@ -961,7 +961,7 @@ See `Plugins/Monolith/Docs/specs/SPEC_MonolithUI.md` for the deep dive including
 
 Gameplay Ability System integration. **135 actions** across 11 categories — covers the full GAS authoring pipeline. **Conditional on `#if WITH_GBA`** — projects without the GameplayAbilities plugin register 0 GAS actions.
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="gas", target_action="<name>")` (or `monolith_discover("gas", detail=true)`). Plain `monolith_discover("gas")` is terse — names + one-line descriptions only.
+> For full param schemas, call `describe_query("action_schema", target_namespace="gas", target_action="<name>")` (or `megalith_discover("gas", detail=true)`). Plain `megalith_discover("gas")` is terse — names + one-line descriptions only.
 
 **Action categories:**
 
@@ -983,7 +983,7 @@ Gameplay Ability System integration. **135 actions** across 11 categories — co
 
 Grant a `UGameplayAbility` to a pawn's `UAbilitySystemComponent` directly without scaffold-side wiring or `apply_effect` ceremony. See `describe_query("action_schema", target_namespace="gas", target_action="grant_ability_to_pawn")` for params.
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithGAS.md` for the deep dive.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithGAS.md` for the deep dive.
 
 ---
 
@@ -1007,22 +1007,22 @@ ComboGraph melee combo authoring. **13 actions.** **Conditional on `#if WITH_COM
 | `scaffold_combo_from_montages` | `save_path`, `montages[]`, `input_action?`, `transition_behavior?` |
 | `layout_combo_graph` | `asset_path`, `horizontal_spacing?`, `vertical_spacing?` |
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithComboGraph.md`.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithComboGraph.md`.
 
 ---
 
 ## ai
 
-Behavior Trees, State Trees, EQS, Blackboards, AI Controllers, Perception, Smart Objects, Navigation, Mass Entity, Zone Graph, runtime PIE inspection, and a deep library of scaffolds. The largest single conditional namespace — count is approximate, query `monolith_discover("ai")` for the live figure.
+Behavior Trees, State Trees, EQS, Blackboards, AI Controllers, Perception, Smart Objects, Navigation, Mass Entity, Zone Graph, runtime PIE inspection, and a deep library of scaffolds. The largest single conditional namespace — count is approximate, query `megalith_discover("ai")` for the live figure.
 
 **New in v0.18.1:**
 - `rebuild_navigation` (bounded async wait, optional save), `validate_nav_points` (per-point projection + per-pair path checks).
-- **Runtime classes (no MCP-action delta):** `AMonolithBehaviorTreeAIController` (Blueprintable; runs a `UBehaviorTree` from `OnPossess`, plus a BlueprintCallable `StartBehaviorTree`), and three `UBTTaskNode` subclasses for locomotion control — `BTTask_SetMaxWalkSpeed`, `BTTask_SetCrouch`, `BTTask_RandomizeFloat` (placed via `add_bt_node`).
+- **Runtime classes (no MCP-action delta):** `AMegalithBehaviorTreeAIController` (Blueprintable; runs a `UBehaviorTree` from `OnPossess`, plus a BlueprintCallable `StartBehaviorTree`), and three `UBTTaskNode` subclasses for locomotion control — `BTTask_SetMaxWalkSpeed`, `BTTask_SetCrouch`, `BTTask_RandomizeFloat` (placed via `add_bt_node`).
 - **Fixes:** `reorder_bt_children` order now persists (`NodePosX`-based); `build_behavior_tree_from_spec` now links `UBehaviorTree::BlackboardAsset`.
 
 **Conditional on `#if WITH_STATETREE` + `#if WITH_SMARTOBJECTS`** — projects missing either plugin register 0 AI actions.
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="ai", target_action="<name>")` (or `monolith_discover("ai", detail=true)`). Plain `monolith_discover("ai")` is terse — names + one-line descriptions only.
+> For full param schemas, call `describe_query("action_schema", target_namespace="ai", target_action="<name>")` (or `megalith_discover("ai", detail=true)`). Plain `megalith_discover("ai")` is terse — names + one-line descriptions only.
 
 **Action categories:**
 
@@ -1044,7 +1044,7 @@ Behavior Trees, State Trees, EQS, Blackboards, AI Controllers, Perception, Smart
 
 > **Phase J F15:** all BT-related actions now return `{ "error": "<code>", "detail": "<human>" }` instead of mixed prose. Update your error parsers.
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithAI.md` for the deep dive — it's a long one.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithAI.md` for the deep dive — it's a long one.
 
 ---
 
@@ -1052,7 +1052,7 @@ See `Plugins/Monolith/Docs/specs/SPEC_MonolithAI.md` for the deep dive — it's 
 
 Logic Driver Pro state machines: graph CRUD, node configuration, runtime PIE control, scaffolds, dialogue, text graph extraction. **66 actions.** **Conditional on `#if WITH_LOGICDRIVER`** — requires the Logic Driver Pro marketplace plugin. Reflection-only (precompiled marketplace plugin).
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="logicdriver", target_action="<name>")` (or `monolith_discover("logicdriver", detail=true)`). Plain `monolith_discover("logicdriver")` is terse — names + one-line descriptions only.
+> For full param schemas, call `describe_query("action_schema", target_namespace="logicdriver", target_action="<name>")` (or `megalith_discover("logicdriver", detail=true)`). Plain `megalith_discover("logicdriver")` is terse — names + one-line descriptions only.
 
 **Action categories:**
 
@@ -1074,7 +1074,7 @@ Logic Driver Pro state machines: graph CRUD, node configuration, runtime PIE con
 
 The crown jewel is `build_sm_from_spec` — create a complete state machine (states, transitions, conduits, nested SMs, initial/end markers) from a single JSON spec, then compile, in one call.
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithLogicDriver.md`.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithLogicDriver.md`.
 
 ---
 
@@ -1082,7 +1082,7 @@ See `Plugins/Monolith/Docs/specs/SPEC_MonolithLogicDriver.md`.
 
 Sound Cue + MetaSound graph CRUD + on-disk document introspection, attenuation/class/mix/submix/concurrency, batch ops, Sound Cue templates, perception bindings, and a small batch of test helpers. **98 actions.**
 
-> For full param schemas, call `describe_query("action_schema", target_namespace="audio", target_action="<name>")` (or `monolith_discover("audio", detail=true)`). Plain `monolith_discover("audio")` is terse — names + one-line descriptions only. MetaSound graph + document actions are conditional on `#if WITH_METASOUND` — projects without MetaSound get Sound Cue + CRUD + batch actions but no MetaSound graph building or document walk. The 12 document-introspection actions (PR #18, v0.14.10) read **on-disk document state** for arbitrary assets without an active builder session — distinct from the Builder-side graph actions which read live builder state during mutation.
+> For full param schemas, call `describe_query("action_schema", target_namespace="audio", target_action="<name>")` (or `megalith_discover("audio", detail=true)`). Plain `megalith_discover("audio")` is terse — names + one-line descriptions only. MetaSound graph + document actions are conditional on `#if WITH_METASOUND` — projects without MetaSound get Sound Cue + CRUD + batch actions but no MetaSound graph building or document walk. The 12 document-introspection actions (PR #18, v0.14.10) read **on-disk document state** for arbitrary assets without an active builder session — distinct from the Builder-side graph actions which read live builder state during mutation.
 
 **Action categories:**
 
@@ -1117,7 +1117,7 @@ Sound Cue + MetaSound graph CRUD + on-disk document introspection, attenuation/c
 
 ### `audio.bind_sound_to_perception`
 
-Stamp a `UMonolithSoundPerceptionUserData` onto a `USoundBase` (Cue / MetaSoundSource / Wave). Runtime `UWorldSubsystem` fires `AActor::MakeNoise` when this sound plays through a `UAudioComponent` owned by an actor.
+Stamp a `UMegalithSoundPerceptionUserData` onto a `USoundBase` (Cue / MetaSoundSource / Wave). Runtime `UWorldSubsystem` fires `AActor::MakeNoise` when this sound plays through a `UAudioComponent` owned by an actor.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -1132,17 +1132,17 @@ Stamp a `UMonolithSoundPerceptionUserData` onto a `USoundBase` (Cue / MetaSoundS
 
 > **Phase J F11:** `loudness <= 0`, `max_range < 0`, and unknown `sense_class` values now reject up-front instead of writing junk userdata.
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithAudio.md`.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithAudio.md`.
 
 ---
 
 ## level_sequence
 
-Level Sequence inspection — binding inventory (legacy possessables/spawnables + UE 5.7 custom bindings), Director Blueprint functions/variables, event-track bindings, and cross-sequence reverse lookup. **8 actions.** Backed by a dedicated SQLite indexer (`MonolithLevelSequence` module, PR #45). Read-only.
+Level Sequence inspection — binding inventory (legacy possessables/spawnables + UE 5.7 custom bindings), Director Blueprint functions/variables, event-track bindings, and cross-sequence reverse lookup. **8 actions.** Backed by a dedicated SQLite indexer (`MegalithLevelSequence` module, PR #45). Read-only.
 
 | Action | Key params | Notes |
 |--------|-----------|-------|
-| `ping` | — | Smoke test; returns `{status:ok, module:MonolithLevelSequence}` |
+| `ping` | — | Smoke test; returns `{status:ok, module:MegalithLevelSequence}` |
 | `list_directors` | `asset_path_filter?` (glob) | Level Sequences with a Director BP + function/variable counts |
 | `get_director_info` | `asset_path` | Function counts by kind (`user`/`custom_event`/`sequencer_endpoint`), variable count, event-binding counts, sample of up to 10 functions |
 | `list_director_functions` | `asset_path`, `kind?` | Own functions filtered by `user`/`custom_event`/`sequencer_endpoint`/`event`/`all` (own-only, matching the blueprint convention) |
@@ -1151,13 +1151,13 @@ Level Sequence inspection — binding inventory (legacy possessables/spawnables 
 | `list_bindings` | `asset_path`, `kind?` | **ALL** bindings regardless of event tracks — `possessable`/`spawnable`/`replaceable`/`custom`. Catches UE 5.7 `UMovieSceneCustomBinding` rows that `list_event_bindings` misses |
 | `find_director_function_callers` | `function_name`, `asset_path_filter?` (glob) | Cross-sequence reverse lookup: every event-track section across the project that fires a given Director function |
 
-See `Plugins/Monolith/Docs/specs/SPEC_MonolithLevelSequence.md`.
+See `Plugins/Megalith/Docs/specs/SPEC_MegalithLevelSequence.md`.
 
 ---
 
 ## bulk_fill
 
-Reflection-walker bulk property fill across 12 per-namespace adapters. **2 actions.** Framework dispatcher in `MonolithCore` (0.15.0); each adapter self-registers from its owning module — zero compile-time linkage from core into adapter modules.
+Reflection-walker bulk property fill across 12 per-namespace adapters. **2 actions.** Framework dispatcher in `MegalithCore` (0.15.0); each adapter self-registers from its owning module — zero compile-time linkage from core into adapter modules.
 
 ### `bulk_fill_query.apply`
 
@@ -1217,7 +1217,7 @@ See the per-system SPECs' "Bulk Fill & Describe Surface" sections for each adapt
 
 **New v0.17.0 (Reflection Intelligence, Phase 1).** Architectural decision records mined from the project's markdown corpora (specs, plans, `CHANGELOG.md`, `.claude/rules/`) into `decision_records` + `decision_supersedes` SQLite tables on `EngineSource.db`. Zero LLM calls, zero network. Three heuristic tiers with distinct confidence floors: YAML frontmatter `decision: true` / `status:` (0.90), `## ADR-N` / `## Architectural Decision` headers (0.85), and a markdown header followed within 8 lines by a paragraph containing `because` / `rationale` / `evidence` / `decision:` (0.65). All 5 actions are read-only + idempotent and participate in universal response shaping (`_fields` / `_omit` / `_compact_json`). **5 actions.**
 
-> RI does NOT open its own handle to `EngineSource.db`. UE 5.7's SQLite is built with `SQLITE_OS_OTHER=1` and a custom `unreal-fs` VFS that allows only ONE open of a file per process; a second open returns `SQLITE_IOERR`. RI borrows `UMonolithSourceSubsystem`'s already-open handle (`FMonolithSourceDatabase::GetRawHandle()` / `GetLock()`): read-path adapters borrow it under a game-thread-only contract, write-path bootstrap indexers run under `FScopeLock`.
+> RI does NOT open its own handle to `EngineSource.db`. UE 5.7's SQLite is built with `SQLITE_OS_OTHER=1` and a custom `unreal-fs` VFS that allows only ONE open of a file per process; a second open returns `SQLITE_IOERR`. RI borrows `UMegalithSourceSubsystem`'s already-open handle (`FMegalithSourceDatabase::GetRawHandle()` / `GetLock()`): read-path adapters borrow it under a game-thread-only contract, write-path bootstrap indexers run under `FScopeLock`.
 
 ### `decision_query.list_decisions`
 
@@ -1334,7 +1334,7 @@ List files whose hotspot score exceeds a threshold, descending. Designed for rel
 
 ### `risk_query.list_conditional_gates`
 
-List `#if WITH_*` macros, `bHas*` 3-location probe variables, and `MONOLITH_RELEASE_BUILD` bypass branches across the project. Cursor-paginated.
+List `#if WITH_*` macros, `bHas*` 3-location probe variables, and `MEGALITH_RELEASE_BUILD` bypass branches across the project. Cursor-paginated.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -1494,7 +1494,7 @@ Find `ReplicatedUsing=OnRep_X` declarations whose `OnRep_X` function does NOT ex
 
 ## pipeline
 
-**New v0.17.0 (Reflection Intelligence, Phase 4a).** Two read-only composer actions that fan out other registered Monolith actions serially on the game thread and assemble the results into a single payload. They never mutate state — every action they invoke is itself read-only. No `ParallelFor`, no async dispatch. **2 actions.**
+**New v0.17.0 (Reflection Intelligence, Phase 4a).** Two read-only composer actions that fan out other registered Megalith actions serially on the game thread and assemble the results into a single payload. They never mutate state — every action they invoke is itself read-only. No `ParallelFor`, no async dispatch. **2 actions.**
 
 ### `pipeline_query.pr_review`
 
@@ -1509,20 +1509,20 @@ Bundle the most common PR-review reads into a single call against a list of chan
 
 ### `pipeline_query.release_readiness`
 
-Release-gate composer. Bundles `monolith_status()`, `decision_query("list_stale")`, `risk_query("get_release_window_hotspots")`, plus the sentinel-list audit and CHANGELOG completeness audit specced in `.claude/rules/scoped/monolith-release.md`. Read-only end-to-end. No required params.
+Release-gate composer. Bundles `megalith_status()`, `decision_query("list_stale")`, `risk_query("get_release_window_hotspots")`, plus the sentinel-list audit and CHANGELOG completeness audit specced in `.claude/rules/scoped/megalith-release.md`. Read-only end-to-end. No required params.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `stale_decision_days` | integer | optional | Forwarded to `decision_query("list_stale")`. Default: `90` |
 | `hotspot_threshold` | number | optional | Forwarded to `risk_query("get_release_window_hotspots")`. Default: `0.7` |
 
-**Returns:** `{ "status": { /* monolith_status payload */ }, "stale_decisions": [...], "release_window_hotspots": [...], "sentinel_audit": {...}, "changelog_completeness": {...} }`.
+**Returns:** `{ "status": { /* megalith_status payload */ }, "stale_decisions": [...], "release_window_hotspots": [...], "sentinel_audit": {...}, "changelog_completeness": {...} }`.
 
 ---
 
 ## Reflection Intelligence — Cross-Namespace Audit Actions
 
-Four additional read-only audit actions ship with Reflection Intelligence Phase 4a. Each is owned by `MonolithReflectionIntel` but registered onto an **existing** host namespace's adapter for caller ergonomics (agents already discover the host namespace first). All four are cursor-paginated; `path_prefix` carries `AssetPath` semantics (`\` → `/` rewrite with a surfaced warning). Together with `source_query("audit_module_dep_reality")` these are the 5 cross-namespace RI audits.
+Four additional read-only audit actions ship with Reflection Intelligence Phase 4a. Each is owned by `MegalithReflectionIntel` but registered onto an **existing** host namespace's adapter for caller ergonomics (agents already discover the host namespace first). All four are cursor-paginated; `path_prefix` carries `AssetPath` semantics (`\` → `/` rewrite with a surfaced warning). Together with `source_query("audit_module_dep_reality")` these are the 5 cross-namespace RI audits.
 
 ### `material_query.audit_orphan_materials`
 
@@ -1600,17 +1600,17 @@ Exists because after an RI indexer code change there's no other clean repopulati
 
 ## Sibling Plugins
 
-Sibling plugins live **beside** Monolith (not inside it) and register their own namespaces into Monolith's MCP action registry at startup. They ship as **separate plugins with separate releases** — they are not bundled in the Monolith zip.
+Sibling plugins live **beside** Megalith (not inside it) and register their own namespaces into Megalith's MCP action registry at startup. They ship as **separate plugins with separate releases** — they are not bundled in the Megalith zip.
 
-If you're building a sibling plugin yourself, read `Plugins/Monolith/Docs/SIBLING_PLUGIN_GUIDE.md` for the architectural pattern, build setup, and reflection requirements.
+If you're building a sibling plugin yourself, read `Plugins/Megalith/Docs/SIBLING_PLUGIN_GUIDE.md` for the architectural pattern, build setup, and reflection requirements.
 
 | Sibling plugin | Namespace | Actions | Status | Repo |
 |---|---|---|---|---|
-| External sibling plugin | Custom | Varies | Registers its own namespace at startup and ships through its own repo/channel. | Outside `Plugins/Monolith/` |
+| External sibling plugin | Custom | Varies | Registers its own namespace at startup and ships through its own repo/channel. | Outside `Plugins/Megalith/` |
 
-**Why these aren't in the in-tree count:** the in-tree count (the approximate `~1,400+ / 25+` figure) counts only modules shipped inside the public `Monolith-vX.Y.Z.zip` release. Sibling plugins live in their own folders, ship via their own channels (or stay private), and may or may not be installed in any given consumer's project. Their absence is not a degraded state — Monolith is fully functional without them.
+**Why these aren't in the in-tree count:** the in-tree count (the approximate `~1,400+ / 25+` figure) counts only modules shipped inside the public `Megalith-vX.Y.Z.zip` release. Sibling plugins live in their own folders, ship via their own channels (or stay private), and may or may not be installed in any given consumer's project. Their absence is not a degraded state — Megalith is fully functional without them.
 
-Private sibling bridges are intentionally omitted from the public API reference. Their action rosters, namespaces, and release notes belong in their own repos/channels; Monolith must not publish them as part of the public API surface.
+Private sibling bridges are intentionally omitted from the public API reference. Their action rosters, namespaces, and release notes belong in their own repos/channels; Megalith must not publish them as part of the public API surface.
 
 ---
 
@@ -1690,8 +1690,8 @@ generate_floor_plan → create_building_from_grid → generate_facade → genera
 
 Before writing any client code:
 
-1. `monolith_discover()` — list all namespaces and their actions.
-2. `monolith_discover("<namespace>")` — list one namespace's action names + one-line descriptions (terse). Pass `detail=true` to inline all param schemas.
+1. `megalith_discover()` — list all namespaces and their actions.
+2. `megalith_discover("<namespace>")` — list one namespace's action names + one-line descriptions (terse). Pass `detail=true` to inline all param schemas.
 3. `describe_query("action_schema", target_namespace="<ns>", target_action="<name>")` — get one action's full param schema.
 4. `project_query("search", {query: "..."})` — find assets by name/type.
 5. `source_query("search_source", {query: "..."})` — verify UE 5.7 API signatures.
@@ -1702,16 +1702,16 @@ Before writing any client code:
 
 ## Offline Fallback (editor not running)
 
-When the editor is closed but you still need to query Monolith:
+When the editor is closed but you still need to query Megalith:
 
-- **`Plugins/Monolith/Binaries/monolith_query.exe`** — standalone C++ tool, read-only. The canonical offline path. Serves the read-only `project` / `source` / `config` namespaces plus the full **20-action Reflection Intelligence surface**.
-- **`python Plugins/Monolith/Scripts/monolith_offline.py`** — stdlib-only dev fallback, kept byte-for-byte in lockstep with the exe.
+- **`Plugins/Megalith/Binaries/megalith_query.exe`** — standalone C++ tool, read-only. The canonical offline path. Serves the read-only `project` / `source` / `config` namespaces plus the full **20-action Reflection Intelligence surface**.
+- **`python Plugins/Megalith/Scripts/megalith_offline.py`** — stdlib-only dev fallback, kept byte-for-byte in lockstep with the exe.
 
 Both invoke the same SQLite indexes the live MCP uses.
 
 **Reflection Intelligence offline parity.** All four RI namespaces are now fully servable offline — `cppreflect` (6 actions), `network` (4), `decision` (5), `risk` (5) — and emit JSON **byte-identical to the live MCP server** (same field names, types, ordering, row data, `%.17g` float formatting, and base64 cursor tokens). Earlier builds covered only 4 of the 20 with divergent shapes; the phantom `risk.list_hotspots` action has been removed. Two intentional, documented differences from the live payload remain (not bugs): the offline CLI adds a top-level `success` flag (its in-band status channel — the live MCP carries success/error out-of-band, so live has no `success` key; the nested DATA payload is byte-identical), and wall-clock fields (`cutoff_unix` / `since_unix` and the `risk.get_release_window_hotspots` cursor whose filter-hash includes them) differ by the run-time gap across process invocations on both live and offline.
 
-`Scripts/verify_offline_parity.py` byte-diffs exe vs py across all 20 RI actions as a ship-blocking gate in `make_release.ps1`; `Scripts/check_offline_exe_fresh.py` flags a stale exe by comparing its `--version` `source_hash` against a fresh hash of `monolith_query.cpp`, and is likewise a ship-blocking gate in `make_release.ps1`. It hashes `monolith_query.cpp` only — a failure originating in `ThirdParty/sqlite3.c`, a ThirdParty header, or the toolchain is covered by `build.bat`'s exit code instead.
+`Scripts/verify_offline_parity.py` byte-diffs exe vs py across all 20 RI actions as a ship-blocking gate in `make_release.ps1`; `Scripts/check_offline_exe_fresh.py` flags a stale exe by comparing its `--version` `source_hash` against a fresh hash of `megalith_query.cpp`, and is likewise a ship-blocking gate in `make_release.ps1`. It hashes `megalith_query.cpp` only — a failure originating in `ThirdParty/sqlite3.c`, a ThirdParty header, or the toolchain is covered by `build.bat`'s exit code instead.
 
 ---
 
@@ -1719,8 +1719,8 @@ Both invoke the same SQLite indexes the live MCP uses.
 
 - Claude Code's MCP transport is `"http"`, not `"streamableHttp"`.
 - Some clients serialize nested `params` objects to a JSON **string** instead of a nested object — detect and deserialize back.
-- The HTTP server lives on `http://localhost:<port>`. Port is published in `monolith_status` output.
-- For Claude Code specifically, the **MCP auto-reconnect proxy** at `Scripts/monolith_proxy.py` survives editor restarts. See `Plugins/Monolith/Docs/Installation.md` for setup.
+- The HTTP server lives on `http://localhost:<port>`. Port is published in `megalith_status` output.
+- For Claude Code specifically, the **MCP auto-reconnect proxy** at `Scripts/megalith_proxy.py` survives editor restarts. See `Plugins/Megalith/Docs/Installation.md` for setup.
 
 ---
 
@@ -1728,23 +1728,23 @@ Both invoke the same SQLite indexes the live MCP uses.
 
 | Module | Gate | Actions when ungated |
 |--------|------|----------------------|
-| MonolithGAS | `WITH_GBA` (GameplayAbilities plugin) | 0 |
-| MonolithComboGraph | `WITH_COMBOGRAPH` (ComboGraph marketplace plugin) | 0 |
-| MonolithLogicDriver | `WITH_LOGICDRIVER` (Logic Driver Pro marketplace plugin) | 0 |
-| MonolithAI | `WITH_STATETREE` + `WITH_SMARTOBJECTS` (engine plugins) | 0 |
-| MonolithUI CommonUI | `WITH_COMMONUI` | 42 (UMG baseline only) |
-| MonolithAudio MetaSound | `WITH_METASOUND` | Sound Cue + CRUD + batch (no MetaSound graph) |
-| MonolithMesh town gen | `bEnableProceduralTownGen` (Editor Preferences, default `false`) | 195 (core mesh only) |
+| MegalithGAS | `WITH_GBA` (GameplayAbilities plugin) | 0 |
+| MegalithComboGraph | `WITH_COMBOGRAPH` (ComboGraph marketplace plugin) | 0 |
+| MegalithLogicDriver | `WITH_LOGICDRIVER` (Logic Driver Pro marketplace plugin) | 0 |
+| MegalithAI | `WITH_STATETREE` + `WITH_SMARTOBJECTS` (engine plugins) | 0 |
+| MegalithUI CommonUI | `WITH_COMMONUI` | 42 (UMG baseline only) |
+| MegalithAudio MetaSound | `WITH_METASOUND` | Sound Cue + CRUD + batch (no MetaSound graph) |
+| MegalithMesh town gen | `bEnableProceduralTownGen` (Editor Preferences, default `false`) | 195 (core mesh only) |
 
 ---
 
 ## Cross-References
 
-- **SPEC_CORE.md** — Master Monolith spec, action count audit, pipelines, architecture
-- **SPEC_Monolith*.md** — Per-module deep specs in `Plugins/Monolith/Docs/specs/`
-- **SIBLING_PLUGIN_GUIDE.md** — How to build a sibling plugin against `FMonolithToolRegistry`
+- **SPEC_CORE.md** — Master Megalith spec, action count audit, pipelines, architecture
+- **SPEC_Megalith*.md** — Per-module deep specs in `Plugins/Megalith/Docs/specs/`
+- **SIBLING_PLUGIN_GUIDE.md** — How to build a sibling plugin against `FMegalithToolRegistry`
 - **CHANGELOG.md** — Release-by-release change history (Keep a Changelog format)
-- **Wiki** — User-facing tutorials at `https://github.com/tumourlove/monolith/wiki`
+- **Wiki** — User-facing tutorials at `https://github.com/tumourlove/megalith/wiki`
 
 ---
 

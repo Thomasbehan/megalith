@@ -1,11 +1,11 @@
 ---
 name: unreal-animation
-description: Use when inspecting or editing Unreal animation assets via Monolith MCP — sequences, montages, blend spaces, animation blueprints, notifies, curves, sync markers, skeletons, IKRig, IK Retargeter, Control Rig. Triggers on animation, montage, ABP, blend space, notify, anim sequence, skeleton, IKRig, retargeter, control rig.
+description: Use when inspecting or editing Unreal animation assets via Megalith MCP — sequences, montages, blend spaces, animation blueprints, notifies, curves, sync markers, skeletons, IKRig, IK Retargeter, Control Rig. Triggers on animation, montage, ABP, blend space, notify, anim sequence, skeleton, IKRig, retargeter, control rig.
 ---
 
 # Unreal Animation Workflows
 
-**130+ animation actions** via `animation_query()`. Discover with `monolith_discover({ namespace: "animation" })` for the live figure (this table covers the high-traffic subset).
+**130+ animation actions** via `animation_query()`. Discover with `megalith_discover({ namespace: "animation" })` for the live figure (this table covers the high-traffic subset).
 
 ## Key Parameters
 
@@ -102,7 +102,7 @@ animation_query({ action: "set_section_next", params: { asset_path: "/Game/Anima
 
 ## Posed Skeletal-Mesh Capture (editor:: action)
 
-`editor_query("capture_scene_preview", { asset_path: "/Game/.../SK_Char", asset_type: "skeletal_mesh", animation_path: "/Game/.../A_Idle", seek_time: 0.5 })` renders the skeletal mesh at the requested pose (omit `animation_path` for rest pose). Useful for visually verifying retarget output, montage section poses, or sequence keyframes. See `monolith_guide(section="recipes")` entry "Visual introspection — going beyond thumbnails".
+`editor_query("capture_scene_preview", { asset_path: "/Game/.../SK_Char", asset_type: "skeletal_mesh", animation_path: "/Game/.../A_Idle", seek_time: 0.5 })` renders the skeletal mesh at the requested pose (omit `animation_path` for rest pose). Useful for visually verifying retarget output, montage section poses, or sequence keyframes. See `megalith_guide(section="recipes")` entry "Visual introspection — going beyond thumbnails".
 
 ## Rules
 

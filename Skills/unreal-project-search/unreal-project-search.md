@@ -1,16 +1,16 @@
 ---
 name: unreal-project-search
-description: Use when searching for assets, references, or dependencies across an Unreal project via Monolith MCP — FTS5 full-text search, asset discovery, reference tracing, type filtering. Triggers on find asset, search project, asset references, where is, dependencies.
+description: Use when searching for assets, references, or dependencies across an Unreal project via Megalith MCP — FTS5 full-text search, asset discovery, reference tracing, type filtering. Triggers on find asset, search project, asset references, where is, dependencies.
 ---
 
 # Unreal Project Search Workflows
 
-You have access to **Monolith** with a deep project index via `project_query()`.
+You have access to **Megalith** with a deep project index via `project_query()`.
 
 ## Discovery
 
 ```
-monolith_discover({ namespace: "project" })
+megalith_discover({ namespace: "project" })
 ```
 
 ## Asset Path Conventions
@@ -139,10 +139,10 @@ The index covers these types for `find_by_type`:
 
 ## Tips
 
-- The index is built on first launch and auto-updates — use `monolith_reindex()` to force rebuild
+- The index is built on first launch and auto-updates — use `megalith_reindex()` to force rebuild
 - FTS5 search covers asset name/class/description/path/module and graph-node name/class/type — not variables, parameters or comments
 - Use `find_references` to understand dependency chains before deleting or renaming assets
 - Combine with domain-specific tools: search first, then inspect with `blueprint_query`, `material_query`, etc.
-- `get_stats` shows last index time — if stale, trigger `monolith_reindex()`
+- `get_stats` shows last index time — if stale, trigger `megalith_reindex()`
 - RI reflection tables refresh on Live Coding / lazy first-call; force a project-only rebuild with `reflect_query("rebuild_reflection_index")`
-- Call `monolith_discover('namespace')` to list action names + one-line descriptions (terse by default). For an action's full param schema, call `describe_query action_schema` (or pass `detail=true` to inline all schemas)
+- Call `megalith_discover('namespace')` to list action names + one-line descriptions (terse by default). For an action's full param schema, call `describe_query action_schema` (or pass `detail=true` to inline all schemas)

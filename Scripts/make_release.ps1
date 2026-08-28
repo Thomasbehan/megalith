@@ -1,31 +1,31 @@
-# Monolith Release Zip Builder
+# Megalith Release Zip Builder
 # Creates per-engine release zips with "Installed": true for Blueprint-only compatibility.
-# Automatically builds with optional dependencies disabled (MONOLITH_RELEASE_BUILD=1).
+# Automatically builds with optional dependencies disabled (MEGALITH_RELEASE_BUILD=1).
 #
 # Usage: powershell -ExecutionPolicy Bypass -File Scripts\make_release.ps1 -Version "0.10.0"
 #
 # What it does (per engine, UE5.7 in this project + UE5.8 in the FIVEPOINT8 project):
-#   1. Sets MONOLITH_RELEASE_BUILD=1 (forces BA/GBA optional deps OFF in Build.cs)
+#   1. Sets MEGALITH_RELEASE_BUILD=1 (forces BA/GBA optional deps OFF in Build.cs)
 #   2. Touches every Source/*/*.Build.cs (mtime bump) to force a clean recompile so the
 #      incremental release build cannot reuse stale dev .obj/DLLs (issue #71 mode 1)
 #   3. Runs that engine's UBT (-DisableUnity) to produce clean release binaries
 #   4. Runs the full-unity collision gate against that engine (issue #68 defense)
 #   5. Harvests that engine's Binaries/Win64, strips .pdb/.patch_*/sibling/.claude
 #   6. Packages tracked files (ONE shared git ls-files copy) + that engine's binaries into
-#      Monolith-v<X.Y.Z>-UE5.<minor>.zip with Installed=true
+#      Megalith-v<X.Y.Z>-UE5.<minor>.zip with Installed=true
 #   7. Runs the mandatory dumpbin hard-link import smoke against that zip's DLLs
 #   8. Prints the per-engine SHA256 marker for the release notes
-#   Finally: copies the UE5.7 zip to Monolith-v<X.Y.Z>.zip (legacy bridge for old updaters)
-#   and prints the Monolith-SHA256-v2: marker (= the UE5.7 hash). All markers use the
+#   Finally: copies the UE5.7 zip to Megalith-v<X.Y.Z>.zip (legacy bridge for old updaters)
+#   and prints the Megalith-SHA256-v2: marker (= the UE5.7 hash). All markers use the
 #   "v2" names -- pre-v0.21.1 updaters hard-crash on the old names (#90/#94).
 #
 # Source users (GitHub clones) are unaffected -- Build.cs auto-detects at compile time.
 #
 # Non-redistributable sibling modules live outside this repo. The strip phase below
-# is defense-in-depth for accidental re-merges into Plugins/Monolith/.
+# is defense-in-depth for accidental re-merges into Plugins/Megalith/.
 #
 # IMPORTANT: ALL editors (both this project and FIVEPOINT8) must be CLOSED -- UBT fails
-# with LIVE_CODING_BLOCKED otherwise. The FIVEPOINT8 Plugins/Monolith clone MUST be at the
+# with LIVE_CODING_BLOCKED otherwise. The FIVEPOINT8 Plugins/Megalith clone MUST be at the
 # same commit as this repo's HEAD (the script asserts this and aborts on mismatch), since
 # both zips ship the SAME tracked content (git ls-files from THIS repo) with only the
 # per-engine Binaries/Win64 set differing.
@@ -52,7 +52,7 @@ $ErrorActionPreference = "Stop"
 # --- Step 0: Refuse to release a dirty working tree ---
 # This script copies tracked files from the working tree (not from HEAD), so any
 # uncommitted modification to a tracked file silently ends up in the release zip.
-# Bitten by this shipping v0.13.1 with WIP CommonUI refs in MonolithUI. Never again.
+# Bitten by this shipping v0.13.1 with WIP CommonUI refs in MegalithUI. Never again.
 $PluginDir = Split-Path -Parent $PSScriptRoot
 Push-Location $PluginDir
 try {
@@ -82,41 +82,41 @@ finally {
 $ProjectDir = Split-Path -Parent (Split-Path -Parent $PluginDir)
 
 # --- $StrippedModules: defense-in-depth against accidental sibling-plugin re-merge ---
-# Sibling plugins live outside Plugins/Monolith/ at the project's Plugins/ level.
+# Sibling plugins live outside Plugins/Megalith/ at the project's Plugins/ level.
 # They are naturally excluded from the release zip by `git ls-files` scope (which
-# only sees files inside Plugins/Monolith/). This array exists purely as
+# only sees files inside Plugins/Megalith/). This array exists purely as
 # defense-in-depth: if someone ever accidentally re-merges sibling source back into
-# Plugins/Monolith/Source/ (refactor mistake, copy-paste, etc.), the strip filter
+# Plugins/Megalith/Source/ (refactor mistake, copy-paste, etc.), the strip filter
 # catches it before it ships.
 #
-# Auto-discover all "Monolith*" sibling folders alongside Plugins/Monolith/ -- every new
-# sibling gets protected automatically without script maintenance. Excludes Monolith
+# Auto-discover all "Megalith*" sibling folders alongside Plugins/Megalith/ -- every new
+# sibling gets protected automatically without script maintenance. Excludes Megalith
 # itself.
 $ProjectPluginsDir = Join-Path $ProjectDir "Plugins"
 $StrippedModules = @(Get-ChildItem -Path $ProjectPluginsDir -Directory -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -like "Monolith*" -and $_.Name -ne "Monolith" } |
+    Where-Object { $_.Name -like "Megalith*" -and $_.Name -ne "Megalith" } |
     Select-Object -ExpandProperty Name)
 if ($StrippedModules.Count -gt 0) {
     Write-Host "  [strip-list] Auto-discovered $($StrippedModules.Count) sibling plugin(s) to defend against: $($StrippedModules -join ', ')" -ForegroundColor DarkGray
 }
 
-$TempDir = Join-Path $env:TEMP "Monolith_Release_$Version"
+$TempDir = Join-Path $env:TEMP "Megalith_Release_$Version"
 
 # --- Engine matrix -------------------------------------------------------------------
 # Two full per-engine release builds harvested from the SAME source commit. UE5.7 is
-# built here (the Monolith dev-master); UE5.8 is built in the FIVEPOINT8 project, whose
-# Plugins/Monolith is a clone of this repo pinned to the same HEAD. Each entry drives a
+# built here (the Megalith dev-master); UE5.8 is built in the FIVEPOINT8 project, whose
+# Plugins/Megalith is a clone of this repo pinned to the same HEAD. Each entry drives a
 # full build + collision gate + Binaries harvest + zip + import smoke.
 #
 # UBT is invoked directly (the exe, not Build.bat) -- the prior single-engine script did
 # the same, and the exe lives at the same relative path under every UE 5.x install.
-$LegacyZip = Join-Path $ProjectDir "Monolith-v$Version.zip"  # legacy bridge (= UE5.7 copy)
+$LegacyZip = Join-Path $ProjectDir "Megalith-v$Version.zip"  # legacy bridge (= UE5.7 copy)
 
-# --- Non-Monolith prototyping plugins to temporarily DISABLE during each engine's release
+# --- Non-Megalith prototyping plugins to temporarily DISABLE during each engine's release
 #     build. The dev-master project also hosts gameplay-prototyping siblings (HordeForge,
-#     OptimizedGASP) OUTSIDE Plugins/Monolith. The editor target compiles them too, so a
+#     OptimizedGASP) OUTSIDE Plugins/Megalith. The editor target compiles them too, so a
 #     -DisableUnity compile error in a sibling (e.g. HordeForge's unity-leak: a log category
-#     used without its declaring header) would abort the Monolith release -- which must NOT
+#     used without its declaring header) would abort the Megalith release -- which must NOT
 #     be hostage to sibling compile health. We disable these for the build, then restore the
 #     EXACT original .uproject bytes (see Disable-ProjectPlugins / the build wrapper).
 #     FIVEPOINT8 does not contain these, so the toggle is a harmless no-op there.
@@ -125,7 +125,7 @@ $ExcludeProjectPlugins = @('HordeForge', 'OptimizedGASP')
 # Auto-detect the host project and Engine Version for the primary build
 $UProjectFile = Get-ChildItem -Path $ProjectDir -Filter "*.uproject" | Select-Object -First 1
 if (-not $UProjectFile) {
-    Write-Host "`n  [FAIL] No .uproject found in $ProjectDir. The script must be run from inside a host project's Plugins\Monolith\Scripts folder." -ForegroundColor Red
+    Write-Host "`n  [FAIL] No .uproject found in $ProjectDir. The script must be run from inside a host project's Plugins\Megalith\Scripts folder." -ForegroundColor Red
     exit 1
 }
 $HostProjectName = $UProjectFile.BaseName
@@ -155,10 +155,10 @@ $EngineMatrix = @(
         Tag        = "UE$HostEngineAssoc"                             # asset/marker engine tag
         UBT        = $HostUBTPath
         Target     = "${HostProjectName}Editor"
-        ProjectDir = $ProjectDir                            # this Monolith dev-master
+        ProjectDir = $ProjectDir                            # this Megalith dev-master
         UProject   = $UProjectFile.FullName
-        PluginDir  = $PluginDir                             # this repo's Plugins/Monolith
-        Zip        = (Join-Path $ProjectDir "Monolith-v$Version-UE$HostEngineAssoc.zip")
+        PluginDir  = $PluginDir                             # this repo's Plugins/Megalith
+        Zip        = (Join-Path $ProjectDir "Megalith-v$Version-UE$HostEngineAssoc.zip")
         IsLegacy   = $true                                  # this zip seeds the legacy bridge
     },
     [PSCustomObject]@{
@@ -167,8 +167,8 @@ $EngineMatrix = @(
         Target     = "FIVEPOINT8Editor"
         ProjectDir = 'D:\Unreal Projects\FIVEPOINT8'
         UProject   = 'D:\Unreal Projects\FIVEPOINT8\FIVEPOINT8.uproject'
-        PluginDir  = 'D:\Unreal Projects\FIVEPOINT8\Plugins\Monolith'  # the UE5.8 clone (Binaries source)
-        Zip        = (Join-Path $ProjectDir "Monolith-v$Version-UE5.8.zip")
+        PluginDir  = 'D:\Unreal Projects\FIVEPOINT8\Plugins\Megalith'  # the UE5.8 clone (Binaries source)
+        Zip        = (Join-Path $ProjectDir "Megalith-v$Version-UE5.8.zip")
         IsLegacy   = $false
     }
 )
@@ -177,7 +177,7 @@ if ($SkipUE58 -or -not (Test-Path 'D:\Unreal Projects\FIVEPOINT8')) {
     $EngineMatrix = $EngineMatrix | Where-Object { $_.Tag -ne "UE5.8" }
 }
 
-Write-Host "Building Monolith v$Version release zips (per engine: $(( $EngineMatrix | ForEach-Object { $_.Tag }) -join ', '))..." -ForegroundColor Cyan
+Write-Host "Building Megalith v$Version release zips (per engine: $(( $EngineMatrix | ForEach-Object { $_.Tag }) -join ', '))..." -ForegroundColor Cyan
 
 # --- Preflight: validate every engine in the matrix BEFORE doing any work --------------
 # Fail fast (and TOGETHER) if any engine's toolchain, project, or clone is wrong. A
@@ -190,8 +190,8 @@ foreach ($eng in $EngineMatrix) {
     if (-not (Test-Path $eng.UProject)) {
         throw "[$($eng.Tag)] .uproject not found at $($eng.UProject)."
     }
-    if (-not (Test-Path (Join-Path $eng.PluginDir "Monolith.uplugin"))) {
-        throw "[$($eng.Tag)] Monolith.uplugin not found under $($eng.PluginDir). Is the clone present?"
+    if (-not (Test-Path (Join-Path $eng.PluginDir "Megalith.uplugin"))) {
+        throw "[$($eng.Tag)] Megalith.uplugin not found under $($eng.PluginDir). Is the clone present?"
     }
 }
 
@@ -231,7 +231,7 @@ function Invoke-TouchBuildCs {
 }
 
 # Force every plugin in $ExcludeProjectPlugins to Enabled:false in the given .uproject so
-# the editor target does NOT compile those non-Monolith prototyping siblings during the
+# the editor target does NOT compile those non-Megalith prototyping siblings during the
 # release build. They are EnabledByDefault and may not be listed in the Plugins array, so
 # we ADD an explicit disabled entry; if already listed, we set Enabled:false on it. A
 # disabled entry for a plugin that does not exist under the project is harmless, so we add
@@ -266,16 +266,16 @@ function Disable-ProjectPlugins {
 }
 
 # Step 1 + 1a for ONE engine: release build (-DisableUnity) then the full-unity collision
-# gate. Both run with MONOLITH_RELEASE_BUILD=1. Any failure throws (aborts whole release).
+# gate. Both run with MEGALITH_RELEASE_BUILD=1. Any failure throws (aborts whole release).
 function Invoke-EngineBuild {
     param([PSCustomObject]$Engine)
 
     $Tag = $Engine.Tag
     $UBT = $Engine.UBT
 
-    # Disable the non-Monolith prototyping siblings (HordeForge/OptimizedGASP) for BOTH the
+    # Disable the non-Megalith prototyping siblings (HordeForge/OptimizedGASP) for BOTH the
     # -DisableUnity build and the full-unity gate below -- the editor target compiles them
-    # and a sibling compile error must not abort the Monolith release. We snapshot the EXACT
+    # and a sibling compile error must not abort the Megalith release. We snapshot the EXACT
     # original .uproject bytes FIRST and restore them in the finally that wraps the whole
     # build body, so a build/gate failure can never leave the project's .uproject mutated.
     $UProjectBackup = [System.IO.File]::ReadAllBytes($Engine.UProject)
@@ -289,8 +289,8 @@ function Invoke-EngineBuild {
     Invoke-TouchBuildCs -EnginePluginDir $Engine.PluginDir -Tag $Tag
 
     # Set env var so Build.cs files skip optional dependency detection
-    $env:MONOLITH_RELEASE_BUILD = "1"
-    Write-Host "    [$Tag] MONOLITH_RELEASE_BUILD=1 (BA/GBA/ComboGraph forced off)" -ForegroundColor DarkGray
+    $env:MEGALITH_RELEASE_BUILD = "1"
+    Write-Host "    [$Tag] MEGALITH_RELEASE_BUILD=1 (BA/GBA/ComboGraph forced off)" -ForegroundColor DarkGray
 
     try {
         # Non-unity build catches missing includes and unity-only symbol collisions
@@ -303,8 +303,8 @@ function Invoke-EngineBuild {
     }
     finally {
         # Always unset -- even if build fails, don't poison future dev builds
-        Remove-Item Env:\MONOLITH_RELEASE_BUILD -ErrorAction SilentlyContinue
-        Write-Host "    [$Tag] MONOLITH_RELEASE_BUILD unset" -ForegroundColor DarkGray
+        Remove-Item Env:\MEGALITH_RELEASE_BUILD -ErrorAction SilentlyContinue
+        Write-Host "    [$Tag] MEGALITH_RELEASE_BUILD unset" -ForegroundColor DarkGray
     }
 
     # --- Step 1a: Full-unity collision gate (issue #68 defense) ---
@@ -327,15 +327,15 @@ function Invoke-EngineBuild {
     # precompiled host-project binaries (requiring a dev restore afterward).
     #
     # A whole-project full-unity build also surfaces the host project's own latent
-    # collisions. Those are NOT Monolith's concern -- we filter the captured log to
-    # Plugins\Monolith\ paths only. Only Monolith-path collision errors ship-block.
+    # collisions. Those are NOT Megalith's concern -- we filter the captured log to
+    # Plugins\Megalith\ paths only. Only Megalith-path collision errors ship-block.
     Write-Host "`n  [$Tag 1a] Full-unity collision gate (issue #68 defense)..." -ForegroundColor Yellow
 
     $BuildConfigDir = Join-Path $env:APPDATA "Unreal Engine\UnrealBuildTool"
     $BuildConfigXml = Join-Path $BuildConfigDir "BuildConfiguration.xml"
-    $BuildConfigBackup = "$BuildConfigXml.monolith-release-bak"
+    $BuildConfigBackup = "$BuildConfigXml.megalith-release-bak"
     $HadBuildConfig = Test-Path $BuildConfigXml
-    $UnityLog = Join-Path $env:TEMP "Monolith_FullUnity_${Version}_$Tag.log"
+    $UnityLog = Join-Path $env:TEMP "Megalith_FullUnity_${Version}_$Tag.log"
 
     # Collision error codes that full-unity concatenation surfaces but -DisableUnity
     # cannot: redefinition / multiple-definition / ambiguous-overload classes.
@@ -347,8 +347,8 @@ function Invoke-EngineBuild {
     #   C2668 - ambiguous call to overloaded function
     $CollisionCodes = @("C2084", "C2011", "C2086", "C2027", "C2374", "C2668")
 
-    $env:MONOLITH_RELEASE_BUILD = "1"
-    Write-Host "    [$Tag] MONOLITH_RELEASE_BUILD=1 (release config)" -ForegroundColor DarkGray
+    $env:MEGALITH_RELEASE_BUILD = "1"
+    Write-Host "    [$Tag] MEGALITH_RELEASE_BUILD=1 (release config)" -ForegroundColor DarkGray
 
     try {
         # Back up the existing BuildConfiguration.xml (if any) so we can restore it
@@ -373,7 +373,7 @@ function Invoke-EngineBuild {
         Write-Host "    [$Tag] Forced bUseAdaptiveUnityBuild=false (full unity)" -ForegroundColor DarkGray
         Write-Host "    [$Tag] Building (no -DisableUnity, no -Clean -- host-binary hazard)..." -ForegroundColor DarkGray
 
-        # Capture the full UBT output so we can scan it for Monolith-path collisions.
+        # Capture the full UBT output so we can scan it for Megalith-path collisions.
         # We do NOT throw on a non-zero UBT exit here directly -- a collision is
         # itself a non-zero exit, and we want the filtered diagnostic, not a bare
         # "exit code" message. The collision scan below is the real ship-gate.
@@ -381,35 +381,35 @@ function Invoke-EngineBuild {
             Tee-Object -FilePath $UnityLog | Out-Null
         $unityExit = $LASTEXITCODE
 
-        # Scan the captured log for collision error codes on Plugins\Monolith\ paths.
+        # Scan the captured log for collision error codes on Plugins\Megalith\ paths.
         # MSVC emits errors like:
-        #   D:\...\Plugins\Monolith\Source\...\Foo.cpp(42): error C2084: ...
+        #   D:\...\Plugins\Megalith\Source\...\Foo.cpp(42): error C2084: ...
         $logLines = if (Test-Path $UnityLog) { Get-Content $UnityLog } else { @() }
         $codeAlt = ($CollisionCodes -join "|")
-        $monolithCollisions = @($logLines | Where-Object {
-            $_ -match "Plugins\\Monolith\\" -and $_ -match "error\s+($codeAlt)\b"
+        $megalithCollisions = @($logLines | Where-Object {
+            $_ -match "Plugins\\Megalith\\" -and $_ -match "error\s+($codeAlt)\b"
         })
 
-        if ($monolithCollisions.Count -gt 0) {
-            Write-Host "`n  [FAIL] [$Tag] Full-unity gate found $($monolithCollisions.Count) Monolith-path collision error(s):" -ForegroundColor Red
-            $monolithCollisions | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
+        if ($megalithCollisions.Count -gt 0) {
+            Write-Host "`n  [FAIL] [$Tag] Full-unity gate found $($megalithCollisions.Count) Megalith-path collision error(s):" -ForegroundColor Red
+            $megalithCollisions | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
             Write-Host "`n  This is the issue #68 failure mode: duplicate file-local symbols" -ForegroundColor Red
             Write-Host "  (anonymous-namespace or file-static names shared across .cpp files in" -ForegroundColor Red
             Write-Host "  one module) that -DisableUnity cannot see. End users build with adaptive" -ForegroundColor Red
             Write-Host "  unity and hit this on a fresh clone. Rename or hoist the colliding symbols" -ForegroundColor Red
             Write-Host "  before shipping. Refusing to publish v$Version." -ForegroundColor Red
-            throw "[$Tag] Full-unity collision gate failed: $($monolithCollisions.Count) Monolith-path collision(s)."
+            throw "[$Tag] Full-unity collision gate failed: $($megalithCollisions.Count) Megalith-path collision(s)."
         }
 
-        # No Monolith-path collisions. If UBT still failed, surface that -- a release
+        # No Megalith-path collisions. If UBT still failed, surface that -- a release
         # build that does not compile under full unity is not shippable either.
         if ($unityExit -ne 0) {
-            Write-Host "`n  [FAIL] [$Tag] Full-unity build exited $unityExit (no Monolith-path collisions, but build failed)." -ForegroundColor Red
+            Write-Host "`n  [FAIL] [$Tag] Full-unity build exited $unityExit (no Megalith-path collisions, but build failed)." -ForegroundColor Red
             Write-Host "    See full log: $UnityLog" -ForegroundColor Yellow
             throw "[$Tag] Full-unity build failed with exit code $unityExit. Is the editor closed? See $UnityLog."
         }
 
-        Write-Host "    [$Tag] Full-unity gate passed (no Monolith-path collisions)" -ForegroundColor Green
+        Write-Host "    [$Tag] Full-unity gate passed (no Megalith-path collisions)" -ForegroundColor Green
     }
     finally {
         # ALWAYS restore the BuildConfiguration.xml to its original state, even on
@@ -425,9 +425,9 @@ function Invoke-EngineBuild {
             Remove-Item $BuildConfigXml -Force -ErrorAction SilentlyContinue
             Write-Host "    [$Tag] Removed temporary BuildConfiguration.xml (none existed before)" -ForegroundColor DarkGray
         }
-        Remove-Item Env:\MONOLITH_RELEASE_BUILD -ErrorAction SilentlyContinue
+        Remove-Item Env:\MEGALITH_RELEASE_BUILD -ErrorAction SilentlyContinue
         Remove-Item $UnityLog -Force -ErrorAction SilentlyContinue
-        Write-Host "    [$Tag] MONOLITH_RELEASE_BUILD unset" -ForegroundColor DarkGray
+        Write-Host "    [$Tag] MEGALITH_RELEASE_BUILD unset" -ForegroundColor DarkGray
     }
     }
     finally {
@@ -453,7 +453,7 @@ function Invoke-EnginePackage {
 
     # Per-engine scratch: a fresh copy of the shared tracked content. We do NOT mutate the
     # shared dir so the next engine reuses it untouched.
-    $StageDir = Join-Path $env:TEMP "Monolith_Release_${Version}_$Tag"
+    $StageDir = Join-Path $env:TEMP "Megalith_Release_${Version}_$Tag"
     if (Test-Path $StageDir) { Remove-Item $StageDir -Recurse -Force }
     New-Item -ItemType Directory -Path $StageDir | Out-Null
     Copy-Item -Path (Join-Path $SharedContentDir '*') -Destination $StageDir -Recurse -Force
@@ -464,8 +464,8 @@ function Invoke-EnginePackage {
     # clone). We copy the ENTIRE Win64 dir (UnrealEditor-*.dll + the required
     # UnrealEditor.modules manifest, which is per-engine and tells UE where to load each
     # plugin module) but skip .pdb / .patch_* / .claude as everywhere else, and skip stripped
-    # sibling DLLs. The engine-agnostic top-level offline tools (Binaries\monolith_query.exe,
-    # monolith_proxy.exe) are NOT under Win64 and were already staged into the shared content
+    # sibling DLLs. The engine-agnostic top-level offline tools (Binaries\megalith_query.exe,
+    # megalith_proxy.exe) are NOT under Win64 and were already staged into the shared content
     # from THIS repo's freshly-built, parity-verified exe -- so the UE5.8 clone's possibly-
     # stale offline exe never overwrites the verified one.
     $binWin64 = Join-Path $Engine.PluginDir "Binaries\Win64"
@@ -503,7 +503,7 @@ function Invoke-EnginePackage {
     # NOTE: we intentionally do NOT add an EngineVersion key. Per-engine zips are
     # distinguished by their asset name (-UE5.7 / -UE5.8) and the updater selects on that;
     # pinning EngineVersion in the .uplugin would block source users on adjacent patches.
-    $upluginPath = Join-Path $StageDir "Monolith.uplugin"
+    $upluginPath = Join-Path $StageDir "Megalith.uplugin"
     $content = Get-Content $upluginPath -Raw
     $content = $content -replace '"Installed":\s*false', '"Installed": true'
 
@@ -562,14 +562,14 @@ function Invoke-EngineSmoke {
 
     # Re-extract the just-built zip into a scratch dir to inspect the actual shipped DLLs
     # (not the dev binaries we may have overwritten before zipping).
-    $SmokeDir = Join-Path $env:TEMP "Monolith_Release_${Version}_${Tag}_Smoke"
+    $SmokeDir = Join-Path $env:TEMP "Megalith_Release_${Version}_${Tag}_Smoke"
     if (Test-Path $SmokeDir) { Remove-Item $SmokeDir -Recurse -Force }
     New-Item -ItemType Directory -Path $SmokeDir | Out-Null
     Expand-Archive -Path $Engine.Zip -DestinationPath $SmokeDir -Force
 
-    $MonolithDlls = @(Get-ChildItem -Path $SmokeDir -Recurse -Filter "UnrealEditor-Monolith*.dll")
+    $MegalithDlls = @(Get-ChildItem -Path $SmokeDir -Recurse -Filter "UnrealEditor-Megalith*.dll")
     $LeakingDlls = @()
-    foreach ($dllItem in $MonolithDlls) {
+    foreach ($dllItem in $MegalithDlls) {
         $imports = & $DumpbinPath /imports $dllItem.FullName 2>$null | Out-String
         foreach ($sentinel in $Sentinels) {
             # Match "UnrealEditor-<Sentinel>.dll" in the import table
@@ -588,11 +588,11 @@ function Invoke-EngineSmoke {
             Write-Host "    $($_.Dll) imports UnrealEditor-$($_.Sentinel).dll" -ForegroundColor Red
         }
         Write-Host "`n  This is the issue #30 failure mode. The Build.cs for the affected module" -ForegroundColor Red
-        Write-Host "  is not honouring MONOLITH_RELEASE_BUILD=1. Fix the Build.cs probe before shipping." -ForegroundColor Red
+        Write-Host "  is not honouring MEGALITH_RELEASE_BUILD=1. Fix the Build.cs probe before shipping." -ForegroundColor Red
         Write-Host "`n  Refusing to publish v$Version. Delete $($Engine.Zip) after fixing Build.cs and re-run." -ForegroundColor Red
         exit 1
     }
-    Write-Host "    [$Tag] No sentinel imports found in $($MonolithDlls.Count) Monolith DLLs (clean)" -ForegroundColor Green
+    Write-Host "    [$Tag] No sentinel imports found in $($MegalithDlls.Count) Megalith DLLs (clean)" -ForegroundColor Green
 
     # Pin the verified bytes by hash so the printed SHA can be asserted to come from THIS
     # smoked artifact and not a post-smoke manual re-zip.
@@ -612,12 +612,12 @@ if (-not $SkipBuild) {
     }
 } else {
     Write-Host "`n  [build] Skipping ALL engine builds (-SkipBuild flag)" -ForegroundColor DarkGray
-    Write-Host "    WARNING: Ensure each engine's binaries were built with MONOLITH_RELEASE_BUILD=1" -ForegroundColor Red
+    Write-Host "    WARNING: Ensure each engine's binaries were built with MEGALITH_RELEASE_BUILD=1" -ForegroundColor Red
 }
 
 # --- Offline CLI build + parity gate (engine-agnostic; tracked source, runs ONCE) ---
-# The offline tool Binaries/monolith_query.exe is built from tracked source
-# Tools/MonolithQuery/monolith_query.cpp via a standalone cl.exe build (NOT UBT).
+# The offline tool Binaries/megalith_query.exe is built from tracked source
+# Tools/MegalithQuery/megalith_query.cpp via a standalone cl.exe build (NOT UBT).
 # Binaries/ is gitignored, so without this step the release would ship whatever
 # stale exe happened to sit on disk. Rebuild it here so the shipped exe matches
 # the shipped source, then hard-gate the exe-vs-py parity guard. A drifted exe
@@ -626,7 +626,7 @@ if (-not $SkipBuild) {
 # built exe under THIS repo's Binaries/ is staged into the shared content copy below.
 Write-Host "`n  [offline] Building offline CLI fresh + parity gate..." -ForegroundColor Yellow
 
-$ToolDir = Join-Path $PluginDir "Tools\MonolithQuery"
+$ToolDir = Join-Path $PluginDir "Tools\MegalithQuery"
 $ToolBuildBat = Join-Path $ToolDir "build.bat"
 if (-not (Test-Path $ToolBuildBat)) {
     throw "Offline CLI build script not found at $ToolBuildBat"
@@ -647,7 +647,7 @@ if (-not (Test-Path $VcVars)) {
 }
 
 # Run vcvars64.bat then build.bat in a single cmd session so cl.exe is in PATH.
-# build.bat copies the freshly built exe to Plugins/Monolith/Binaries/ (the same
+# build.bat copies the freshly built exe to Plugins/Megalith/Binaries/ (the same
 # Binaries dir the copy step below picks up), so the exe is staged before packaging.
 Write-Host "    Using VS at $VsInstallPath" -ForegroundColor DarkGray
 # Three robustness measures, learned the hard way during the v0.18.0 release:
@@ -665,7 +665,7 @@ Write-Host "    Using VS at $VsInstallPath" -ForegroundColor DarkGray
 #      Continue, which masked this for every prior release. With EAP relaxed, the exit code
 #      is the sole arbiter; restore the prior preference immediately after.
 $VsInstallerDir = Split-Path $VsWhere -Parent
-$CliBuildLog = Join-Path $env:TEMP "Monolith_OfflineCLIBuild_$Version.log"
+$CliBuildLog = Join-Path $env:TEMP "Megalith_OfflineCLIBuild_$Version.log"
 $PrevEAP = $ErrorActionPreference
 Push-Location $ToolDir
 try {
@@ -693,7 +693,7 @@ Write-Host "    Offline CLI built (fresh exe staged in Binaries/)" -ForegroundCo
 # Hard-gate: the staged exe must not be stale relative to its source. This guard
 # was documented in SPEC_CORE.md / API_REFERENCE.md but invoked by nothing, so a
 # stale exe could ship with every other gate green. Note its scope: it hashes
-# Tools/MonolithQuery/monolith_query.cpp ONLY, so it does NOT cover a build
+# Tools/MegalithQuery/megalith_query.cpp ONLY, so it does NOT cover a build
 # failure originating in ThirdParty/sqlite3.c, a ThirdParty header, or the
 # toolchain -- build.bat's exit code is the sole cover for that class.
 # Exit codes: 0 fresh / 1 stale / 4 preflight-fail; -ne 0 covers all of them.
@@ -767,7 +767,7 @@ Write-Host "    $($trackedFiles.Count) files copied ($strippedSourceCount stripp
 
 # Stage the freshly built offline CLI exe + its sibling tools into the shared content's
 # Binaries dir. These are engine-agnostic and live at the TOP LEVEL of THIS repo's
-# Binaries/ (Binaries\monolith_query.exe, Binaries\monolith_proxy.exe). We copy ONLY the
+# Binaries/ (Binaries\megalith_query.exe, Binaries\megalith_proxy.exe). We copy ONLY the
 # top-level files here (NOT -Recurse) so we never touch Binaries\Win64 -- the per-engine
 # UnrealEditor-*.dll set AND the per-engine UnrealEditor.modules manifest are added under
 # Win64 in each package step (Invoke-EnginePackage), so they correctly differ per engine.
@@ -792,12 +792,12 @@ if (Test-Path $sharedBinSrc) {
 # to both engines), then locate dumpbin once, then package + smoke EACH engine.
 # =====================================================================================
 
-# Sentinel modules: their presence in a Monolith DLL's imports = build-time gate failure.
+# Sentinel modules: their presence in a Megalith DLL's imports = build-time gate failure.
 # Add new sentinels when adding new optional plugin integrations.
 #
 # GameplayAbilities removed from sentinels in v0.14.7: it's declared as a hard
-# dep in Monolith.uplugin (no Optional flag), so the engine auto-enables it on
-# Monolith install and guarantees load order. MonolithGAS + MonolithIndex
+# dep in Megalith.uplugin (no Optional flag), so the engine auto-enables it on
+# Megalith install and guarantees load order. MegalithGAS + MegalithIndex
 # hard-link GameplayAbilities and that's functionally safe under this contract.
 #
 # Each entry is the EXACT module-name string a Build.cs adds under an optional gate.
@@ -809,28 +809,28 @@ if (Test-Path $sharedBinSrc) {
 # is the source of truth -- if it FAILs, add the missing name HERE (and keep it sorted
 # by source module for review sanity).
 $LeakSentinels = @(
-    # MonolithMesh -- GeometryScripting (delay-loaded but still gated)
+    # MegalithMesh -- GeometryScripting (delay-loaded but still gated)
     "GeometryScriptingCore", "GeometryFramework", "GeometryCore",
-    # MonolithUI -- CommonUI
+    # MegalithUI -- CommonUI
     "CommonUI", "CommonInput",
-    # MonolithBABridge -- BlueprintAssist
+    # MegalithBABridge -- BlueprintAssist
     "BlueprintAssist",
-    # MonolithAI -- GameplayBehaviors / MassEntity / ZoneGraph / StateTree / SmartObjects
+    # MegalithAI -- GameplayBehaviors / MassEntity / ZoneGraph / StateTree / SmartObjects
     "GameplayBehaviorsModule", "MassEntity", "MassSpawner", "MassGameplayEditor", "ZoneGraph",
     "StateTreeModule", "StateTreeEditorModule", "GameplayStateTreeModule", "PropertyBindingUtils",
     "SmartObjectsModule", "SmartObjectsEditorModule",
-    # MonolithGAS -- GBA (Blueprint Attributes). NOTE: GameplayAbilities is deliberately NOT a
-    # sentinel -- it is a hard dep in Monolith.uplugin (Enabled, no Optional), so the engine
-    # auto-enables it and guarantees its DLL is present; MonolithGAS/MonolithIndex hard-link it
+    # MegalithGAS -- GBA (Blueprint Attributes). NOTE: GameplayAbilities is deliberately NOT a
+    # sentinel -- it is a hard dep in Megalith.uplugin (Enabled, no Optional), so the engine
+    # auto-enables it and guarantees its DLL is present; MegalithGAS/MegalithIndex hard-link it
     # safely (removed from sentinels in v0.14.7, see the rationale block above).
     "BlueprintAttributes",
-    # MonolithIndex / MonolithAudio -- MetaSound (engine DLLs are 'Metasound', lowercase s)
+    # MegalithIndex / MegalithAudio -- MetaSound (engine DLLs are 'Metasound', lowercase s)
     "MetasoundEngine", "MetasoundFrontend", "MetasoundEditor",
-    # MonolithAnimation -- Chooser
+    # MegalithAnimation -- Chooser
     "Chooser",
-    # MonolithComboGraph -- ComboGraph (was stale 'ComboGraphRuntime')
+    # MegalithComboGraph -- ComboGraph (was stale 'ComboGraphRuntime')
     "ComboGraph", "ComboGraphEditor",
-    # MonolithLogicDriver -- Logic Driver Pro / SMSystem (was stale 'LogicDriver')
+    # MegalithLogicDriver -- Logic Driver Pro / SMSystem (was stale 'LogicDriver')
     "SMSystem", "SMSystemEditor"
 )
 
@@ -845,22 +845,22 @@ $LeakSentinels = @(
 # optional/release-gated block (if (bHas...) / if (!bReleaseBuild...)). When you add a new
 # optional dep to ANY Build.cs, add its module string(s) HERE and to $LeakSentinels above.
 $OptionalModuleUnion = @(
-    "GeometryScriptingCore", "GeometryFramework", "GeometryCore",   # MonolithMesh
-    "CommonUI", "CommonInput",                                       # MonolithUI
-    "BlueprintAssist",                                               # MonolithBABridge
-    "GameplayBehaviorsModule", "MassEntity", "MassSpawner",          # MonolithAI
-    "MassGameplayEditor", "ZoneGraph",                              # MonolithAI
-    "StateTreeModule", "StateTreeEditorModule",                     # MonolithAI
-    "GameplayStateTreeModule", "PropertyBindingUtils",             # MonolithAI
-    "SmartObjectsModule", "SmartObjectsEditorModule",              # MonolithAI
-    # GameplayAbilities is optional-gated in MonolithAI but a HARD dep in Monolith.uplugin and
-    # hard-linked unconditionally (and safely) in MonolithGAS/MonolithIndex -- so it is NOT a
+    "GeometryScriptingCore", "GeometryFramework", "GeometryCore",   # MegalithMesh
+    "CommonUI", "CommonInput",                                       # MegalithUI
+    "BlueprintAssist",                                               # MegalithBABridge
+    "GameplayBehaviorsModule", "MassEntity", "MassSpawner",          # MegalithAI
+    "MassGameplayEditor", "ZoneGraph",                              # MegalithAI
+    "StateTreeModule", "StateTreeEditorModule",                     # MegalithAI
+    "GameplayStateTreeModule", "PropertyBindingUtils",             # MegalithAI
+    "SmartObjectsModule", "SmartObjectsEditorModule",              # MegalithAI
+    # GameplayAbilities is optional-gated in MegalithAI but a HARD dep in Megalith.uplugin and
+    # hard-linked unconditionally (and safely) in MegalithGAS/MegalithIndex -- so it is NOT a
     # sentinel and is excluded from this drift union (it is not an unsafe optional dep).
-    "BlueprintAttributes",                                          # MonolithGAS
-    "MetasoundEngine", "MetasoundFrontend", "MetasoundEditor",      # MonolithIndex / MonolithAudio
-    "Chooser",                                                      # MonolithAnimation
-    "ComboGraph", "ComboGraphEditor",                              # MonolithComboGraph
-    "SMSystem", "SMSystemEditor"                                    # MonolithLogicDriver
+    "BlueprintAttributes",                                          # MegalithGAS
+    "MetasoundEngine", "MetasoundFrontend", "MetasoundEditor",      # MegalithIndex / MegalithAudio
+    "Chooser",                                                      # MegalithAnimation
+    "ComboGraph", "ComboGraphEditor",                              # MegalithComboGraph
+    "SMSystem", "SMSystemEditor"                                    # MegalithLogicDriver
 )
 
 $MissingSentinels = $OptionalModuleUnion | Where-Object { $LeakSentinels -notcontains $_ }
@@ -922,7 +922,7 @@ foreach ($eng in $EngineMatrix) {
     $EngineHashes[$eng.Tag] = $pinned
 }
 
-# --- Legacy bridge: copy the UE5.7 zip to Monolith-v<X.Y.Z>.zip so pre-cross-engine
+# --- Legacy bridge: copy the UE5.7 zip to Megalith-v<X.Y.Z>.zip so pre-cross-engine
 #     auto-updaters (which fetch the first plain .zip and read the legacy SHA marker)
 #     still get a valid, smoked artifact. ---
 $LegacyEngine = $EngineMatrix | Where-Object { $_.IsLegacy } | Select-Object -First 1
@@ -946,15 +946,15 @@ Remove-Item $TempDir -Recurse -Force -ErrorAction SilentlyContinue
 
 # =====================================================================================
 # SHA256 markers for release notes (Issue #38 + per-engine contract). The updater anchors
-# on the EXACT markers: "Monolith-SHA256-v2-UE5.7:" / "Monolith-SHA256-v2-UE5.8:" for
-# engine-tagged assets, and "Monolith-SHA256-v2:" (= UE5.7 hash) for legacy-asset installs.
+# on the EXACT markers: "Megalith-SHA256-v2-UE5.7:" / "Megalith-SHA256-v2-UE5.8:" for
+# engine-tagged assets, and "Megalith-SHA256-v2:" (= UE5.7 hash) for legacy-asset installs.
 #
 # "v2" GENERATION IS LOAD-BEARING (Issues #90/#94): updaters shipped in v0.14.7-v0.21.0
 # fatally checkf-assert the editor mid-install when the release notes carry a marker they
 # recognize (their integrity check calls FPlatformMisc::GetSHA256Signature, which has no
 # Windows impl). The v2 names are invisible to those updaters, so they fail SAFE instead
 # (per-engine parse aborts fail-closed; legacy parse proceeds unverified). NEVER emit the
-# old "Monolith-SHA256:[-UE5.x]" names in any release body again.
+# old "Megalith-SHA256:[-UE5.x]" names in any release body again.
 # =====================================================================================
 Write-Host ""
 Write-Host "================================================================" -ForegroundColor Cyan
@@ -978,18 +978,18 @@ Write-Host ""
 foreach ($eng in $EngineMatrix) {
     $h = $EngineHashes[$eng.Tag]
     if ($h) {
-        Write-Host "  Monolith-SHA256-v2-$($eng.Tag): $h" -ForegroundColor White
+        Write-Host "  Megalith-SHA256-v2-$($eng.Tag): $h" -ForegroundColor White
     } else {
-        Write-Host "  Monolith-SHA256-v2-$($eng.Tag): <UNVERIFIED -- re-run without -AllowUnverifiedImports>" -ForegroundColor Yellow
+        Write-Host "  Megalith-SHA256-v2-$($eng.Tag): <UNVERIFIED -- re-run without -AllowUnverifiedImports>" -ForegroundColor Yellow
     }
 }
 if ($LegacyHash) {
-    Write-Host "  Monolith-SHA256-v2: $LegacyHash" -ForegroundColor White
+    Write-Host "  Megalith-SHA256-v2: $LegacyHash" -ForegroundColor White
 }
 Write-Host ""
 Write-Host "The auto-updater (v0.21.1+) parses these exact markers and refuses to install" -ForegroundColor Yellow
 Write-Host "if the downloaded zip's hash does not match. Engine-tagged assets require the" -ForegroundColor Yellow
-Write-Host "matching Monolith-SHA256-v2-<tag>: marker; Monolith-SHA256-v2: (= the $($LegacyEngine.Tag)" -ForegroundColor Yellow
+Write-Host "matching Megalith-SHA256-v2-<tag>: marker; Megalith-SHA256-v2: (= the $($LegacyEngine.Tag)" -ForegroundColor Yellow
 Write-Host "hash) covers legacy-asset installs. Do not rename or reformat the markers --" -ForegroundColor Yellow
 Write-Host "the prefix and a single space before the hex are required. NEVER emit the old" -ForegroundColor Yellow
 Write-Host "pre-v2 marker names: v0.14.7-v0.21.0 updaters hard-crash on them (#90/#94)." -ForegroundColor Yellow
@@ -1005,9 +1005,9 @@ Write-Host ""
 Write-Host "================================================================" -ForegroundColor Magenta
 Write-Host "RESTORE DEV BINARIES BEFORE RESUMING WORK (both projects)" -ForegroundColor Magenta
 Write-Host "The release builds stripped optional deps (WITH_*=0) and left release DLLs on" -ForegroundColor Yellow
-Write-Host "disk in BOTH projects. Rebuild WITHOUT MONOLITH_RELEASE_BUILD to restore them." -ForegroundColor Yellow
+Write-Host "disk in BOTH projects. Rebuild WITHOUT MEGALITH_RELEASE_BUILD to restore them." -ForegroundColor Yellow
 Write-Host "Touch a Build.cs first so UBT regenerates the makefile (it does not track the" -ForegroundColor Yellow
-Write-Host "MONOLITH_RELEASE_BUILD env var and will otherwise report 'up to date')." -ForegroundColor Yellow
+Write-Host "MEGALITH_RELEASE_BUILD env var and will otherwise report 'up to date')." -ForegroundColor Yellow
 Write-Host ""
 foreach ($eng in $EngineMatrix) {
     Write-Host "  # $($eng.Tag) dev restore:" -ForegroundColor Cyan
@@ -1015,5 +1015,5 @@ foreach ($eng in $EngineMatrix) {
     Write-Host "  & '$($eng.UBT)' $($eng.Target) Win64 Development `"-Project=$($eng.UProject)`" -waitmutex" -ForegroundColor White
     Write-Host ""
 }
-Write-Host "(Ensure MONOLITH_RELEASE_BUILD is NOT set in your env when you run these.)" -ForegroundColor Yellow
+Write-Host "(Ensure MEGALITH_RELEASE_BUILD is NOT set in your env when you run these.)" -ForegroundColor Yellow
 Write-Host "================================================================" -ForegroundColor Magenta

@@ -1,0 +1,230 @@
+{
+	"FileVersion": 3,
+	"Version": 2,
+	"VersionName": "0.22.0",
+	"FriendlyName": "Megalith",
+	"Description": "Unified Unreal Engine MCP server — ~1,400+ actions across 24 in-tree namespaces (Blueprint, Material, Animation, Niagara, Mesh, Editor, Config, Source, Project, UI, GAS, ComboGraph, AI, LogicDriver, Audio, LevelSequence, plus megalith meta / bulk_fill / describe and the Reflection Intelligence set: decision / risk / cppreflect / network / pipeline / reflect). Query `megalith_discover()` for the live count. Experimental town-gen actions register when `bEnableProceduralTownGen=true`. Framework-level `bulk_fill_query` and `describe_query` route to 12 per-namespace adapters for transacted JSON-tree writes and rich schema introspection. Reflection Intelligence layers deterministic decision-record, git-risk, and UE reflection queries on top of the source index. AI-powered asset creation, inspection, and modification.",
+	"Category": "Editor",
+	"CreatedBy": "tumourlove",
+	"CreatedByURL": "https://github.com/tumourlove/megalith",
+	"DocsURL": "https://github.com/tumourlove/megalith/wiki",
+	"MarketplaceURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"EnabledByDefault": true,
+	"Plugins": [
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		},
+		{
+			"Name": "SQLiteCore",
+			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "PoseSearch",
+			"Enabled": true
+		},
+		{
+			"Name": "IKRig",
+			"Enabled": true
+		},
+		{
+			"Name": "ControlRig",
+			"Enabled": true
+		},
+		{
+			"Name": "RigVM",
+			"Enabled": true
+		},
+		{
+			"Name": "GeometryScripting",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "BlueprintAssist",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "BlueprintAttributes",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "ComboGraph",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "StateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "SmartObjects",
+			"Enabled": true
+		},
+		{
+			"Name": "EnvironmentQueryEditor",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayStateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "ProceduralMeshComponent",
+			"Enabled": true
+		},
+		{
+			"Name": "CommonUI",
+			"Enabled": true
+		},
+		{
+			"Name": "SMSystem",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "GameplayBehaviors",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "MassGameplay",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "ZoneGraph",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "Metasound",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		}
+	],
+	"Modules": [
+		{
+			"Name": "MegalithCore",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
+		},
+		{
+			"Name": "MegalithBABridge",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithBlueprint",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithMaterial",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithAnimation",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithNiagara",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithConfig",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithIndex",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithSource",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithUI",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithMesh",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithGAS",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithComboGraph",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithAI",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithLogicDriver",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithAudio",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithAudioRuntime",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithLevelSequence",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "MegalithReflectionIntel",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}

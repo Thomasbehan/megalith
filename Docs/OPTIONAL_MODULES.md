@@ -1,18 +1,18 @@
 # IModularFeatures Bridge Pattern
 
-**Plugin:** Monolith | **Engine:** UE 5.7 | **Validated:** MonolithBABridge (2026-03-27)
+**Plugin:** Megalith | **Engine:** UE 5.7 | **Validated:** MegalithBABridge (2026-03-27)
 
 ---
 
 ## Purpose
 
-When a **core** Monolith module (e.g., `MonolithBlueprint`) needs to optionally call into a
+When a **core** Megalith module (e.g., `MegalithBlueprint`) needs to optionally call into a
 third-party C++ API, it cannot take a compile-time dependency on that API — users who don't
 have the third party plugin installed would fail to build.
 
 The IModularFeatures bridge solves this:
 
-- The abstract interface lives in `MonolithCore` (always compiled in)
+- The abstract interface lives in `MegalithCore` (always compiled in)
 - The implementation lives in a bridge module that **does** depend on the third party
 - The core module calls `IsAvailable()` at runtime before touching the interface
 
@@ -20,13 +20,13 @@ Zero compile-time coupling. The bridge module is absent if the third party isn't
 
 ---
 
-## When to Use This vs FMonolithToolRegistry
+## When to Use This vs FMegalithToolRegistry
 
 These are complementary patterns. Choose based on who the caller is.
 
 | Scenario | Pattern |
 |----------|---------|
-| AI agent calls optional MCP actions (`gba_query`, `combograph_query`) | `FMonolithToolRegistry` — see `OPTIONAL_MODULE_ARCHITECTURE.md` |
+| AI agent calls optional MCP actions (`gba_query`, `combograph_query`) | `FMegalithToolRegistry` — see `OPTIONAL_MODULE_ARCHITECTURE.md` |
 | Core C++ calls optional C++ API at action time | **IModularFeatures bridge (this doc)** |
 | Both — optional module owns MCP actions AND core needs its C++ API | Both patterns simultaneously |
 
@@ -36,45 +36,45 @@ IModularFeatures.
 
 ---
 
-## Existing Implementation: IMonolithGraphFormatter
+## Existing Implementation: IMegalithGraphFormatter
 
-The only current bridge. Enables `MonolithBlueprint`'s `auto_layout` action to delegate to
+The only current bridge. Enables `MegalithBlueprint`'s `auto_layout` action to delegate to
 Blueprint Assist's formatter when BA is installed.
 
 ### Files
 
 | Role | File |
 |------|------|
-| Abstract interface | `Source/MonolithCore/Public/IMonolithGraphFormatter.h` |
-| Bridge module | `Source/MonolithBABridge/Private/MonolithBABridgeModule.cpp` |
-| Implementation | `Source/MonolithBABridge/Private/MonolithBAFormatterImpl.h/.cpp` |
-| Consumer | `Source/MonolithBlueprint/Private/MonolithBlueprintLayoutActions.cpp` |
+| Abstract interface | `Source/MegalithCore/Public/IMegalithGraphFormatter.h` |
+| Bridge module | `Source/MegalithBABridge/Private/MegalithBABridgeModule.cpp` |
+| Implementation | `Source/MegalithBABridge/Private/MegalithBAFormatterImpl.h/.cpp` |
+| Consumer | `Source/MegalithBlueprint/Private/MegalithBlueprintLayoutActions.cpp` |
 
-### Interface (MonolithCore)
+### Interface (MegalithCore)
 
 ```cpp
-// IMonolithGraphFormatter.h — in MonolithCore, no BA dependency
-class IMonolithGraphFormatter : public IModularFeature
+// IMegalithGraphFormatter.h — in MegalithCore, no BA dependency
+class IMegalithGraphFormatter : public IModularFeature
 {
 public:
     static FName GetModularFeatureName()
     {
-        static const FName Name(TEXT("MonolithGraphFormatter"));
+        static const FName Name(TEXT("MegalithGraphFormatter"));
         return Name;
     }
 
     virtual bool SupportsGraph(UEdGraph* Graph) const = 0;
     virtual bool FormatGraph(UEdGraph* Graph, int32& OutNodesFormatted, FString& OutErrorMessage) = 0;
-    virtual FMonolithFormatterInfo GetFormatterInfo(UEdGraph* Graph) const = 0;
+    virtual FMegalithFormatterInfo GetFormatterInfo(UEdGraph* Graph) const = 0;
 
     static bool IsAvailable()
     {
         return IModularFeatures::Get().IsModularFeatureAvailable(GetModularFeatureName());
     }
 
-    static IMonolithGraphFormatter& Get()
+    static IMegalithGraphFormatter& Get()
     {
-        return IModularFeatures::Get().GetModularFeature<IMonolithGraphFormatter>(
+        return IModularFeatures::Get().GetModularFeature<IMegalithGraphFormatter>(
             GetModularFeatureName());
     }
 };
@@ -83,26 +83,26 @@ public:
 ### Bridge Module Registration
 
 ```cpp
-// MonolithBABridgeModule.cpp — depends on BlueprintAssist, NOT in MonolithCore
-void FMonolithBABridgeModule::StartupModule()
+// MegalithBABridgeModule.cpp — depends on BlueprintAssist, NOT in MegalithCore
+void FMegalithBABridgeModule::StartupModule()
 {
-    if (!GetDefault<UMonolithSettings>()->bEnableBlueprintAssist) return;
+    if (!GetDefault<UMegalithSettings>()->bEnableBlueprintAssist) return;
 
 #if WITH_BLUEPRINT_ASSIST
-    Formatter = MakeUnique<FMonolithBAFormatterImpl>();
+    Formatter = MakeUnique<FMegalithBAFormatterImpl>();
     IModularFeatures::Get().RegisterModularFeature(
-        IMonolithGraphFormatter::GetModularFeatureName(),
+        IMegalithGraphFormatter::GetModularFeatureName(),
         Formatter.Get());
 #endif
 }
 
-void FMonolithBABridgeModule::ShutdownModule()
+void FMegalithBABridgeModule::ShutdownModule()
 {
 #if WITH_BLUEPRINT_ASSIST
     if (Formatter.IsValid())
     {
         IModularFeatures::Get().UnregisterModularFeature(
-            IMonolithGraphFormatter::GetModularFeatureName(),
+            IMegalithGraphFormatter::GetModularFeatureName(),
             Formatter.Get());
         Formatter.Reset();
     }
@@ -116,15 +116,15 @@ The bridge module also uses `#if WITH_BLUEPRINT_ASSIST` (set by its `Build.cs` v
 ### Consumer Pattern
 
 ```cpp
-// MonolithBlueprintLayoutActions.cpp — zero BA dependency
-bool bBAAvailable = IMonolithGraphFormatter::IsAvailable()
-    && IMonolithGraphFormatter::Get().SupportsGraph(Graph);
+// MegalithBlueprintLayoutActions.cpp — zero BA dependency
+bool bBAAvailable = IMegalithGraphFormatter::IsAvailable()
+    && IMegalithGraphFormatter::Get().SupportsGraph(Graph);
 
 if (bBAAvailable)
 {
     int32 NodesFormatted = 0;
     FString ErrorMessage;
-    if (IMonolithGraphFormatter::Get().FormatGraph(Graph, NodesFormatted, ErrorMessage))
+    if (IMegalithGraphFormatter::Get().FormatGraph(Graph, NodesFormatted, ErrorMessage))
     {
         // success path
     }
@@ -139,9 +139,9 @@ Always call `IsAvailable()` before `Get()`. `Get()` asserts if nothing is regist
 
 Use this checklist when a core module needs to call into a new optional third-party API.
 
-### 1. Define the interface in MonolithCore
+### 1. Define the interface in MegalithCore
 
-Create `Source/MonolithCore/Public/IMonolithYourFeature.h`:
+Create `Source/MegalithCore/Public/IMegalithYourFeature.h`:
 
 ```cpp
 #pragma once
@@ -149,12 +149,12 @@ Create `Source/MonolithCore/Public/IMonolithYourFeature.h`:
 #include "Features/IModularFeature.h"
 #include "Features/IModularFeatures.h"
 
-class IMonolithYourFeature : public IModularFeature
+class IMegalithYourFeature : public IModularFeature
 {
 public:
     static FName GetModularFeatureName()
     {
-        static const FName Name(TEXT("MonolithYourFeature"));
+        static const FName Name(TEXT("MegalithYourFeature"));
         return Name;
     }
 
@@ -166,9 +166,9 @@ public:
         return IModularFeatures::Get().IsModularFeatureAvailable(GetModularFeatureName());
     }
 
-    static IMonolithYourFeature& Get()
+    static IMegalithYourFeature& Get()
     {
-        return IModularFeatures::Get().GetModularFeature<IMonolithYourFeature>(
+        return IModularFeatures::Get().GetModularFeature<IMegalithYourFeature>(
             GetModularFeatureName());
     }
 };
@@ -178,34 +178,34 @@ No third-party headers. Only engine types. This header is safe to include anywhe
 
 ### 2. Create the bridge module
 
-Add `Source/MonolithYourBridge/` with:
+Add `Source/MegalithYourBridge/` with:
 
-- `MonolithYourBridge.Build.cs` — depends on `MonolithCore` + optional third party
+- `MegalithYourBridge.Build.cs` — depends on `MegalithCore` + optional third party
   (use `Directory.Exists()` pattern from `OPTIONAL_MODULE_ARCHITECTURE.md` section 3.1)
-- `MonolithYourBridgeModule.cpp` — registers/unregisters the implementation
-- `MonolithYourFeatureImpl.h/.cpp` — concrete implementation behind `#if WITH_YOUR_PLUGIN`
+- `MegalithYourBridgeModule.cpp` — registers/unregisters the implementation
+- `MegalithYourFeatureImpl.h/.cpp` — concrete implementation behind `#if WITH_YOUR_PLUGIN`
 
-Add the module to `Monolith.uplugin`:
+Add the module to `Megalith.uplugin`:
 ```json
 {
-    "Name": "MonolithYourBridge",
+    "Name": "MegalithYourBridge",
     "Type": "Editor",
     "LoadingPhase": "Default"
 }
 ```
 
-> Use `Default` loading phase, not `PostEngineInit`. MonolithCore starts its HTTP server at
+> Use `Default` loading phase, not `PostEngineInit`. MegalithCore starts its HTTP server at
 > `PostEngineInit`. Bridge modules must be registered before that. See
 > `OPTIONAL_MODULE_ARCHITECTURE.md` section 12.2.
 
 ### 3. Implement the interface
 
 ```cpp
-// MonolithYourFeatureImpl.h
+// MegalithYourFeatureImpl.h
 #if WITH_YOUR_PLUGIN
 #include "SomeThirdPartyHeader.h"
 
-class FMonolithYourFeatureImpl : public IMonolithYourFeature
+class FMegalithYourFeatureImpl : public IMegalithYourFeature
 {
 public:
     virtual void DoThing() override { /* call third party API */ }
@@ -216,20 +216,20 @@ public:
 ### 4. Call from the consumer
 
 ```cpp
-#include "IMonolithYourFeature.h"
+#include "IMegalithYourFeature.h"
 
-if (IMonolithYourFeature::IsAvailable())
+if (IMegalithYourFeature::IsAvailable())
 {
-    IMonolithYourFeature::Get().DoThing();
+    IMegalithYourFeature::Get().DoThing();
 }
 ```
 
-The consumer (`MonolithBlueprint`, `MonolithMesh`, etc.) includes only
-`IMonolithYourFeature.h` — no bridge or third-party headers.
+The consumer (`MegalithBlueprint`, `MegalithMesh`, etc.) includes only
+`IMegalithYourFeature.h` — no bridge or third-party headers.
 
 ### 5. Add a settings toggle
 
-Add `bEnableYourPlugin` to `UMonolithSettings` in `MonolithSettings.h`. Check it in
+Add `bEnableYourPlugin` to `UMegalithSettings` in `MegalithSettings.h`. Check it in
 `StartupModule()` before registering (see bridge module pattern above). This lets users
 disable the integration without uninstalling the plugin.
 
@@ -238,16 +238,16 @@ disable the integration without uninstalling the plugin.
 ## Module Graph
 
 ```
-MonolithCore
-  └── IMonolithGraphFormatter.h   (interface, no deps)
+MegalithCore
+  └── IMegalithGraphFormatter.h   (interface, no deps)
 
-MonolithBABridge
-  ├── depends on: MonolithCore, BlueprintAssist (optional via Build.cs)
-  └── registers: FMonolithBAFormatterImpl → IMonolithGraphFormatter feature slot
+MegalithBABridge
+  ├── depends on: MegalithCore, BlueprintAssist (optional via Build.cs)
+  └── registers: FMegalithBAFormatterImpl → IMegalithGraphFormatter feature slot
 
-MonolithBlueprint
-  ├── depends on: MonolithCore only
-  └── calls: IMonolithGraphFormatter::IsAvailable() / Get()
+MegalithBlueprint
+  ├── depends on: MegalithCore only
+  └── calls: IMegalithGraphFormatter::IsAvailable() / Get()
 ```
 
 The bridge module is the only node that knows about both sides. Core modules stay clean.
@@ -256,9 +256,9 @@ The bridge module is the only node that knows about both sides. Core modules sta
 
 ## Key Constraints
 
-- **Never** include third-party headers in the interface file (`IMonolithYourFeature.h`)
+- **Never** include third-party headers in the interface file (`IMegalithYourFeature.h`)
 - **Always** check `IsAvailable()` before `Get()` — `Get()` will assert on failure
 - **Always** unregister in `ShutdownModule()` — leaked registrations cause stale pointers
 - **Use `TUniquePtr`** for the implementation instance in the bridge module (see bridge pattern above)
-- The feature name string (`TEXT("MonolithGraphFormatter")`) must match exactly between
+- The feature name string (`TEXT("MegalithGraphFormatter")`) must match exactly between
   `GetModularFeatureName()`, `RegisterModularFeature()`, and `UnregisterModularFeature()`

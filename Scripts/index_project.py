@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Index a UE project's C++ source into an existing Monolith EngineSource.db.
+"""Index a UE project's C++ source into an existing Megalith EngineSource.db.
 
 Discovers all Source/ directories under the project root (top-level modules
 and plugin modules) and indexes them into the same database used for engine

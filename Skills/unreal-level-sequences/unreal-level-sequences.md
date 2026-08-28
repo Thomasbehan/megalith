@@ -1,11 +1,11 @@
 ---
 name: unreal-level-sequences
-description: Use when inspecting Unreal Level Sequences via Monolith MCP — listing every binding inside a sequence (legacy Possessables/Spawnables and UE 5.7 UMovieSceneCustomBinding subclasses like MovieSceneSpawnableActorBinding), reading Director Blueprint functions and variables when a Director is present, walking event-track bindings, and reverse-looking-up which sections fire a given director function across the project. Triggers on level sequence, sequencer, cinematic, possessable, spawnable, custom binding, MovieSceneSpawnableActorBinding, BindingReferences, director blueprint, event track, FMovieSceneEvent.
+description: Use when inspecting Unreal Level Sequences via Megalith MCP — listing every binding inside a sequence (legacy Possessables/Spawnables and UE 5.7 UMovieSceneCustomBinding subclasses like MovieSceneSpawnableActorBinding), reading Director Blueprint functions and variables when a Director is present, walking event-track bindings, and reverse-looking-up which sections fire a given director function across the project. Triggers on level sequence, sequencer, cinematic, possessable, spawnable, custom binding, MovieSceneSpawnableActorBinding, BindingReferences, director blueprint, event track, FMovieSceneEvent.
 ---
 
 # Unreal Level Sequence Workflows
 
-**7 inspection actions** via `level_sequence_query()`. Discover with `monolith_discover({ namespace: "level_sequence" })`.
+**7 inspection actions** via `level_sequence_query()`. Discover with `megalith_discover({ namespace: "level_sequence" })`.
 
 Indexes **every** Level Sequence — including those with no Director. Each binding is classified by inspecting both the legacy `UMovieScene` structures (`FMovieScenePossessable` / `FMovieSceneSpawnable`) and the UE 5.7 `UMovieSceneSequence::GetBindingReferences()` chain, so modern custom bindings (`MovieSceneSpawnableActorBinding`, `MovieSceneReplaceableActorBinding`, etc.) report as `spawnable` / `replaceable` rather than the upgrade-stub `possessable`. Director Blueprint introspection layers on top: own functions (including synthetic `SequenceEvent__ENTRYPOINT<DirBP>_N` UFunctions UE generates for "Quick Bind" event entries), variables, and event-track wiring.
 
