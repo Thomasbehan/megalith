@@ -10,9 +10,9 @@
 
 ## Why This Fork Exists
 
-This is a community-focused fork of the original Monolith project, renamed to Megalith, created to continue its development under a transparent, contributor-first model.
+This project is a community-driven fork of the original [Monolith](https://github.com/tumourlove/monolith) plugin, created to continue its development under a transparent, contributor-first model.
 
-After contributing substantive changes to upstream, this fork (Megalith) was established to ensure that **contributors retain clear authorship, proper credit, and intact Git history for their work**.
+After contributing substantive changes upstream, this fork -- now renamed to **Megalith** -- was established to ensure that **contributors retain clear authorship, proper credit, and intact Git history for their work**.
 
 The goal is straightforward: build world-class Unreal Engine AI tooling while fostering an open development process that values contributors, maintains accurate repository history, and encourages active collaboration.
 
